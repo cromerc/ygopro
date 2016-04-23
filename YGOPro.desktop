@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=YGOPro
+Exec=/opt/ygopro/ygopro.sh
+Icon=YGOPro
+Type=Application
+Categories=Game;CardGame;StrategyGame;LogicGame;
