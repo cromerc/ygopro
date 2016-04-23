@@ -1,0 +1,11 @@
+--puzzle1
+Debug.SetAIName("高性能电子头脑")
+Debug.ReloadFieldBegin(DUEL_ATTACK_FIRST_TURN+DUEL_SIMPLE_AI)
+Debug.SetPlayerInfo(0,100,0,0)
+Debug.SetPlayerInfo(1,11800,0,0)
+Debug.AddCard(82199284,0,0,LOCATION_MZONE,2,POS_FACEUP_ATTACK)
+Debug.AddCard(61127349,0,0,LOCATION_HAND,2,POS_FACEUP_ATTACK)
+Debug.AddCard(31053337,1,1,LOCATION_MZONE,2,POS_FACEUP_ATTACK)
+Debug.AddCard(31053337,1,1,LOCATION_MZONE,1,POS_FACEUP_ATTACK)
+Debug.ReloadFieldEnd()
+aux.BeginPuzzle()

@@ -1,0 +1,17 @@
+Windows: Copy mp3 files to this directory (sound)
+Mac OS X and Linux: Copy ogg files to this directory
+
+menu music: 
+	replace the file called 'menu.mp3'
+
+duel music: 
+	add the following files
+	'song.mp3'
+	'song2.mp3' (optional)
+	'song3.mp3' (optional)
+	'song-advantage.mp3'
+	'song-disadvantage.mp3'
+	'rockpaperscissors.mp3'
+
+deck edit music: 
+	replace the file called 'deck.mp3'

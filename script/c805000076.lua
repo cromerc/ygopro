@@ -1,0 +1,81 @@
+--超音速波
+function c805000076.initial_effect(c)
+	--Activate
+	local e1=Effect.CreateEffect(c)
+	e1:SetCategory(CATEGORY_ATKCHANGE)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetHintTiming(TIMING_DAMAGE_STEP)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DAMAGE_STEP)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetCondition(c805000076.con)
+	e1:SetTarget(c805000076.target)
+	e1:SetOperation(c805000076.activate)
+	c:RegisterEffect(e1)
+end
+function c805000076.con(e,tp,eg,ep,ev,re,r,rp)
+	return tp==Duel.GetTurnPlayer()
+end
+function c805000076.filter(c)
+	return c:IsFaceup() and c:IsSetCard(0x101b)
+end
+function c805000076.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsFaceup() end
+	if chk==0 then return Duel.IsExistingTarget(c805000076.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+	local g=Duel.SelectTarget(tp,c805000076.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+	local e5=Effect.CreateEffect(e:GetHandler())
+	e5:SetType(EFFECT_TYPE_FIELD)
+	e5:SetCode(EFFECT_CANNOT_ATTACK)
+	e5:SetProperty(EFFECT_FLAG_OATH)
+	e5:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+	e5:SetTarget(c805000076.ftarget)
+	e5:SetLabel(g:GetFirst():GetFieldID())
+	e5:SetReset(RESET_PHASE+PHASE_END)
+	Duel.RegisterEffect(e5,tp)
+end
+function c805000076.ftarget(e,c)
+	return e:GetLabel()~=c:GetFieldID()
+end
+function c805000076.activate(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local tc=Duel.GetFirstTarget()
+	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+		e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
+		e1:SetValue(tc:GetBaseAttack()*2)
+		tc:RegisterEffect(e1)
+		local e2=Effect.CreateEffect(c)
+		e2:SetType(EFFECT_TYPE_SINGLE)
+		e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+		e2:SetRange(LOCATION_MZONE)
+		e2:SetCode(EFFECT_IMMUNE_EFFECT)
+		e2:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
+		e2:SetValue(c805000076.efilter)
+		tc:RegisterEffect(e2)
+		local e3=Effect.CreateEffect(c)
+		e3:SetType(EFFECT_TYPE_SINGLE)
+		e3:SetCode(EFFECT_PIERCE)
+		e3:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+RESET_END)
+		tc:RegisterEffect(e3)
+		local e4=Effect.CreateEffect(c)
+		e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		e4:SetCode(EVENT_PHASE+PHASE_END)
+		e4:SetReset(RESET_PHASE+RESET_END)
+		e4:SetCountLimit(1)
+		e4:SetOperation(c805000076.desop)
+		e4:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+RESET_END)
+		Duel.RegisterEffect(e4,tp)
+	end
+end
+function c805000076.efilter(e,te)
+	return te:IsActiveType(TYPE_SPELL+TYPE_TRAP)
+end
+function c805000076.desfilter(c)
+	return c:IsFaceup() and c:IsRace(RACE_MACHINE)
+end
+function c805000076.desop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetMatchingGroup(c805000076.desfilter,tp,LOCATION_MZONE,0,nil)
+	Duel.Destroy(g,REASON_EFFECT)
+end
