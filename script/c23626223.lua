@@ -19,9 +19,10 @@ function c23626223.activate(e,tp,eg,ep,ev,re,r,rp)
 	if not c:IsRelateToEffect(e) then return end
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
 		or not Duel.IsPlayerCanSpecialSummonMonster(tp,23626223,0,0x21,0,2500,7,RACE_ROCK,ATTRIBUTE_EARTH) then return end
-	c:AddTrapMonsterAttribute(TYPE_EFFECT,ATTRIBUTE_EARTH,RACE_ROCK,7,0,2500)
-	Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP)
-	c:TrapMonsterBlock()
+	c:AddMonsterAttribute(TYPE_EFFECT+TYPE_TRAP)
+	Duel.SpecialSummonStep(c,0,tp,tp,true,false,POS_FACEUP)
+	c:AddMonsterAttributeComplete()
+	--monster effects
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
@@ -30,7 +31,7 @@ function c23626223.activate(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetCondition(c23626223.tgcon)
 	e1:SetValue(aux.tgoval)
 	e1:SetReset(RESET_EVENT+0x1fe0000)
-	c:RegisterEffect(e1)
+	c:RegisterEffect(e1,true)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(23626223,0))
 	e2:SetCategory(CATEGORY_DESTROY)
@@ -42,7 +43,8 @@ function c23626223.activate(e,tp,eg,ep,ev,re,r,rp)
 	e2:SetTarget(c23626223.destg)
 	e2:SetOperation(c23626223.desop)
 	e2:SetReset(RESET_EVENT+0x1fe0000)
-	c:RegisterEffect(e2)
+	c:RegisterEffect(e2,true)
+	Duel.SpecialSummonComplete()
 end
 function c23626223.tgfilter(c)
 	return c:IsFaceup() and bit.band(c:GetOriginalType(),TYPE_TRAP)~=0 and c:IsType(TYPE_MONSTER)
@@ -57,10 +59,10 @@ function c23626223.descon(e,tp,eg,ep,ev,re,r,rp)
 	return not eg:IsContains(e:GetHandler()) and eg:IsExists(c23626223.cfilter,1,nil,tp)
 end
 function c23626223.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and chkc:IsDestructable() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsDestructable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
+	if chkc then return chkc:IsOnField() end
+	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,Card.IsDestructable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+	local g=Duel.SelectTarget(tp,aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function c23626223.desop(e,tp,eg,ep,ev,re,r,rp)

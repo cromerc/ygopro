@@ -9,7 +9,7 @@ EXTRA_SUMMON = 1
 EXTRA_DRAW = 1
 LP_RECOVER = 1000
 
-GlobalCheating = 1
+GlobalCheating = true
 
 math.randomseed( require("os").time() )
 function OnStartOfDuel()

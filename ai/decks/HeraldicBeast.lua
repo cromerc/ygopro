@@ -37,11 +37,13 @@ function UsePlainCoat()
   local cards=UseLists({AIMon(),OppMon()})
   local check={}
   local result=false
-  for i=1,#cards do
-    if check[cards[i].id] and (check[cards[i].id].owner==2 or cards[i].owner==2) then
+  for i,c in pairs(cards) do
+    if check[c.id] and FilterPosition(c,POS_FACEUP)
+    and (CurrentOwner(check[c.id])==2 or CurrentOwner(c)==2) 
+    then
       result=true
     end
-    check[cards[i].id]=cards[i]
+    check[c.id]=c
   end
   return result
 end
@@ -134,9 +136,11 @@ function UseTwinEagle()
   return false
 end
 function GenomHeritageFilter(c)
-  return bit32.band(c.type,TYPE_XYZ)>0 and c:is_affected_by(EFFECT_CANNOT_BE_EFFECT_TARGET)==0
+  return FilterType(c,TYPE_XYZ)
+  and Affected(c,TYPE_MONSTER,4)
+  and Targetable(c,TYPE_MONSTER)
   and (c.original_id~=47387961 or c.attack>0)
-  and bit32.band(c.position,POS_FACEUP_ATTACK)>0
+  and FilterPosition(c,POS_FACEUP_ATTACK)
 end
 function UseGenomHeritage() 
   return CardsMatchingFilter(OppMon(),GenomHeritageFilter)>0
@@ -568,7 +572,7 @@ function AHATarget(cards)
     if HasID(cards,47387961) and SummonGenomHeritage() then
       result=IndexByID(cards,47387961)
     end
-    if HasID(cards,46772449) and DeckCheck(DECK_HERALDIC) and SummonBelzebuth() then
+    if HasID(cards,46772449,SummonBelzebuth) and DeckCheck(DECK_HERALDIC) then
       result=IndexByID(cards,46772449)
     end  
     if HasID(cards,12014404) and SummonCowboyDef() then
@@ -688,7 +692,18 @@ function PaladynamoTarget(cards,minTargets)
   if result == nil then result = {math.random(#cards)} end
   return result
 end
+GlobalFoolishFilter = nil
 function FoolishTarget(cards)
+  if GlobalFoolishFilter then
+    local filter = GlobalFoolishFilter
+    GlobalFoolishFilter = nil
+    return Add(cards,PRIO_TOGRAVE,1,filter)
+  end
+  if GlobalFoolishID then
+    local id = GlobalFoolishID
+    GlobalFoolishID = nil
+    return Add(cards,PRIO_TOGRAVE,1,FilterID,id)
+  end
   if DeckCheck(DECK_BUJIN) then
     return BujinAdd(cards,LOCATION_GRAVE)
   elseif DeckCheck(DECK_CHAOSDRAGON) or DeckCheck(DECK_BA) then
@@ -819,7 +834,7 @@ function ChainSafeZone(c)
     GlobalTargetSet(targets[1],targets)
     return true
   end
-  if Duel.GetCurrentPhase() == PHASE_BATTLE then
+  if IsBattlePhase() then
 		local source = Duel.GetAttacker()
 		local target = Duel.GetAttackTarget()
     if source and target then
@@ -842,12 +857,16 @@ function ChainSafeZone(c)
   end
   return false
 end
-
-function LanceFilter(card)
+function LanceDisruptCheck(c,target)
+  c = GetCardFromScript(c)
+  return LanceFilter(target,true)
+  and (FilterSet(c,0xa5) or FilterSet(c,0x95))
+end
+function LanceFilter(card,skippos)
   return Targetable(card,TYPE_SPELL)
   and Affected(card,TYPE_SPELL)
   and FilterType(card,TYPE_MONSTER)
-  and FilterPosition(card,POS_FACEUP_ATTACK)
+  and (FilterPosition(card,POS_FACEUP_ATTACK) or skippos)
   and FilterLocation(card,LOCATION_MZONE)
 end
 function ChainLance()
@@ -881,6 +900,19 @@ function ChainLance()
     then
       GlobalTargetSet(oppmon)
       return true
+    end
+  end
+  if not UnchainableCheck(27243130) then
+    return false
+  end
+  for i=1,Duel.GetCurrentChain() do
+    local e,c,id = EffectCheck(1-player_ai,i)
+    if e then
+      local target = Duel.GetChainInfo(i, CHAININFO_TARGET_CARDS)
+      if target and LanceDisruptCheck(c,target:GetFirst()) then
+        GlobalTargetSet(target:GetFirst())
+        return true
+      end
     end
   end
   return false
@@ -950,11 +982,11 @@ function HeraldicOnSelectPosition(id, available)
     if HeraldicAtt[i]==id then result=POS_FACEUP_ATTACK end
   end
   for i=1,#HeraldicDef do
-    if HeraldicDef[i]==id then result=POS_FACEUP_DEFENCE end
+    if HeraldicDef[i]==id then result=POS_FACEUP_DEFENSE end
   end
   if id==23649496 then
     if AI.GetCurrentPhase() == PHASE_MAIN2 or Duel.GetTurnCount() == 1 then
-      result=POS_FACEUP_DEFENCE
+      result=POS_FACEUP_DEFENSE
     else
       result=POS_FACEUP_ATTACK
     end

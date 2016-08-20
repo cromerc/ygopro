@@ -32,7 +32,7 @@ function c18235309.cost1(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:SetLabel(0)
 	local tn=Duel.GetTurnPlayer()
 	local ph=Duel.GetCurrentPhase()
-	if (tn~=tp and (ph==PHASE_MAIN1 or ph==PHASE_MAIN2 or ph==PHASE_BATTLE))
+	if (tn~=tp and (ph==PHASE_MAIN1 or ph==PHASE_MAIN2 or (ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE)))
 		and Duel.IsExistingMatchingCard(c18235309.filter,tp,LOCATION_HAND,0,1,nil)
 		and Duel.SelectYesNo(tp,94) then
 		e:SetLabel(1)
@@ -54,7 +54,7 @@ function c18235309.activate(e,tp,eg,ep,ev,re,r,rp)
 	if tc then
 		local s1=tc:IsSummonable(true,nil,1)
 		local s2=tc:IsMSetable(true,nil,1)
-		if (s1 and s2 and Duel.SelectPosition(tp,tc,POS_FACEUP_ATTACK+POS_FACEDOWN_DEFENCE)==POS_FACEUP_ATTACK) or not s2 then
+		if (s1 and s2 and Duel.SelectPosition(tp,tc,POS_FACEUP_ATTACK+POS_FACEDOWN_DEFENSE)==POS_FACEUP_ATTACK) or not s2 then
 			Duel.Summon(tp,tc,true,nil,1)
 		else
 			Duel.MSet(tp,tc,true,nil,1)
@@ -64,7 +64,7 @@ end
 function c18235309.condition2(e,tp,eg,ep,ev,re,r,rp)
 	local tn=Duel.GetTurnPlayer()
 	local ph=Duel.GetCurrentPhase()
-	return tn~=tp and (ph==PHASE_MAIN1 or ph==PHASE_MAIN2 or ph==PHASE_BATTLE)
+	return tn~=tp and (ph==PHASE_MAIN1 or ph==PHASE_MAIN2 or (ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE))
 end
 function c18235309.target2(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():GetFlagEffect(18235309)==0

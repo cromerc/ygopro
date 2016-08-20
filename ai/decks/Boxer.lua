@@ -792,11 +792,11 @@ function VeilFilter(c,source)
   and (FilterPosition(c,POS_FACEUP_ATTACK)
   and FilterAttackMin(c,atk)
   and AI.GetPlayerLP(1)-c.attack+atk>0
-  or FilterPosition(c,POS_DEFENCE)
+  or FilterPosition(c,POS_DEFENSE)
   and FilterPublic(c)
   and FilterDefenseMin(c,atk)
   and AI.GetPlayerLP(1)-c.defense+atk>0
-  or FilterPosition(c,POS_DEFENCE)
+  or FilterPosition(c,POS_DEFENSE)
   and FilterPrivate(c)
   and AI.GetPlayerLP(1)>1000)
 end
@@ -879,7 +879,7 @@ function BoxerPosition(id,available)
   for i=1,#BoxerDef do
     if BoxerDef[i]==id 
     then 
-      result=POS_FACEUP_DEFENCE 
+      result=POS_FACEUP_DEFENSE 
     end
   end
   -- add OnSelectPosition logic here

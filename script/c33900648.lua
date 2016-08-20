@@ -101,10 +101,10 @@ function c33900648.mtcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()==tp
 end
 function c33900648.mtop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLP(tp)>500 and Duel.SelectYesNo(tp,aux.Stringid(33900648,0)) then
+	if Duel.CheckLPCost(tp,500) and Duel.SelectYesNo(tp,aux.Stringid(33900648,0)) then
 		Duel.PayLPCost(tp,500)
 	else
-		Duel.Destroy(e:GetHandler(),REASON_RULE)
+		Duel.Destroy(e:GetHandler(),REASON_COST)
 	end
 end
 c33900648[0]=0
@@ -142,7 +142,7 @@ function c33900648.descon(e,tp,eg,ep,ev,re,r,rp)
 	return bit.band(c33900648[Duel.GetTurnPlayer()],ATTRIBUTE_EARTH)~=0
 end
 function c33900648.desfilter(c)
-	return c:IsPosition(POS_FACEUP_DEFENCE) and c:IsDestructable()
+	return c:IsPosition(POS_FACEUP_DEFENSE)
 end
 function c33900648.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local turnp=Duel.GetTurnPlayer()
@@ -158,7 +158,7 @@ function c33900648.desop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
 	if bit.band(c33900648[Duel.GetTurnPlayer()],ATTRIBUTE_EARTH)==0 then return end
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) and tc:IsPosition(POS_FACEUP_DEFENCE) then
+	if tc and tc:IsRelateToEffect(e) and tc:IsPosition(POS_FACEUP_DEFENSE) then
 		Duel.Destroy(tc,REASON_EFFECT)
 	end
 end

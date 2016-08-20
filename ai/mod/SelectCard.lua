@@ -24,7 +24,7 @@ function OnSelectCard(cards, minTargets, maxTargets, triggeringID,triggeringCard
 
   -- AI attack target selection
   -- redirected to SelectBattleComand.lua
-  if Duel.GetCurrentPhase()==PHASE_BATTLE 
+  if IsBattlePhase() 
   and GlobalAIIsAttacking 
   and Duel.GetCurrentChain()==0
   and not triggeringCard
@@ -35,6 +35,8 @@ function OnSelectCard(cards, minTargets, maxTargets, triggeringID,triggeringCard
     return result
   end
   
+  -- Summoning material selection
+  -- redirected to SelectTribute.lua
   if not triggeringCard 
   and GlobalMaterial==true
   and Duel.GetCurrentChain()==0
@@ -44,6 +46,7 @@ function OnSelectCard(cards, minTargets, maxTargets, triggeringID,triggeringCard
     GlobalSSCardID = nil
     return OnSelectMaterial(cards,minTargets,maxTargets,id)
   end
+
 if DeckCheck(DECK_EXODIA) then
   return ExodiaCard(cards,minTargets,maxTargets,triggeringID,triggeringCard)
 end
@@ -82,10 +85,6 @@ end
     end
   end
   result = {}
-
-
-
- 
 
   --------------------------------------------
   -- Select minimum number of valid XYZ material monsters,   
@@ -974,9 +973,18 @@ end
     return Add(cards,PRIO_TOGRAVE,minTargets)
   end
   
-  -- Example implementation: always choose the mimimum amount of targets and select the index of the first available targets
+  
+  -- always choose the mimimum amount of targets and select random targets
+  local targets = {}
+  for i,c in pairs(cards) do
+    targets[i]=c
+    c.index=i
+  end
   for i=1,minTargets do
-        result[i]=i
+    local r=math.random(1,#targets)
+    local c=targets[r]
+    table.remove(targets,r)
+    result[i]=c.index
   end
 
   return result 

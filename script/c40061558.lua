@@ -14,6 +14,7 @@ function c40061558.initial_effect(c)
 	c:RegisterEffect(e2)
 	--summon with 3 tribute
 	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(40061558,0))
 	e3:SetType(EFFECT_TYPE_SINGLE)
 	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e3:SetCode(EFFECT_LIMIT_SUMMON_PROC)
@@ -72,9 +73,7 @@ function c40061558.cttg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function c40061558.ctop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and not Duel.GetControl(tc,tp,PHASE_END,1) then
-		if not tc:IsImmuneToEffect(e) and tc:IsAbleToChangeControler() then
-			Duel.Destroy(tc,REASON_EFFECT)
-		end
+	if tc:IsRelateToEffect(e) then
+		Duel.GetControl(tc,tp,PHASE_END,1)
 	end
 end

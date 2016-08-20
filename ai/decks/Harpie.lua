@@ -396,7 +396,7 @@ function SummonHPPD(c)
   and MP2Check(2000)
 end
 function RepoHPPD(c)
-  return FilterPosition(c,POS_DEFENCE) and c.xyz_material_count>0
+  return FilterPosition(c,POS_DEFENSE) and c.xyz_material_count>0
   and not FilterAffected(c,EFFECT_DISABLE)
 end
 function SummonZerofyne(c)
@@ -817,7 +817,7 @@ function HarpiePosition(id,available)
       if Duel.GetCurrentPhase()==PHASE_BATTLE
       and Duel.GetTurnPlayer()~=player_ai
       then
-        result=POS_FACEUP_DEFENCE
+        result=POS_FACEUP_DEFENSE
       else
         result=POS_FACEUP_ATTACK
       end
@@ -826,7 +826,7 @@ function HarpiePosition(id,available)
   for i=1,#HarpieDef do
     if HarpieDef[i]==id 
     then 
-      result=POS_FACEUP_DEFENCE 
+      result=POS_FACEUP_DEFENSE 
     end
   end
   return result

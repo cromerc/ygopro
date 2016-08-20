@@ -97,8 +97,12 @@ function c37115575.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c37115575.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsLocation(LOCATION_HAND+LOCATION_GRAVE) and Duel.SpecialSummon(c,0,tp,tp,true,true,POS_FACEUP)~=0 then
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(c,0,tp,tp,true,true,POS_FACEUP)~=0 then
 		c:CompleteProcedure()
+	elseif Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,true,true) and c:IsLocation(LOCATION_HAND) then
+		Duel.SendtoGrave(c,REASON_RULE)
 	end
 end
 function c37115575.descon(e)
@@ -114,7 +118,7 @@ function c37115575.decon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsRelateToBattle() and c:GetBattleTarget():IsType(TYPE_MONSTER)
 end
 function c37115575.defilter(c)
-	return c:IsFaceup() and c:IsDestructable()
+	return c:IsFaceup()
 end
 function c37115575.detg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

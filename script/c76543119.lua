@@ -24,7 +24,7 @@ function c76543119.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c76543119.filter(c)
-	return c:IsFaceup() and c:IsSetCard(0x83) and c:IsDestructable()
+	return c:IsFaceup() and c:IsSetCard(0x83)
 end
 function c76543119.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c76543119.filter(chkc) end
@@ -54,6 +54,7 @@ function c76543119.spop(e,tp,eg,ep,ev,re,r,rp)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
 	if ft<=0 then return end
 	if ft>2 then ft=2 end
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,c76543119.spfilter,tp,LOCATION_HAND,0,1,ft,nil,e,tp)
 	if g:GetCount()>0 then

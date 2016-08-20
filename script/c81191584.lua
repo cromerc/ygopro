@@ -11,7 +11,7 @@ function c81191584.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c81191584.filter(c)
-	return c:GetDefence()==0 and c:IsAttribute(ATTRIBUTE_DARK) and c:IsAbleToHand()
+	return c:GetDefense()==0 and c:IsAttribute(ATTRIBUTE_DARK) and c:IsAbleToHand()
 end
 function c81191584.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE) and c81191584.filter(chkc) end
@@ -25,6 +25,5 @@ function c81191584.activate(e,tp,eg,ep,ev,re,r,rp)
 	local sg=g:Filter(Card.IsRelateToEffect,nil,e)
 	if sg:GetCount()>0 then
 		Duel.SendtoHand(sg,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,sg)
 	end
 end

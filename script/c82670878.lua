@@ -5,7 +5,7 @@ function c82670878.initial_effect(c)
 	e1:SetDescription(aux.Stringid(82670878,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e1:SetCode(82670878)
+	e1:SetCode(EVENT_CUSTOM+82670878)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetCondition(c82670878.condition)
 	e1:SetTarget(c82670878.target)
@@ -49,7 +49,7 @@ function c82670878.check(e,tp,eg,ep,ev,re,r,rp)
 			c82670878[2]=tc
 			tc:RegisterFlagEffect(82670878,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,1)
 		elseif c82670878[1-tc:GetControler()]==2 then
-			Duel.RaiseEvent(tc,82670878,e,0,0,0,0)
+			Duel.RaiseEvent(tc,EVENT_CUSTOM+82670878,e,0,0,0,0)
 		end
 	end
 end
@@ -74,8 +74,10 @@ function c82670878.target(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c82670878.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,1,tp,tp,false,false,POS_FACEUP)
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(c,1,tp,tp,false,false,POS_FACEUP)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) then
+		Duel.SendtoGrave(c,REASON_RULE)
 	end
 end
 function c82670878.adcon(e,tp,eg,ep,ev,re,r,rp)
@@ -93,8 +95,8 @@ function c82670878.adop(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetValue(tc:GetAttack())
 			c:RegisterEffect(e1)
 			local e2=e1:Clone()
-			e2:SetCode(EFFECT_SET_DEFENCE_FINAL)
-			e2:SetValue(tc:GetDefence())
+			e2:SetCode(EFFECT_SET_DEFENSE_FINAL)
+			e2:SetValue(tc:GetDefense())
 			c:RegisterEffect(e2)
 		end
 		--at limit

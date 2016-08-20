@@ -7,6 +7,7 @@ function c87774234.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetCode(EVENT_TO_HAND)
+	e1:SetRange(LOCATION_HAND)
 	e1:SetCondition(c87774234.condition)
 	e1:SetTarget(c87774234.target)
 	e1:SetOperation(c87774234.operation)
@@ -22,7 +23,9 @@ function c87774234.target(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c87774234.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) then
+		Duel.SendtoGrave(c,REASON_RULE)
 	end
 end

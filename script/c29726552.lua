@@ -1,6 +1,6 @@
 --Kumongous, the Sticky String Kaiju
 function c29726552.initial_effect(c)
-	c:SetUniqueOnField(1,0,20000000)
+	c:SetUniqueOnField(1,0,20000000,LOCATION_MZONE)
 	--special summon rule
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
@@ -54,14 +54,14 @@ function c29726552.spcon2(e,c)
 		and Duel.IsExistingMatchingCard(c29726552.cfilter,tp,0,LOCATION_MZONE,1,nil)
 end
 function c29726552.filter(c,tp)
-	return c:IsFaceup() and c:GetSummonPlayer()==tp
+	return c:GetSummonPlayer()==tp
 end
 function c29726552.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsCanRemoveCounter(tp,1,1,0x37,2,REASON_COST) end
 	Duel.RemoveCounter(tp,1,1,0x37,2,REASON_COST)
 end
 function c29726552.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return eg:IsExists(c29726552.filter,1,nil,1-tp) end
+	if chk==0 then return eg:IsExists(c29726552.filter,1,nil,1-tp) and not eg:IsContains(e:GetHandler()) end
 	local g=eg:Filter(c29726552.filter,nil,1-tp)
 	Duel.SetTargetCard(g)
 end

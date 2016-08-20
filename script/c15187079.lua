@@ -1,6 +1,6 @@
 --地縛神 Uru
 function c15187079.initial_effect(c)
-	c:SetUniqueOnField(1,1,10000000)
+	c:SetUniqueOnField(1,1,10000000,LOCATION_MZONE)
 	--
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_SINGLE)
@@ -59,9 +59,7 @@ function c15187079.cttg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function c15187079.ctop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() and not Duel.GetControl(tc,tp,PHASE_END,1) then
-		if not tc:IsImmuneToEffect(e) and tc:IsAbleToChangeControler() then
-			Duel.Destroy(tc,REASON_EFFECT)
-		end
+	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+		Duel.GetControl(tc,tp,PHASE_END,1)
 	end
 end

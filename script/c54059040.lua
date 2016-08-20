@@ -37,7 +37,7 @@ function c54059040.target1(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 	if res and Duel.IsExistingMatchingCard(c54059040.cfilter,tp,LOCATION_MZONE,0,1,nil)
 		and teg:IsExists(c54059040.pfilter,1,nil)
-		and Duel.SelectYesNo(tp,aux.Stringid(54059040,1)) then
+		and Duel.SelectYesNo(tp,94) then
 		e:SetLabel(1)
 		Duel.SetTargetCard(teg)
 		Duel.SetOperationInfo(0,CATEGORY_POSITION,teg,teg:GetCount(),0,0)
@@ -55,5 +55,5 @@ end
 function c54059040.operation(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetLabel()==0 or not e:GetHandler():IsRelateToEffect(e) then return end
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(c54059040.pfilter,nil,e)
-	Duel.ChangePosition(g,POS_FACEUP_DEFENCE)
+	Duel.ChangePosition(g,POS_FACEUP_DEFENSE)
 end

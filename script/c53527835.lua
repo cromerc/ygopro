@@ -7,20 +7,26 @@ function c53527835.initial_effect(c)
 	c:RegisterEffect(e1)
 	--atk up
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e2:SetCode(EVENT_DAMAGE_CALCULATING)
+	e2:SetType(EFFECT_TYPE_FIELD)
+	e2:SetCode(EFFECT_UPDATE_ATTACK)
 	e2:SetRange(LOCATION_FZONE)
-	e2:SetOperation(c53527835.atkup)
+	e2:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+	e2:SetCondition(c53527835.atkcon)
+	e2:SetTarget(c53527835.atktg)
+	e2:SetValue(c53527835.atkval)
 	c:RegisterEffect(e2)
 end
-function c53527835.atkup(e,tp,eg,ep,ev,re,r,rp,chk)
-	local a=Duel.GetAttacker()
+function c53527835.atkcon(e)
+	c53527835[0]=false
+	return Duel.GetCurrentPhase()==PHASE_DAMAGE_CAL and Duel.GetAttackTarget()
+end
+function c53527835.atktg(e,c)
+	return c==Duel.GetAttacker() and c:IsSetCard(0xc008)
+end
+function c53527835.atkval(e,c)
 	local d=Duel.GetAttackTarget()
-	if not a:IsSetCard(0xc008) or not d or a:GetAttack()>=d:GetAttack() then return end
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_UPDATE_ATTACK)
-	e1:SetReset(RESET_PHASE+PHASE_DAMAGE_CAL)
-	e1:SetValue(1000)
-	a:RegisterEffect(e1)
+	if c53527835[0] or c:GetAttack()<d:GetAttack() then
+		c53527835[0]=true
+		return 1000
+	else return 0 end
 end

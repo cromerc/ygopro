@@ -19,12 +19,14 @@ function c30531525.filter(c,e,tp)
 end
 function c30531525.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>3
 		and Duel.IsExistingMatchingCard(c30531525.filter,tp,LOCATION_DECK,0,1,nil,e,tp) end
 end
 function c30531525.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.ConfirmDecktop(tp,4)
 	local g=Duel.GetDecktopGroup(tp,4):Filter(c30531525.filter,nil,e,tp)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if ft>1 and Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
 	if g:GetCount()>0 then
 		if ft<=0 then
 			Duel.SendtoGrave(g,REASON_EFFECT)

@@ -1,6 +1,6 @@
 --Gameciel, the Sea Turtle Kaiju
 function c55063751.initial_effect(c)
-	c:SetUniqueOnField(1,0,20000000)
+	c:SetUniqueOnField(1,0,20000000,LOCATION_MZONE)
 	--special summon rule
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
@@ -23,7 +23,7 @@ function c55063751.initial_effect(c)
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(55063751,0))
 	e3:SetCategory(CATEGORY_NEGATE+CATEGORY_REMOVE)
-	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
+	e3:SetType(EFFECT_TYPE_QUICK_O)
 	e3:SetCode(EVENT_CHAINING)
 	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e3:SetRange(LOCATION_MZONE)

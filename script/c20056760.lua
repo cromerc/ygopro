@@ -22,7 +22,7 @@ function c20056760.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c20056760.filter(c)
-	return c:IsFaceup() and c:IsSetCard(0xd1) and c:IsDestructable()
+	return c:IsFaceup() and c:IsSetCard(0xd1)
 end
 function c20056760.sptg1(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and chkc:IsControler(tp) and c20056760.filter(chkc) end
@@ -52,7 +52,12 @@ end
 function c20056760.spop1(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
 	if Duel.Destroy(g,REASON_EFFECT)~=0 then
-		Duel.SpecialSummon(e:GetHandler(),1,tp,tp,false,false,POS_FACEUP)
+		local c=e:GetHandler()
+		if not c:IsRelateToEffect(e) then return end
+		if Duel.SpecialSummon(c,1,tp,tp,false,false,POS_FACEUP)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+			and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsLocation(LOCATION_HAND) then
+			Duel.SendtoGrave(c,REASON_RULE)
+		end
 	end
 end
 function c20056760.spcon2(e,tp,eg,ep,ev,re,r,rp)
@@ -72,6 +77,6 @@ end
 function c20056760.spop2(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
-		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP_DEFENCE)
+		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
 	end
 end

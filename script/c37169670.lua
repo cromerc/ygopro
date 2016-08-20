@@ -34,14 +34,15 @@ function c37169670.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	local d=Duel.GetAttackTarget()
 	if d==c then d=Duel.GetAttacker() end
-	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,d:GetDefence())
+	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,d:GetDefense())
 	Duel.SetOperationInfo(0,CATEGORY_RECOVER,nil,0,tp,d:GetAttack())
 end
 function c37169670.damop(e,tp,eg,ep,ev,re,r,rp)
 	local ex1,a1,b1,p1,d1=Duel.GetOperationInfo(0,CATEGORY_DAMAGE)
 	local ex2,a2,b2,p2,d2=Duel.GetOperationInfo(0,CATEGORY_RECOVER)
-	Duel.Damage(1-tp,d1,REASON_EFFECT)
-	Duel.Recover(tp,d2,REASON_EFFECT)
+	Duel.Damage(1-tp,d1,REASON_EFFECT,true)
+	Duel.Recover(tp,d2,REASON_EFFECT,true)
+	Duel.RDComplete()
 end
 function c37169670.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsReason(REASON_DESTROY)

@@ -48,7 +48,9 @@ function c74875003.target(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c74875003.operation(e,tp,eg,ep,ev,re,r,rp)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if ft<=0 then return end
 	if ft>2 then ft=2 end
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,c74875003.filter,tp,LOCATION_DECK+LOCATION_HAND,0,1,ft,nil,e,tp)
 	if g:GetCount()>0 then
@@ -56,7 +58,7 @@ function c74875003.operation(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c74875003.sumval(e,c)
-	return not c:IsCode(10000000) and not c:IsCode(10000010) and not c:IsCode(10000020)
+	return not c:IsCode(10000000,10000010,10000020)
 end
 function c74875003.splimit(e,c,sump,sumtype,sumpos,targetp,se)
 	return not se:GetHandler():IsCode(74875003)

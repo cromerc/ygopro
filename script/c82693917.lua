@@ -9,7 +9,7 @@ function c82693917.initial_effect(c)
 	e1:SetValue(c82693917.value)
 	c:RegisterEffect(e1)
 	local e2=e1:Clone()
-	e2:SetCode(EFFECT_SET_DEFENCE)
+	e2:SetCode(EFFECT_SET_DEFENSE)
 	c:RegisterEffect(e2)
 	--level up
 	local e3=Effect.CreateEffect(c)
@@ -51,7 +51,7 @@ function c82693917.cfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x31)
 end
 function c82693917.filter(c)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsDestructable()
+	return c:IsType(TYPE_SPELL+TYPE_TRAP)
 end
 function c82693917.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then

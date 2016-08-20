@@ -1177,7 +1177,7 @@ function ChainOriginal(c)
       OPTSet(54241725)
       return true
     end
-    if Duel.GetCurrentPhase()==PHASE_BATTLE then
+    if IsBattlePhase() then
       local aimon,oppmon = GetBattlingMons()
       if #AIMon()==0 and oppmon 
       and (oppmon:GetAttack()<=2400
@@ -1479,14 +1479,14 @@ function MegaMonarchPosition(id,available)
   for i=1,#MegaMonarchDef do
     if MegaMonarchDef[i]==id 
     then 
-      result=POS_FACEUP_DEFENCE 
+      result=POS_FACEUP_DEFENSE 
     end
   end
   if id==09126351 and TurnEndCheck() then
-    result=POS_FACEUP_DEFENCE 
+    result=POS_FACEUP_DEFENSE 
   end
   if id==53334641 and TurnEndCheck() then
-    result=POS_FACEUP_DEFENCE 
+    result=POS_FACEUP_DEFENSE 
   end
   return result
 end

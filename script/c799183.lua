@@ -21,7 +21,7 @@ function c799183.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c799183.condition(e,tp,eg,ep,ev,re,r,rp)
-	if not Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_MZONE,0,1,nil,0xcf) then return false end
+	if not Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_MZONE,0,1,nil,0x10cf) then return false end
 	if not re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) then return false end
 	local g=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS)
 	return g and g:IsExists(Card.IsLocation,1,nil,LOCATION_MZONE)
@@ -41,8 +41,8 @@ function c799183.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c799183.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsCanRemoveCounter(tp,1,0,0x3001,1,REASON_COST) end
-	Duel.RemoveCounter(tp,1,0,0x3001,1,REASON_COST)
+	if chk==0 then return Duel.IsCanRemoveCounter(tp,1,0,0x1,1,REASON_COST) end
+	Duel.RemoveCounter(tp,1,0,0x1,1,REASON_COST)
 end
 function c799183.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsSSetable() end

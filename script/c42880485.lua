@@ -49,16 +49,9 @@ function c42880485.initial_effect(c)
 	--
 	local e8=Effect.CreateEffect(c)
 	e8:SetType(EFFECT_TYPE_SINGLE)
-	e8:SetCode(EFFECT_DEFENCE_ATTACK)
+	e8:SetCode(EFFECT_DEFENSE_ATTACK)
 	e8:SetValue(1)
 	c:RegisterEffect(e8)
-	--add setcode
-	local e9=Effect.CreateEffect(c)
-	e9:SetType(EFFECT_TYPE_SINGLE)
-	e9:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	e9:SetCode(EFFECT_ADD_SETCODE)
-	e9:SetValue(0x9a)
-	c:RegisterEffect(e9)
 end
 function c42880485.splimcon(e)
 	return not e:GetHandler():IsForbidden()
@@ -94,7 +87,7 @@ end
 function c42880485.posop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
-		Duel.ChangePosition(c,POS_FACEUP_DEFENCE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
+		Duel.ChangePosition(c,POS_FACEUP_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
 	end
 end
 function c42880485.otfilter(c,tp)

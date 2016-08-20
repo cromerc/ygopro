@@ -50,7 +50,7 @@ function c20003527.initial_effect(c)
 	c:RegisterEffect(e6)
 end
 function c20003527.sdcon(e)
-	return e:GetHandler():IsPosition(POS_FACEUP_DEFENCE)
+	return e:GetHandler():IsPosition(POS_FACEUP_DEFENSE)
 end
 function c20003527.cfilter(c,tp)
 	return c:IsAttribute(ATTRIBUTE_WATER) and (c:IsControler(tp) or c:IsFaceup())
@@ -76,9 +76,9 @@ function c20003527.addcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function c20003527.addc(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetHandler():IsRelateToEffect(e) then
-		e:GetHandler():AddCounter(0x19,e:GetLabelObject():GetLabel())
+		e:GetHandler():AddCounter(COUNTER_NEED_ENABLE+0x1019,e:GetLabelObject():GetLabel())
 	end
 end
 function c20003527.atkval(e,c)
-	return Duel.GetCounter(0,1,1,0x19)*500
+	return Duel.GetCounter(0,1,1,0x1019)*500
 end

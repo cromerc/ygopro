@@ -10,7 +10,7 @@ function c75487237.initial_effect(c)
 	e1:SetOperation(c75487237.operation)
 	c:RegisterEffect(e1)
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_F)
+	e2:SetType(EFFECT_TYPE_QUICK_F)
 	e2:SetCode(EVENT_CHAINING)
 	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_SET_AVAILABLE)
 	e2:SetRange(LOCATION_MZONE)
@@ -27,7 +27,7 @@ end
 function c75487237.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) and c:IsFaceup() then
-		Duel.ChangePosition(c,POS_FACEDOWN_DEFENCE)
+		Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
 	end
 end
 function c75487237.negcon(e,tp,eg,ep,ev,re,r,rp)
@@ -40,5 +40,8 @@ function c75487237.negcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function c75487237.negop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.NegateActivation(ev)
-	Duel.ChangePosition(e:GetHandler(),POS_FACEUP_DEFENCE)
+	if re:IsHasType(EFFECT_TYPE_ACTIVATE) and re:GetHandler():IsRelateToEffect(re) then
+		Duel.SendtoGrave(eg,REASON_EFFECT)
+	end
+	Duel.ChangePosition(e:GetHandler(),POS_FACEUP_DEFENSE)
 end

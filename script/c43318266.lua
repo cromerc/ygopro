@@ -35,7 +35,7 @@ function c43318266.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function c43318266.sdcon(e)
-	return e:GetHandler():IsPosition(POS_FACEUP_DEFENCE)
+	return e:GetHandler():IsPosition(POS_FACEUP_DEFENSE)
 end
 function c43318266.cfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x18)
@@ -43,21 +43,18 @@ end
 function c43318266.addc(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetHandler():IsRelateToEffect(e) then
 		local ct=Duel.GetMatchingGroupCount(c43318266.cfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
-		e:GetHandler():AddCounter(0x19,ct)
+		e:GetHandler():AddCounter(COUNTER_NEED_ENABLE+0x1019,ct)
 	end
 end
 function c43318266.descost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsCanRemoveCounter(tp,0x19,2,REASON_COST) end
-	e:GetHandler():RemoveCounter(tp,0x19,2,REASON_COST)
-end
-function c43318266.filter(c)
-	return c:IsDestructable()
+	if chk==0 then return e:GetHandler():IsCanRemoveCounter(tp,0x1019,2,REASON_COST) end
+	e:GetHandler():RemoveCounter(tp,0x1019,2,REASON_COST)
 end
 function c43318266.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c43318266.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c43318266.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) end
+	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,c43318266.filter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+	local g=Duel.SelectTarget(tp,aux.TRUE,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function c43318266.desop(e,tp,eg,ep,ev,re,r,rp)

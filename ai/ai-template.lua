@@ -2,18 +2,23 @@
 ai-template.lua
 
 Author: Percival18
-Version: 0.9.0
-Website: http://www.ygopro.co
+Version: 0.9.1
+Website: https://www.ygopro.co
 
-To be used with ygopro percy 1.033.7 and up. For help on how to use this file please read the comments thoroughly.
+To be used with ygopro percy 1.033.A and up. For help on how to use this file please read the comments thoroughly.
 
 --- What's new ---
+0.9.1
+-New functions
+card:is_public()
+AI.GetCardName(id)
 0.9.0:
 -New functions
 AI.GetLastSummonedCards()
 AI.GetScriptFromCardObject(ai_card)
 AI.GetCardObjectFromScript(script_card)
 card.extra_attack_count
+Fixed problems with multi tribute effects
 0.8.9:
 -Added OnSelectChainOrder()
 0.8.8:
@@ -100,6 +105,7 @@ AI.GetAIMainDeck()
 AI.GetLastSummonedCards() --The last card(s) that were successfully summoned on the field with event code EVENT_SUMMON_SUCCESS, EVENT_SPSUMMON_SUCCESS or EVENT_SPSUMMON_SUCCESS
 AI.GetScriptFromCardObject(ai_card) --convert ai card object to script card
 AI.GetCardObjectFromScript(script_card) --convert script card to ai card
+AI.GetCardName(id) --get name from card id. Return empty string if card not found.
 
 --Sample usage
 local cards = AI.GetOppMonsterZones()

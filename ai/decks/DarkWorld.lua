@@ -755,7 +755,7 @@ function DarkWorldPosition(id,available)
     end
   end
   for i=1,#DarkWorldDef do
-    if DarkWorldDef[i]==id then result=POS_FACEUP_DEFENCE end
+    if DarkWorldDef[i]==id then result=POS_FACEUP_DEFENSE end
   end
   return result
 end

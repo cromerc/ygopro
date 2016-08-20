@@ -24,7 +24,7 @@ function c97750534.spcon(e,c)
 	return Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>0
 end
 function c97750534.filter(c)
-	return c:IsSetCard(0x44) and c:IsAbleToGrave()
+	return c:IsSetCard(0x44) and c:IsType(TYPE_MONSTER) and c:IsAbleToGrave()
 end
 function c97750534.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c97750534.filter,tp,LOCATION_DECK,0,1,nil) end
@@ -41,7 +41,7 @@ function c97750534.tgop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CHANGE_LEVEL)
 		e1:SetValue(lv)
-		e1:SetReset(RESET_EVENT+0x1fe0000)
+		e1:SetReset(RESET_EVENT+0x1ff0000)
 		c:RegisterEffect(e1)
 	end
 end

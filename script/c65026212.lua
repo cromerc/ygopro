@@ -42,6 +42,8 @@ function c65026212.cfilter2(c)
 	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0x1d) and c:IsAbleToGraveAsCost()
 end
 function c65026212.mtop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	Duel.HintSelection(Group.FromCards(c))
 	local g1=Duel.GetMatchingGroup(c65026212.cfilter1,tp,LOCATION_HAND,0,nil)
 	local g2=Duel.GetMatchingGroup(c65026212.cfilter2,tp,LOCATION_HAND,0,nil)
 	local select=2
@@ -51,8 +53,10 @@ function c65026212.mtop(e,tp,eg,ep,ev,re,r,rp)
 		select=Duel.SelectOption(tp,aux.Stringid(65026212,0),aux.Stringid(65026212,2))
 		if select==1 then select=2 end
 	elseif g2:GetCount()>0 then
-		select=Duel.SelectOption(tp,aux.Stringid(65026212,1),aux.Stringid(65026212,2))
-		select=select+1
+		select=Duel.SelectOption(tp,aux.Stringid(65026212,1),aux.Stringid(65026212,2))+1
+	else
+		select=Duel.SelectOption(tp,aux.Stringid(65026212,2))
+		select=2
 	end
 	if select==0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
@@ -63,7 +67,7 @@ function c65026212.mtop(e,tp,eg,ep,ev,re,r,rp)
 		local g=g2:Select(tp,1,1,nil)
 		Duel.SendtoGrave(g,REASON_COST)
 	else
-		Duel.Destroy(e:GetHandler(),REASON_RULE)
+		Duel.Destroy(c,REASON_COST)
 	end
 end
 function c65026212.spfilter(c)
@@ -81,10 +85,10 @@ function c65026212.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function c65026212.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) and chkc:IsDestructable() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsDestructable,tp,0,LOCATION_ONFIELD,1,nil) end
+	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) end
+	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,0,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,Card.IsDestructable,tp,0,LOCATION_ONFIELD,1,1,nil)
+	local g=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function c65026212.desop(e,tp,eg,ep,ev,re,r,rp)

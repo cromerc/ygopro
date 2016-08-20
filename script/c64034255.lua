@@ -28,14 +28,16 @@ function c64034255.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c64034255.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	local c=e:GetHandler()
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	if not c:IsRelateToEffect(e) or not c:IsCanBeSpecialSummoned(e,0,tp,false,false) then return end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then
+		Duel.SendtoGrave(c,REASON_RULE)
+		return
+	end
 	if e:GetLabel()==1 then
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetReset(RESET_EVENT+0xfe0000)
+		e1:SetReset(RESET_EVENT+0xff0000)
 		e1:SetValue(500)
 		c:RegisterEffect(e1)
 	end

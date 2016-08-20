@@ -65,12 +65,12 @@ function c88240999.adop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e1)
 		local e2=e1:Clone()
-		e2:SetCode(EFFECT_UPDATE_DEFENCE)
+		e2:SetCode(EFFECT_UPDATE_DEFENSE)
 		tc:RegisterEffect(e2)
 	end
 end
 function c88240999.desfilter(c)
-	return c:IsFacedown() and c:IsDestructable() and c:IsAbleToRemove()
+	return c:IsFacedown() and c:IsAbleToRemove()
 end
 function c88240999.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) and c88240999.desfilter(chkc) end

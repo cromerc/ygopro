@@ -35,10 +35,10 @@ function c91998119.splimit(e,se,sp,st)
 	return not e:GetHandler():IsLocation(LOCATION_EXTRA+LOCATION_GRAVE)
 end
 function c91998119.spfilter(c,code)
-	return c:IsCode(code) and c:IsAbleToRemoveAsCost()
+	return c:IsFusionCode(code) and c:IsAbleToRemoveAsCost()
 end
 function c91998119.spcon(e,c)
-	if c==nil then return true end 
+	if c==nil then return true end
 	local tp=c:GetControler()
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
 	if ft<-2 then return false end
@@ -71,7 +71,13 @@ function c91998119.spop(e,tp,eg,ep,ev,re,r,rp,c)
 			tc=g1:Select(tp,1,1,nil):GetFirst()
 		end
 		g:AddCard(tc)
-		g1:Remove(Card.IsCode,nil,tc:GetCode())
+		if tc:IsFusionCode(62651957) then
+			g1:Remove(Card.IsFusionCode,nil,62651957)
+		elseif tc:IsFusionCode(65622692) then
+			g1:Remove(Card.IsFusionCode,nil,65622692)
+		elseif tc:IsFusionCode(64500000) then
+			g1:Remove(Card.IsFusionCode,nil,64500000)
+		end
 		ft=ft+1
 	end
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
@@ -80,14 +86,11 @@ function c91998119.descost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDiscardable,tp,LOCATION_HAND,0,1,nil) end
 	Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST+REASON_DISCARD)
 end
-function c91998119.filter(c)
-	return c:IsDestructable()
-end
 function c91998119.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) and c91998119.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(c91998119.filter,tp,0,LOCATION_ONFIELD,1,nil) end
+	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) end
+	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,0,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,c91998119.filter,tp,0,LOCATION_ONFIELD,1,1,nil)
+	local g=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
 end
 function c91998119.desop(e,tp,eg,ep,ev,re,r,rp)

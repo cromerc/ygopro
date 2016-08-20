@@ -26,7 +26,7 @@ end
 function c45593005.cona(e,tp,eg,ep,ev,re,r,rp)
 	return not e:GetHandler():IsDisabled() and e:GetHandler():IsAttackPos()
 		and Duel.GetMatchingGroupCount(c45593005.cfilter,tp,LOCATION_MZONE,0,e:GetHandler())==2
-		and not Duel.IsExistingMatchingCard(Card.IsDefencePos,tp,LOCATION_MZONE,0,1,e:GetHandler())
+		and not Duel.IsExistingMatchingCard(Card.IsDefensePos,tp,LOCATION_MZONE,0,1,e:GetHandler())
 end
 function c45593005.tga(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -55,6 +55,7 @@ function c45593005.opa(e,tp,eg,ep,ev,re,r,rp)
 	if sg:GetCount()==0 then return end
 	local atk=sg:GetSum(Card.GetAttack)
 	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) or c:IsFacedown() then return end
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(EFFECT_UPDATE_ATTACK)
@@ -63,5 +64,5 @@ function c45593005.opa(e,tp,eg,ep,ev,re,r,rp)
 	c:RegisterEffect(e1)
 end
 function c45593005.cond(e)
-	return e:GetHandler():IsDefencePos()
+	return e:GetHandler():IsDefensePos()
 end

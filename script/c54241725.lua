@@ -91,16 +91,10 @@ end
 function c54241725.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e)
-		and Duel.IsPlayerCanSpecialSummonMonster(tp,54241725,0,0x11,5,1000,2400,RACE_FAIRY,ATTRIBUTE_LIGHT) then
-		c:SetStatus(STATUS_NO_LEVEL,false)
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_CHANGE_TYPE)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetValue(TYPE_NORMAL+TYPE_MONSTER)
-		e1:SetReset(RESET_EVENT+0x47c0000)
-		c:RegisterEffect(e1,true)
-		Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP_DEFENCE)
+	if c:IsRelateToEffect(e) and Duel.IsPlayerCanSpecialSummonMonster(tp,54241725,0,0x11,5,1000,2400,RACE_FAIRY,ATTRIBUTE_LIGHT) then
+		c:AddMonsterAttribute(TYPE_NORMAL)
+		Duel.SpecialSummonStep(c,0,tp,tp,true,false,POS_FACEUP_DEFENSE)
+		c:AddMonsterAttributeComplete()
+		Duel.SpecialSummonComplete()
 	end
 end

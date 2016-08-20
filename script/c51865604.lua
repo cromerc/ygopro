@@ -27,7 +27,7 @@ function c51865604.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c51865604.cfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0x7f)
+	return c:IsFaceup() and c:IsSetCard(0x107f)
 end
 function c51865604.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(c51865604.cfilter,tp,LOCATION_MZONE,0,1,nil)
@@ -47,7 +47,7 @@ function c51865604.spfilter(c,e,tp)
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsCanBeEffectTarget(e)
 end
 function c51865604.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetCurrentPhase()==PHASE_BATTLE and eg:IsExists(c51865604.spfilter,1,nil,e,tp)
+	return (Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE) and eg:IsExists(c51865604.spfilter,1,nil,e,tp)
 end
 function c51865604.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() end

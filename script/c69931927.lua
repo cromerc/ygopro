@@ -1,6 +1,6 @@
 --地縛神 Chacu Challhua
 function c69931927.initial_effect(c)
-	c:SetUniqueOnField(1,1,10000000)
+	c:SetUniqueOnField(1,1,10000000,LOCATION_MZONE)
 	--
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_SINGLE)
@@ -61,7 +61,7 @@ function c69931927.damcost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c69931927.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	local dam=e:GetHandler():GetDefence()/2
+	local dam=e:GetHandler():GetDefense()/2
 	Duel.SetTargetPlayer(1-tp)
 	Duel.SetTargetParam(dam)
 	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,dam)
@@ -71,5 +71,5 @@ function c69931927.damop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Damage(p,d,REASON_EFFECT)
 end
 function c69931927.bpcon(e)
-	return e:GetHandler():IsPosition(POS_FACEUP_DEFENCE)
+	return e:GetHandler():IsPosition(POS_FACEUP_DEFENSE)
 end

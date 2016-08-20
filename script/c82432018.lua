@@ -17,7 +17,7 @@ function c82432018.initial_effect(c)
 	c:RegisterEffect(e2)
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_EQUIP)
-	e3:SetCode(EFFECT_UPDATE_DEFENCE)
+	e3:SetCode(EFFECT_UPDATE_DEFENSE)
 	e3:SetValue(-1000)
 	c:RegisterEffect(e3)
 	--Equip limit
@@ -55,9 +55,9 @@ function c82432018.mtcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()==tp
 end
 function c82432018.mtop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLP(tp)>1000 and Duel.SelectYesNo(tp,aux.Stringid(82432018,0)) then
+	if Duel.CheckLPCost(tp,1000) and Duel.SelectYesNo(tp,aux.Stringid(82432018,0)) then
 		Duel.PayLPCost(tp,1000)
 	else
-		Duel.Destroy(e:GetHandler(),REASON_RULE)
+		Duel.Destroy(e:GetHandler(),REASON_COST)
 	end
 end

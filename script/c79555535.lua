@@ -15,7 +15,7 @@ function c79555535.initial_effect(c)
 	e2:SetTarget(aux.TargetBoolFunction(Card.IsSetCard,0xc8))
 	c:RegisterEffect(e2)
 	local e3=e2:Clone()
-	e3:SetCode(EFFECT_UPDATE_DEFENCE)
+	e3:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e3)
 	--destroy
 	local e4=Effect.CreateEffect(c)
@@ -29,7 +29,7 @@ function c79555535.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function c79555535.desfilter(c)
-	return c:IsSetCard(0xc8) and c:IsDestructable()
+	return c:IsSetCard(0xc8)
 end
 function c79555535.thfilter(c)
 	return c:IsSetCard(0xc8) and c:IsAbleToHand()

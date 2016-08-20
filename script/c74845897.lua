@@ -10,7 +10,7 @@ function c74845897.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c74845897.filter(c,e,tp)
-	return c:GetDefence()==200 and c:IsAttribute(ATTRIBUTE_FIRE) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:GetDefense()==200 and c:IsAttribute(ATTRIBUTE_FIRE) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c74845897.tg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
@@ -19,9 +19,15 @@ function c74845897.tg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c74845897.op(e,tp,eg,ep,ev,re,r,rp)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	if ft<=0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,c74845897.filter,tp,LOCATION_GRAVE,0,ft,ft,nil,e,tp)
+	local tg=Duel.GetMatchingGroup(c74845897.filter,tp,LOCATION_GRAVE,0,nil,e,tp)
+	if ft<=0 or (Duel.IsPlayerAffectedByEffect(tp,59822133) and tg:GetCount()>1 and ft>1) then return end
+	local g=nil
+	if tg:GetCount()>ft then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		g=tg:Select(tp,ft,ft,nil)
+	else
+		g=tg
+	end
 	if g:GetCount()>0 then
 		local fid=e:GetHandler():GetFieldID()
 		local tc=g:GetFirst()

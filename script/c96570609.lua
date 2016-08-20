@@ -32,7 +32,6 @@ function c96570609.initial_effect(c)
 	e4:SetRange(LOCATION_HAND)
 	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetHintTiming(0,0x1c0+TIMING_MAIN_END)
-	e4:SetCountLimit(1)
 	e4:SetCondition(c96570609.sumcon)
 	e4:SetCost(c96570609.sumcost)
 	e4:SetTarget(c96570609.sumtg)
@@ -61,12 +60,13 @@ function c96570609.tgfilter(c)
 	return c:IsSetCard(0xbe) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToGrave()
 end
 function c96570609.spfilter(c,e,tp)
-	return c:IsAttackAbove(2400) and c:GetDefence()==1000 and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsAttackAbove(2400) and c:GetDefense()==1000 and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c96570609.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local g=Duel.GetMatchingGroup(c96570609.tgfilter,tp,LOCATION_HAND+LOCATION_DECK,0,nil)
 		return g:GetClassCount(Card.GetCode)>1
+			and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 			and Duel.IsExistingMatchingCard(c96570609.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,2,tp,LOCATION_DECK)
@@ -109,18 +109,29 @@ function c96570609.cfilter(c)
 	return c:IsSetCard(0xbe) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToRemoveAsCost()
 end
 function c96570609.sumcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c96570609.cfilter,tp,LOCATION_GRAVE,0,1,nil) end
+	local c=e:GetHandler()
+	if chk==0 then return Duel.IsExistingMatchingCard(c96570609.cfilter,tp,LOCATION_GRAVE,0,1,nil)
+		and c:GetFlagEffect(96570609)==0 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	local g=Duel.SelectMatchingCard(tp,c96570609.cfilter,tp,LOCATION_GRAVE,0,1,1,nil)
 	Duel.Remove(g,POS_FACEUP,REASON_COST)
+	c:RegisterFlagEffect(96570609,RESET_CHAIN,0,1)
 end
 function c96570609.sumtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsSummonable(true,nil,1) end
-	Duel.SetOperationInfo(0,CATEGORY_SUMMON,e:GetHandler(),1,0,0)
+	local c=e:GetHandler()
+	if chk==0 then return c:IsSummonable(true,nil,1) or c:IsMSetable(true,nil,1) end
+	Duel.SetOperationInfo(0,CATEGORY_SUMMON,c,1,0,0)
 end
 function c96570609.sumop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and c:IsSummonable(true,nil,1) then
+	if not c:IsRelateToEffect(e) then return end
+	local pos=0
+	if c:IsSummonable(true,nil,1) then pos=pos+POS_FACEUP_ATTACK end
+	if c:IsMSetable(true,nil,1) then pos=pos+POS_FACEDOWN_DEFENSE end
+	if pos==0 then return end
+	if Duel.SelectPosition(tp,c,pos)==POS_FACEUP_ATTACK then
 		Duel.Summon(tp,c,true,nil,1)
+	else
+		Duel.MSet(tp,c,true,nil,1)
 	end
 end

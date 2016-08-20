@@ -30,31 +30,7 @@ end
 function QliphortFilter(c,exclude)
   return IsSetCode(c.setcode,0xaa) and (exclude == nil or c.id~=exclude)
 end
-function Scale(c) -- backwards compatibility
-  return c.lscale
-end
-function ScaleCheck(p)
-  local cards=AIST()
-  local result = 0
-  local count = 0
-  if p == 2 then
-    cards=OppST()
-  end
-  for i=1,#cards do
-    if bit32.band(cards[i].type,TYPE_PENDULUM)>0 then
-      result = Scale(cards[i])
-      count = count + 1
-    end
-  end
-  if count == 0 then
-    return false
-  elseif count == 1 then
-    return result
-  elseif count == 2 then
-    return true
-  end
-  return nil
-end
+
 function QliphortAttackBonus(id,level)
   if level == 4 then
     if id == 90885155 or id == 64496451 
@@ -131,13 +107,13 @@ function MonolithCond(loc,c)
     if HasID(AICards(),65518099,true) then
       return 5
     end
-    return PendulumSummon(2) and not HasID(AIHand(),51194046,true)
+    return QliPendulumSummon(2) and not HasID(AIHand(),51194046,true)
   end
   return true
 end
 function DiskCond(loc,c)
   if loc == PRIO_TOHAND then
-    return (TributeSummonDisk() or PendulumSummon(2))and not HasID(AIHand(),64496451,true)
+    return (TributeSummonDisk() or QliPendulumSummon(2))and not HasID(AIHand(),64496451,true)
   end
   if loc == PRIO_TOFIELD then
     return SkillDrainCheck()
@@ -146,7 +122,7 @@ function DiskCond(loc,c)
 end
 function StealthCond(loc,c)
   if loc == PRIO_TOHAND then
-    return (TributeSummonStealth(1) or PendulumSummon(2))and not HasID(AIHand(),13073850,true)
+    return (TributeSummonStealth(1) or QliPendulumSummon(2))and not HasID(AIHand(),13073850,true)
   end
   if loc == PRIO_TOFIELD then
     return SkillDrainCheck()
@@ -183,7 +159,7 @@ function ArchiveFilter(c)
 end
 function ArchiveCond(loc,c)
   if loc == PRIO_TOHAND then
-    return not HasID(UseLists({AIHand(),AIMon(),AIExtra()}),91907707,true) or PendulumSummon(2)
+    return not HasID(UseLists({AIHand(),AIMon(),AIExtra()}),91907707,true) or QliPendulumSummon(2)
   end
   if loc == PRIO_TOFIELD then
     return CardsMatchingFilter(OppMon(),ArchiveFilter) 
@@ -210,7 +186,7 @@ function SacrificeCond(loc,c)
   if loc == PRIO_TOHAND then
     return not HasID(UseLists({AIHand(),AIST()}),17639150,true) 
     and (PriorityCheck(AIHand(),PRIO_TOFIELD)>2 or CardsMatchingFilter(AIMon(),QliphortFilter)>0)
-    and not PendulumSummon(2) and not (#AIMon()>1)
+    and not QliPendulumSummon(2) and not (#AIMon()>1)
   end
   return true
 end
@@ -227,7 +203,7 @@ function UseTool(c)
   elseif bit32.band(c.location,LOCATION_SZONE)>0 then
     if AI.GetPlayerLP(1)<=800 then return false end
     return AI.GetPlayerLP(1)>4000 or ScaleCheck() ~= true
-    and PendulumSummon(2) or OppHasStrongestMonster()
+    and QliPendulumSummon(2) or OppHasStrongestMonster()
   end
   return false
 end
@@ -235,7 +211,7 @@ function UseSacrifice()
   return not HasID(AIST(),17639150,true,nil,nil,nil,FilterPosition,POS_FACEUP) 
   and CardsMatchingFilter(AIMon(),QliphortFilter)>0
 end
-function PendulumSummon(count)
+function QliPendulumSummon(count)
   if count == nil then count = 1 end
   return CardsMatchingFilter(AIExtra(),QliphortFilter)>=count
   and DualityCheck() and PendulumSummonCheck()
@@ -332,34 +308,34 @@ function SummonStealth()
   return false
 end
 function UseGenome()
-  return ScaleCheck() and ScaleCheck()<9 and PendulumSummon()
+  return ScaleCheck() and ScaleCheck()<9 and QliPendulumSummon()
 end
 function UseArchive()
-  return ScaleCheck()==9 and PendulumSummon()
+  return ScaleCheck()==9 and QliPendulumSummon()
 end
 function UseDisk()
-  return ScaleCheck()==9 and PendulumSummon() and not TributeSummonDisk()
+  return ScaleCheck()==9 and QliPendulumSummon() and not TributeSummonDisk()
 end
 function UseStealth()
-  return ScaleCheck()==9 and PendulumSummon() and not TributeSummonStealth(1)
+  return ScaleCheck()==9 and QliPendulumSummon() and not TributeSummonStealth(1)
 end
 function UseShell()
-  return ScaleCheck() and ScaleCheck()<9 and PendulumSummon() and not TributeSummonShell()
+  return ScaleCheck() and ScaleCheck()<9 and QliPendulumSummon() and not TributeSummonShell()
 end
 function UseTrampolynx()
-  return ScaleCheck()==9 and PendulumSummon()
+  return ScaleCheck()==9 and QliPendulumSummon()
 end
 function UseMonolith()
-  return ScaleCheck()==9 and PendulumSummon()
+  return ScaleCheck()==9 and QliPendulumSummon()
 end
 function UseOddEyes()
-  return (ScaleCheck()==9 and PendulumSummon() 
+  return (ScaleCheck()==9 and QliPendulumSummon() 
   or not HasID(UseLists(AIMon(),AIST()),65518099,true)
   or not HasID(UseLists(AIMon(),AIST()),43241495,true))
   and not HasID(AIST(),16178681,true)
 end
 function UseDualityQliphort()
-  return DeckCheck(DECK_QLIPHORT) and (ScaleCheck()==false or not PendulumSummon())
+  return DeckCheck(DECK_QLIPHORT) and (ScaleCheck()==false or not QliPendulumSummon())
 end
 GlobalPendulum=0
 function PendulumSummonCheck()
@@ -417,7 +393,7 @@ function QliphortInit(cards)
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
   for i=1,#SpSum do
-    if PendulumCheck(SpSum[i]) and PendulumSummon() then
+    if PendulumCheck(SpSum[i]) and QliPendulumSummon() then
       GlobalPendulumSummoning = true
       GlobalPendulum=Duel.GetTurnCount()
       return {COMMAND_SPECIAL_SUMMON,i}
@@ -903,7 +879,7 @@ function QliphortPosition(id,available)
     if QliphortAtt[i]==id then result=POS_FACEUP_ATTACK end
   end
   for i=1,#QliphortDef do
-    if QliphortDef[i]==id then result=POS_FACEUP_DEFENCE end
+    if QliphortDef[i]==id then result=POS_FACEUP_DEFENSE end
   end
   return result
 end

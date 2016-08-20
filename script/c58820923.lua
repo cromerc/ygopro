@@ -65,10 +65,6 @@ function c58820923.rmop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_REMOVE)
 		local sg=g:Select(1-tp,3,3,nil)
 		Duel.Remove(sg,POS_FACEUP,REASON_EFFECT)
-	else
-		local cg=Duel.GetFieldGroup(1-tp,LOCATION_DECK,0)
-		Duel.ConfirmCards(tp,cg)
-		Duel.ShuffleDeck(1-tp)
 	end
 end
 function c58820923.atkcon(e,tp,eg,ep,ev,re,r,rp)
@@ -79,7 +75,8 @@ function c58820923.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
 end
 function c58820923.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():GetEffectCount(EFFECT_EXTRA_ATTACK)==0 end
+	if chk==0 then return e:GetHandler():GetEffectCount(EFFECT_EXTRA_ATTACK)==0
+		and e:GetHandler():GetEffectCount(EFFECT_EXTRA_ATTACK_MONSTER)==0 end
 end
 function c58820923.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -87,26 +84,9 @@ function c58820923.atkop(e,tp,eg,ep,ev,re,r,rp)
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetCode(EFFECT_EXTRA_ATTACK)
+		e1:SetCode(EFFECT_EXTRA_ATTACK_MONSTER)
 		e1:SetValue(1)
 		e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
 		c:RegisterEffect(e1)
-		local e2=Effect.CreateEffect(c)
-		e2:SetType(EFFECT_TYPE_SINGLE)
-		e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e2:SetCode(EFFECT_CANNOT_DIRECT_ATTACK)
-		e2:SetCondition(c58820923.dircon)
-		e2:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
-		c:RegisterEffect(e2)
-		local e3=e2:Clone()
-		e3:SetCode(EFFECT_CANNOT_ATTACK)
-		e3:SetCondition(c58820923.atkcon2)
-		c:RegisterEffect(e3)
 	end
-end
-function c58820923.dircon(e)
-	return e:GetHandler():GetAttackAnnouncedCount()>0
-end
-function c58820923.atkcon2(e)
-	return e:GetHandler():IsDirectAttacked()
 end

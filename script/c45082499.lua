@@ -33,7 +33,7 @@ function c45082499.eqcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():CheckUniqueOnField(tp)
 end
 function c45082499.filter(c)
-	return c:IsFaceup() and c:IsSetCard(0x7f)
+	return c:IsFaceup() and c:IsSetCard(0x107f)
 end
 function c45082499.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and c45082499.filter(chkc) end
@@ -70,8 +70,8 @@ end
 function c45082499.eqlimit(e,c)
 	return c==e:GetLabelObject()
 end
-function c45082499.indval(e,re,tp)
-	return e:GetHandler():GetControler()~=tp
+function c45082499.indval(e,re,rp)
+	return rp==1-e:GetHandlerPlayer()
 end
 function c45082499.repval(e,re,r,rp)
 	return bit.band(r,REASON_EFFECT)~=0

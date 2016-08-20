@@ -30,7 +30,7 @@ function c84058253.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function c84058253.ffilter(c)
-	return c:IsSetCard(0x1093)
+	return c:IsFusionSetCard(0x1093)
 end
 function c84058253.fscondition(e,g,gc,chkf)
 	if g==nil then return false end
@@ -65,7 +65,7 @@ function c84058253.descon(e,tp,eg,ep,ev,re,r,rp)
 	return bit.band(e:GetHandler():GetSummonType(),SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION
 end
 function c84058253.desfilter(c)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsDestructable()
+	return c:IsType(TYPE_SPELL+TYPE_TRAP)
 end
 function c84058253.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and c84058253.desfilter(chkc) end

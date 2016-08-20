@@ -30,10 +30,10 @@ function c80604091.cost1(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:SetLabel(0)
 	local tn=Duel.GetTurnPlayer()
 	local ph=Duel.GetCurrentPhase()
-	if (tn==tp and ph~=PHASE_MAIN1 and ph~=PHASE_MAIN2) or (tn~=tp and ph~=PHASE_BATTLE) then return false end
-	if Duel.GetLP(tp)<=500 then return end
-	if Duel.IsExistingMatchingCard(c80604091.filter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,nil)
-		and Duel.SelectYesNo(tp,aux.Stringid(80604091,1)) then
+	if ((tn==tp and (ph==PHASE_MAIN1 or ph==PHASE_MAIN2)) or (tn~=tp and ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE))
+			and Duel.CheckLPCost(tp,500)
+			and Duel.IsExistingMatchingCard(c80604091.filter,tp,LOCATION_HAND+LOCATION_MZONE,0,1,nil)
+			and Duel.SelectYesNo(tp,aux.Stringid(80604091,1)) then
 		Duel.PayLPCost(tp,500)
 		e:SetLabel(1)
 	end
@@ -52,7 +52,7 @@ function c80604091.activate1(e,tp,eg,ep,ev,re,r,rp)
 	local tc=g:GetFirst()
 	if tc then
 		if tc:IsSummonable(true,nil) and (not tc:IsMSetable(true,nil) 
-			or Duel.SelectPosition(tp,tc,POS_FACEUP_ATTACK+POS_FACEDOWN_DEFENCE)==POS_FACEUP_ATTACK) then
+			or Duel.SelectPosition(tp,tc,POS_FACEUP_ATTACK+POS_FACEDOWN_DEFENSE)==POS_FACEUP_ATTACK) then
 			Duel.Summon(tp,tc,true,nil)
 		else Duel.MSet(tp,tc,true,nil) end
 	end
@@ -60,7 +60,7 @@ end
 function c80604091.condition2(e,tp,eg,ep,ev,re,r,rp)
 	local tn=Duel.GetTurnPlayer()
 	local ph=Duel.GetCurrentPhase()
-	return (tn==tp and (ph==PHASE_MAIN1 or ph==PHASE_MAIN2)) or (tn~=tp and ph==PHASE_BATTLE)
+	return (tn==tp and (ph==PHASE_MAIN1 or ph==PHASE_MAIN2)) or (tn~=tp and ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE)
 end
 function c80604091.cost2(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.CheckLPCost(tp,500)
@@ -85,7 +85,7 @@ function c80604091.activate2(e,tp,eg,ep,ev,re,r,rp)
 	if tc then
 		local s1=tc:IsSummonable(true,nil)
 		local s2=tc:IsMSetable(true,nil)
-		if (s1 and s2 and Duel.SelectPosition(tp,tc,POS_FACEUP_ATTACK+POS_FACEDOWN_DEFENCE)==POS_FACEUP_ATTACK) or not s2 then
+		if (s1 and s2 and Duel.SelectPosition(tp,tc,POS_FACEUP_ATTACK+POS_FACEDOWN_DEFENSE)==POS_FACEUP_ATTACK) or not s2 then
 			Duel.Summon(tp,tc,true,nil)
 		else
 			Duel.MSet(tp,tc,true,nil)

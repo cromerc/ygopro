@@ -11,13 +11,13 @@ function c18654201.initial_effect(c)
 	e2:SetDescription(aux.Stringid(18654201,0))
 	e2:SetCategory(CATEGORY_TOGRAVE)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	e2:SetCode(18654201)
+	e2:SetCode(EVENT_CUSTOM+18654201)
 	e2:SetTarget(c18654201.hdtg)
 	e2:SetOperation(c18654201.hdop)
 	c:RegisterEffect(e2)
 end
 function c18654201.filter(c,tp)
-	return c:IsControler(tp) and c:IsPreviousLocation(LOCATION_MZONE)
+	return c:IsControler(tp) and c:IsPreviousLocation(LOCATION_MZONE) and c:IsType(TYPE_MONSTER)
 end
 function c18654201.regop(e,tp,eg,ep,ev,re,r,rp)
 	local p1=false local p2=false
@@ -25,11 +25,11 @@ function c18654201.regop(e,tp,eg,ep,ev,re,r,rp)
 	if eg:IsExists(c18654201.filter,1,nil,1) then p2=true end
 	local c=e:GetHandler()
 	if p1 and p2 then
-		Duel.RaiseSingleEvent(c,18654201,re,r,rp,PLAYER_ALL,0)
+		Duel.RaiseSingleEvent(c,EVENT_CUSTOM+18654201,re,r,rp,PLAYER_ALL,0)
 	elseif p1 then
-		Duel.RaiseSingleEvent(c,18654201,re,r,rp,0,0)
+		Duel.RaiseSingleEvent(c,EVENT_CUSTOM+18654201,re,r,rp,0,0)
 	elseif p2 then
-		Duel.RaiseSingleEvent(c,18654201,re,r,rp,1,0)
+		Duel.RaiseSingleEvent(c,EVENT_CUSTOM+18654201,re,r,rp,1,0)
 	end
 end
 function c18654201.hdtg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -37,7 +37,7 @@ function c18654201.hdtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,ep,LOCATION_HAND)
 end
 function c18654201.hdop(e,tp,eg,ep,ev,re,r,rp)
-	if not e:GetHandler():IsRelateToEffect(e) then return end
+	if not e:GetHandler():IsRelateToEffect(e) or e:GetHandler():IsFacedown() then return end
 	if ep==PLAYER_ALL then
 		Duel.DiscardHand(0,nil,1,1,REASON_EFFECT)
 		Duel.DiscardHand(1,nil,1,1,REASON_EFFECT)

@@ -1,24 +1,21 @@
 --ゴースト姫－パンプリンセス－
 function c17601919.initial_effect(c)
+	c:EnableCounterPermit(0x2f,LOCATION_SZONE)
 	--send replace
 	local e1=Effect.CreateEffect(c)
-	e1:SetCode(EFFECT_SEND_REPLACE)
-	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_UNCOPYABLE)
-	e1:SetRange(LOCATION_MZONE)
-	e1:SetTarget(c17601919.reptg)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_TO_GRAVE_REDIRECT_CB)
+	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e1:SetCondition(c17601919.repcon)
 	e1:SetOperation(c17601919.repop)
 	c:RegisterEffect(e1)
 end
-function c17601919.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
+function c17601919.repcon(e)
 	local c=e:GetHandler()
-	if chk==0 then return c:GetDestination()==LOCATION_GRAVE and c:IsReason(REASON_DESTROY) end
-	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return false end
-	return Duel.SelectYesNo(tp,aux.Stringid(17601919,0))
+	return c:IsFaceup() and c:IsLocation(LOCATION_MZONE) and c:IsReason(REASON_DESTROY)
 end
-function c17601919.repop(e,tp,eg,ep,ev,re,r,rp,chk)
+function c17601919.repop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	Duel.MoveToField(c,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
 	local e1=Effect.CreateEffect(c)
 	e1:SetCode(EFFECT_CHANGE_TYPE)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -48,7 +45,7 @@ function c17601919.repop(e,tp,eg,ep,ev,re,r,rp,chk)
 	e3:SetReset(RESET_EVENT+0x1fe0000)
 	c:RegisterEffect(e3)
 	local e4=e3:Clone()
-	e4:SetCode(EFFECT_UPDATE_DEFENCE)
+	e4:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e4)
 end
 function c17601919.addct(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -57,7 +54,7 @@ function c17601919.addct(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c17601919.addc(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetHandler():IsRelateToEffect(e) then
-		e:GetHandler():AddCounter(0x2f+COUNTER_NEED_ENABLE,1)
+		e:GetHandler():AddCounter(0x2f,1)
 	end
 end
 function c17601919.adval(e,c)

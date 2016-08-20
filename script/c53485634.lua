@@ -39,22 +39,21 @@ function c53485634.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 		and eg:IsExists(c53485634.spfilter,1,nil,e,tp) end
 	local g=eg:Filter(c53485634.spfilter,nil,e,tp)
 	Duel.SetTargetCard(g)
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),2,tp,LOCATION_GRAVE)
 end
 function c53485634.filter(c,e,tp)
 	return c:IsRelateToEffect(e) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c53485634.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) then return end
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(c53485634.filter,nil,e,tp)
-	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP_DEFENCE)~=0 then
-		local ct=Duel.GetLocationCount(tp,LOCATION_MZONE)
-		if ct<=0 or g:GetCount()==0 then return end
-		if g:GetCount()>ct then
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP_DEFENSE)~=0 then
+		local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+		if ft<=0 or g:GetCount()==0 or (ft>1 and g:GetCount()>1 and Duel.IsPlayerAffectedByEffect(tp,59822133)) then return end
+		if g:GetCount()>ft then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-			g=g:Select(tp,ct,ct,nil)
+			g=g:Select(tp,ft,ft,nil)
 		end
 		local tc=g:GetFirst()
 		while tc do
@@ -63,6 +62,9 @@ function c53485634.spop(e,tp,eg,ep,ev,re,r,rp)
 			tc=g:GetNext()
 		end
 		Duel.SpecialSummonComplete()
+	elseif Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) then
+		Duel.SendtoGrave(c,REASON_RULE)
 	end
 end
 function c53485634.sumcon(e,tp,eg,ep,ev,re,r,rp)

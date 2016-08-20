@@ -15,7 +15,7 @@ function c47355498.initial_effect(c)
 	e2:SetValue(500)
 	c:RegisterEffect(e2)
 	local e3=e2:Clone()
-	e3:SetCode(EFFECT_UPDATE_DEFENCE)
+	e3:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e3)
 	--cannot remove
 	local e4=Effect.CreateEffect(c)
@@ -67,29 +67,27 @@ end
 function c47355498.conntp(e)
 	return not Duel.IsPlayerAffectedByEffect(1-e:GetHandler():GetControler(),EFFECT_NECRO_VALLEY_IM)
 end
-function c47355498.disfilter1(c,im0,im1,targets)
-	if c:IsControler(0) then return im0 and targets:IsContains(c) and c:IsHasEffect(EFFECT_NECRO_VALLEY)
-	else return im1 and targets:IsContains(c) and c:IsHasEffect(EFFECT_NECRO_VALLEY) end
-end
-function c47355498.disfilter2(c,im0,im1)
+function c47355498.disfilter(c,im0,im1)
 	if c:IsControler(0) then return im0 and c:IsHasEffect(EFFECT_NECRO_VALLEY)
 	else return im1 and c:IsHasEffect(EFFECT_NECRO_VALLEY) end
 end
 function c47355498.discheck(ev,category,re,im0,im1,targets)
 	local ex,tg,ct,p,v=Duel.GetOperationInfo(ev,category)
 	if not ex then return false end
-	if tg and tg:GetCount()>0 then
-		if targets then
-			return tg:IsExists(c47355498.disfilter1,1,nil,im0,im1,targets)
-		else
-			return tg:IsExists(c47355498.disfilter2,1,re:GetHandler(),im0,im1)
+	if v==LOCATION_GRAVE then
+		if p==0 then return im0
+		elseif p==1 then return im1
+		elseif p==PLAYER_ALL then return im0 and im1
 		end
 	end
-	if v~=LOCATION_GRAVE then return false end
-	if p~=PLAYER_ALL then
-		if p==0 then return im0 else return im1 end
+	if tg and tg:GetCount()>0 then
+		if targets and targets:IsContains(re:GetHandler()) then
+			return tg:IsExists(c47355498.disfilter,1,nil,im0,im1)
+		else
+			return tg:IsExists(c47355498.disfilter,1,re:GetHandler(),im0,im1)
+		end
 	end
-	return im0 and im1
+	return false
 end
 function c47355498.disop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=re:GetHandler()

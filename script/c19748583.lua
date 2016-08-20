@@ -87,6 +87,7 @@ function c19748583.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c19748583.desop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) then return end
 	local tc=c:GetEquipTarget():GetBattleTarget()
 	if tc:IsRelateToBattle() and Duel.Destroy(tc,REASON_EFFECT)~=0 then
 		Duel.BreakEffect()

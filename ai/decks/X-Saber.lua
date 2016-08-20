@@ -575,15 +575,15 @@ end
 end
 
 
-  if HasID(Rep,42737833,FilterPosition,POS_DEFENCE) and RepoEmmerCond() then
+  if HasID(Rep,42737833,FilterPosition,POS_DEFENSE) and RepoEmmerCond() then
     return COMMAND_CHANGE_POS,CurrentIndex
   end
 
-  if HasID(Rep,23093604,FilterPosition,POS_DEFENCE) and RepoPashuulCond() then
+  if HasID(Rep,23093604,FilterPosition,POS_DEFENSE) and RepoPashuulCond() then
     return COMMAND_CHANGE_POS,CurrentIndex
   end
 
-  if HasID(Rep,31383545,FilterPosition,POS_DEFENCE) and RepoDarkCond() then
+  if HasID(Rep,31383545,FilterPosition,POS_DEFENSE) and RepoDarkCond() then
     return COMMAND_CHANGE_POS,CurrentIndex
   end
 
@@ -796,7 +796,7 @@ function XSaberPosition(id,available)
   for i=1,#XSaberDef do
     if XSaberDef[i]==id
     then
-      result=POS_FACEUP_DEFENCE
+      result=POS_FACEUP_DEFENSE
     end
   end
   return result
@@ -808,11 +808,11 @@ function ReflectFilter(c,atk)
   and (FilterPosition(c,POS_FACEUP_ATTACK)
   and FilterAttackMin(c,atk)
   and AI.GetPlayerLP(1)-c.attack+atk>0
-  or FilterPosition(c,POS_DEFENCE)
+  or FilterPosition(c,POS_DEFENSE)
   and FilterPublic(c)
   and FilterDefenseMin(c,atk)
   and AI.GetPlayerLP(1)-c.defense+atk>0
-  or FilterPosition(c,POS_DEFENCE)
+  or FilterPosition(c,POS_DEFENSE)
   and FilterPrivate(c)
   and AI.GetPlayerLP(1)>1000)
 end

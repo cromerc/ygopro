@@ -43,13 +43,12 @@ end
 function c81907872.posop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) and c:IsFaceup() then
-		Duel.ChangePosition(c,POS_FACEDOWN_DEFENCE)
+		Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
 	end
 end
 function c81907872.cfilter(c,tp)
 	return c:IsControler(tp) and c:GetPreviousControler()==tp and c:IsReason(REASON_DESTROY) and c:GetReasonPlayer()~=tp
-		and c:IsSetCard(0x8d) and c:IsType(TYPE_MONSTER) and c:IsPreviousLocation(LOCATION_MZONE)
-		and (c:IsReason(REASON_EFFECT) or (c:IsReason(REASON_BATTLE) and c==Duel.GetAttackTarget()))
+		and c:IsSetCard(0x8d) and c:IsType(TYPE_MONSTER) and (c:IsReason(REASON_EFFECT) or (c:IsReason(REASON_BATTLE) and c==Duel.GetAttackTarget()))
 end
 function c81907872.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(c81907872.cfilter,1,nil,tp)
@@ -63,8 +62,12 @@ function c81907872.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c81907872.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEDOWN_DEFENCE)~=0 then
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEDOWN_DEFENSE)~=0 then
 		Duel.ConfirmCards(1-tp,c)
 		Duel.Draw(tp,1,REASON_EFFECT)
+	elseif Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN) then
+		Duel.SendtoGrave(c,REASON_RULE)
 	end
 end

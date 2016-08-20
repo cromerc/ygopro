@@ -46,7 +46,7 @@ function c53315891.initial_effect(c)
 	c:RegisterEffect(e5)
 end
 function c53315891.sprfilter(c,code)
-	return c:IsCode(code) and c:IsAbleToGraveAsCost()
+	return c:IsFusionCode(code) and c:IsAbleToGraveAsCost()
 end
 function c53315891.sprcon(e,c)
 	if c==nil then return true end 
@@ -97,25 +97,27 @@ function c53315891.atkop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetValue(atk)
 		c:RegisterEffect(e1)
 		local e2=e1:Clone()
-		e2:SetCode(EFFECT_SET_DEFENCE_FINAL)
+		e2:SetCode(EFFECT_SET_DEFENSE_FINAL)
 		c:RegisterEffect(e2)
 	end
 end
 function c53315891.spfilter(c,e,tp)
 	return c:IsSetCard(0xa0) and c:IsCanBeSpecialSummoned(e,0,tp,true,true)
-		and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
 end
 function c53315891.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>=3
+	if chk==0 then return not Duel.IsPlayerAffectedByEffect(tp,59822133)
+		and Duel.GetLocationCount(tp,LOCATION_MZONE)>=3
 		and Duel.IsExistingMatchingCard(c53315891.spfilter,tp,0x13,0,3,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,3,tp,0x13)
 end
 function c53315891.spop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then return end
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<3 then return end
 	local g=Duel.GetMatchingGroup(c53315891.spfilter,tp,0x13,0,nil,e,tp)
 	if g:GetCount()>2 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local sg=g:Select(tp,3,3,nil)
+		if sg:IsExists(Card.IsHasEffect,1,nil,EFFECT_NECRO_VALLEY) then return end
 		Duel.SpecialSummon(sg,0,tp,tp,true,true,POS_FACEUP)
 	end
 end

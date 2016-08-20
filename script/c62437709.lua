@@ -27,23 +27,29 @@ function c62437709.initial_effect(c)
 	c:RegisterEffect(e3)
 	--atk def
 	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e4:SetCode(EVENT_DAMAGE_CALCULATING)
+	e4:SetType(EFFECT_TYPE_FIELD)
+	e4:SetCode(EFFECT_UPDATE_ATTACK)
 	e4:SetRange(LOCATION_MZONE)
-	e4:SetOperation(c62437709.adval)
+	e4:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+	e4:SetCondition(c62437709.adcon)
+	e4:SetTarget(c62437709.adtg)
+	e4:SetValue(c62437709.adval)
 	c:RegisterEffect(e4)
+	local e5=e4:Clone()
+	e5:SetCode(EFFECT_UPDATE_DEFENSE)
+	c:RegisterEffect(e5)
 end
 function c62437709.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and chkc:IsFaceup() end
 	if chk==0 then return true end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
 	local g=Duel.SelectTarget(tp,Card.IsFaceup,tp,0,LOCATION_MZONE,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_COUNTER,g,1,0xe,1)
+	Duel.SetOperationInfo(0,CATEGORY_COUNTER,g,1,0x100e,1)
 end
 function c62437709.operation(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc and tc:IsFaceup() and tc:IsRelateToEffect(e) then
-		tc:AddCounter(0xe,1)
+		tc:AddCounter(0x100e,1)
 	end
 end
 function c62437709.flop(e,tp,eg,ep,ev,re,r,rp)
@@ -63,22 +69,13 @@ function c62437709.drop(e,tp,eg,ep,ev,re,r,rp)
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 	Duel.Draw(p,d,REASON_EFFECT)
 end
-function c62437709.addown(c,e)
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_UPDATE_ATTACK)
-	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e1:SetReset(RESET_PHASE+PHASE_DAMAGE_CAL)
-	e1:SetValue(c:GetCounter(0xe)*-300)
-	c:RegisterEffect(e1)
-	local e2=e1:Clone()
-	e2:SetCode(EFFECT_UPDATE_DEFENCE)
-	c:RegisterEffect(e2)
+function c62437709.adcon(e)
+	return Duel.GetCurrentPhase()==PHASE_DAMAGE_CAL and Duel.GetAttackTarget()
 end
-function c62437709.adval(e,tp,eg,ep,ev,re,r,rp)
-	local a=Duel.GetAttacker()
-	local d=Duel.GetAttackTarget()
-	if not d then return end
-	if a:GetCounter(0xe)>0 and d:IsSetCard(0xc) then c62437709.addown(a,e) end
-	if d:GetCounter(0xe)>0 and a:IsSetCard(0xc) then c62437709.addown(d,e) end
+function c62437709.adtg(e,c)
+	local bc=c:GetBattleTarget()
+	return bc and c:GetCounter(0x100e)~=0 and bc:IsSetCard(0xc)
+end
+function c62437709.adval(e,c)
+	return c:GetCounter(0x100e)*-300
 end

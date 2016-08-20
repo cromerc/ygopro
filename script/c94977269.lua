@@ -47,7 +47,7 @@ function c94977269.initial_effect(c)
 	c:RegisterEffect(e5)
 end
 function c94977269.ffilter1(c)
-	return c:IsSetCard(0x9d)
+	return c:IsFusionSetCard(0x9d)
 end
 function c94977269.ffilter2(c)
 	return c:IsAttribute(ATTRIBUTE_DARK) or c:IsHasEffect(4904633)
@@ -174,6 +174,5 @@ function c94977269.thop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,tc)
 	end
 end

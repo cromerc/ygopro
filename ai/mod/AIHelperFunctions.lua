@@ -195,12 +195,22 @@ local OppExtra = AI.GetOppExtraDeck()
    end
   return list
 end
-function UseLists(lists,opt,opt2)
+function Merge(lists,opt,opt2)
   local cards
   local Result={}
   if lists then
     if type(lists)~="table" then
-      print("Warning: UseLists invalid type")
+      print("Warning: Merge invalid type")
+      PrintCallingFunction()
+      return Result
+    end
+    if opt and type(opt)~="table" then
+      print("Warning: Merge invalid type")
+      PrintCallingFunction()
+      return Result
+    end
+    if opt2 and type(opt2)~="table" then
+      print("Warning: Merge invalid type")
       PrintCallingFunction()
       return Result
     end
@@ -228,6 +238,9 @@ function UseLists(lists,opt,opt2)
     end
   end
   return Result
+end
+function UseLists(lists,opt,opt2)
+  return Merge(lists,opt,opt2)
 end
 function AIField() 
   return UseLists({AIMon(),AIST()})
@@ -819,7 +832,7 @@ function OppHasFaceupMonster(AtkDef)
   if Get_Card_Count_Att_Def(OppMon(),">=",AtkDef,nil,POS_FACEUP_ATTACK) > 0 then
     return 1
   end
-  if Get_Card_Count_Att_Def(OppMon(),">=",AtkDef,nil,POS_FACEUP_DEFENCE) > 0 then
+  if Get_Card_Count_Att_Def(OppMon(),">=",AtkDef,nil,POS_FACEUP_DEFENSE) > 0 then
     return 1
   end
   return 0
@@ -878,21 +891,21 @@ end
 -------------------------------------------------
 -- **********************************************
 -- Functions related to returning value of specified
--- parameter, usually attack or defence.
+-- parameter, usually attack or defense.
 -- **********************************************
 -------------------------------------------------
 
 
 ---------------------------------------
 -- Returns highest or lowest attack or 
--- defence in specified array of cards
+-- defense in specified array of cards
 --
 -- Parameters (4):
 -- Cards = array of cards for search
--- AttDef = attack or defence value of card
+-- AttDef = attack or defense value of card
 -- Oper = operation to check for (> or <)
 -- Position = card's position
--- Return = value to return (attack or defence)
+-- Return = value to return (attack or defense)
 ---------------------------------------
 function Get_Card_Att_Def(Cards, AttDef, Oper, Position, Return)
   local Result = 0
@@ -969,7 +982,7 @@ function Get_Card_Att_Def_Pos(Cards)
           Result = Cards[i].attack
         end
       end
-      if Cards[i].position == POS_FACEUP_DEFENCE then
+      if Cards[i].position == POS_FACEUP_DEFENSE then
         if Cards[i].defense > Result then
           Result = Cards[i].defense
         end
@@ -1534,7 +1547,7 @@ end
 
 -------------------------------------------------
 -- **********************************************
--- Functions to calculate attack, or defence of cards
+-- Functions to calculate attack, or defense of cards
 -- before preforming certain actions.
 -- **********************************************
 -------------------------------------------------
@@ -1587,7 +1600,7 @@ function ApplyATKBoosts(Cards)
   if #Cards > 0 then
     for i=1,#Cards do
       if Cards[i] ~= false then
-        if Cards[i].id == 96235275 or Cards[i].id == 50604950 or -- Jain, XSG
+        if  Cards[i].id == 50604950 or -- XSG
            Cards[i].id == 05373478 then                          -- Zwei
           Cards[i].attack = Cards[i].attack + 300
         end
@@ -1945,7 +1958,7 @@ function ApplyATKBoosts(Cards)
   -- unknown face-down monsters
   for i=1,#Cards do
     local c = Cards[i]
-    if FilterPosition(c,POS_FACEDOWN_DEFENCE)
+    if FilterPosition(c,POS_FACEDOWN_DEFENSE)
     and FilterPrivate(c)
     and CurrentOwner(c)==2
     then
@@ -2064,6 +2077,10 @@ function CardsEqual(Card1, Card2)
   return Card1 and Card2 and Card1.cardid==Card2.cardid
 end
 
+function CardsNotEqual(c1,c2)
+  return not CardsEqual(c1,c2)
+end
+
 function ListHasCard(cards,c)
   if cards and c then
     for i=1,#cards do
@@ -2073,4 +2090,23 @@ function ListHasCard(cards,c)
     end
   end
   return false
+end
+
+function ListRemoveCards(cards,rem)
+  if rem == nil then
+    return cards
+  end
+  if rem.GetCode then
+    rem = GetCardFromScript(rem)
+  end
+  if type(rem) == "table" and rem.id then
+    rem = {rem}
+  end
+  for i=1,#cards do
+    for j=1,#rem do
+      if cards[i] and rem[j] and CardsEqual(cards[i],rem[j]) then
+        table.remove(cards,i)
+      end
+    end
+  end
 end

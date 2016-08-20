@@ -22,7 +22,7 @@ function c54582424.initial_effect(c)
 end
 function c54582424.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local ec=eg:GetFirst()
-	return ec:IsControler(tp) and ec:IsRace(RACE_WARRIOR)
+	return ep==tp and ec:IsRace(RACE_WARRIOR)
 end
 function c54582424.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -31,8 +31,11 @@ function c54582424.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c54582424.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP)
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP)~=0 then
 		c:CompleteProcedure()
+	elseif Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,true,false) then
+		Duel.SendtoGrave(c,REASON_RULE)
 	end
 end

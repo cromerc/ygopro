@@ -35,6 +35,7 @@ function c51124303.filter(c,e,tp)
 	local sg=Duel.GetMatchingGroup(c51124303.spfilter,tp,LOCATION_HAND,0,c,e,tp,c)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
 	if c:IsLocation(LOCATION_MZONE) then ft=ft+1 end
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
 	return sg:IsExists(c51124303.rfilter,1,nil,c) or sg:CheckWithSumEqual(Card.GetLevel,c:GetLevel(),1,ft)
 end
 function c51124303.mfilter(c)
@@ -74,6 +75,7 @@ function c51124303.activate(e,tp,eg,ep,ev,re,r,rp)
 	if not mc then return end
 	local sg=Duel.GetMatchingGroup(c51124303.spfilter,tp,LOCATION_HAND,0,mc,e,tp,mc)
 	if mc:IsLocation(LOCATION_MZONE) then ft=ft+1 end
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
 	local b1=sg:IsExists(c51124303.rfilter,1,nil,mc)
 	local b2=sg:CheckWithSumEqual(Card.GetLevel,mc:GetLevel(),1,ft)
 	if b1 and (not b2 or Duel.SelectYesNo(tp,aux.Stringid(51124303,0))) then

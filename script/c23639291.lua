@@ -13,7 +13,7 @@ end
 function c23639291.condition(e,tp,eg,ep,ev,re,r,rp)
 	local tc=eg:GetFirst()
 	return eg:GetCount()==1 and tc:IsControler(tp) and tc:GetPreviousControler()==tp and tc:IsReason(REASON_DESTROY)
-		and tc:GetReasonEffect() and tc:GetReasonEffect():GetHandler()==tc
+		and tc:GetReasonEffect() and tc:GetReasonEffect():GetOwner()==tc
 end
 function c23639291.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc==eg:GetFirst() end
@@ -26,11 +26,13 @@ function c23639291.operation(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP_ATTACK) then
 		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetDescription(aux.Stringid(23639291,0))
 		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
 		e1:SetCode(EFFECT_CANNOT_CHANGE_POS_E)
 		e1:SetReset(RESET_EVENT+0x1fe0000)
 		tc:RegisterEffect(e1)
 		Duel.SpecialSummonComplete()
-		tc:AddCounter(0x19,1)
+		tc:AddCounter(0x1019,1)
 	end
 end

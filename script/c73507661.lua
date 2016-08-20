@@ -11,7 +11,7 @@ function c73507661.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c73507661.filter(c)
-	return c:IsFaceup() and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsDestructable()
+	return c:IsFaceup() and c:IsType(TYPE_SPELL+TYPE_TRAP)
 end
 function c73507661.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
@@ -23,6 +23,7 @@ end
 function c73507661.activate(e,tp,eg,ep,ev,re,r,rp)
 	local sg=Duel.GetMatchingGroup(c73507661.filter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,e:GetHandler())
 	local ct=Duel.Destroy(sg,REASON_EFFECT)
-	Duel.Damage(tp,ct*300,REASON_EFFECT)
-	Duel.Damage(1-tp,ct*300,REASON_EFFECT)
+	Duel.Damage(tp,ct*300,REASON_EFFECT,true)
+	Duel.Damage(1-tp,ct*300,REASON_EFFECT,true)
+	Duel.RDComplete()
 end

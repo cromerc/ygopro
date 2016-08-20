@@ -20,17 +20,13 @@ end
 function c32065885.ctlop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_MZONE,nil)
 	if g:GetCount()==0 then return end
-	local sg=g:GetMaxGroup(Card.GetDefence)
+	local sg=g:GetMaxGroup(Card.GetDefense)
 	if sg:GetCount()>1 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONTROL)
 		sg=sg:Select(tp,1,1,nil)
 	end
 	local tc=sg:GetFirst()
-	if not Duel.GetControl(tc,tp,PHASE_END,2) then
-		if not tc:IsImmuneToEffect(e) and tc:IsAbleToChangeControler() then
-			Duel.Destroy(tc,REASON_EFFECT)
-		end
-	else
+	if Duel.GetControl(tc,tp,PHASE_END,2)~=0 then
 		local c=e:GetHandler()
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)

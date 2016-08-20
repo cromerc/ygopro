@@ -1,6 +1,5 @@
 --トリック・ボックス
 function c93983867.initial_effect(c)
-	Duel.EnableGlobalFlag(GLOBALFLAG_DELAYED_QUICKEFFECT)
 	--activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_CONTROL+CATEGORY_SPECIAL_SUMMON)
@@ -34,7 +33,7 @@ end
 function c93983867.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if not tc:IsRelateToEffect(e) then return end
-	if Duel.GetControl(tc,tp,PHASE_END,1) then
+	if Duel.GetControl(tc,tp,PHASE_END,1)~=0 then
 		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local g=Duel.SelectMatchingCard(tp,c93983867.spfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
@@ -49,10 +48,6 @@ function c93983867.activate(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetOperation(c93983867.retop)
 			e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
 			tc:RegisterEffect(e1)
-		end
-	else
-		if not tc:IsImmuneToEffect(e) and tc:IsAbleToChangeControler() then
-			Duel.Destroy(tc,REASON_EFFECT)
 		end
 	end
 end

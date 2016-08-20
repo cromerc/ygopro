@@ -166,8 +166,13 @@ function LylaCond(loc,c)
   return true
 end
 function LuminaCond(loc,c)
+  if loc == PRIO_TOHAND then
+    return not HasID(AICards(),c.id,true)
+    and CardsMatchingFilter(AIGrave(),LighswornMonsterFilter)>0
+    and PriorityCheck(AIHand(),PRIO_TOGRAVE)>1
+  end
   if loc == PRIO_TOFIELD then
-    return not HasID(AIMon(),95503687,true)
+    return not HasID(AICards(),95503687,true)
   end
   return true
 end
@@ -572,7 +577,6 @@ function ChaosDragonOnSelectInit(cards, to_bp_allowed, to_ep_allowed)
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
   if HasIDNotNegated(Activatable,95503687) and UseLumina() then
-    GlobalCardMode = 1
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
   if HasIDNotNegated(Activatable,09596126) and UseChaosSorc() then
@@ -750,12 +754,10 @@ function DADTarget(cards)
   end
 end
 function LuminaTarget(cards)
-  if GlobalCardMode == 1 then
-    GlobalCardMode = nil
+  if LocCheck(cards,LOCATION_HAND) then
     return Add(cards,PRIO_TOGRAVE)
-  else
-    return Add(cards,PRIO_TOFIELD)
   end
+  return Add(cards,PRIO_TOFIELD)
 end
 function DanteTarget(cards,c)
   if bit32.band(c.location,LOCATION_GRAVE)>0 then
@@ -1077,7 +1079,7 @@ function ChaosDragonOnSelectPosition(id, available)
     if ChaosDragonAtt[i]==id then result=POS_FACEUP_ATTACK end
   end
   for i=1,#ChaosDragonDef do
-    if ChaosDragonDef[i]==id then result=POS_FACEUP_DEFENCE end
+    if ChaosDragonDef[i]==id then result=POS_FACEUP_DEFENSE end
   end
   if id == 83531441 then -- Dante
     if GlobalBPAllowed and Duel.GetCurrentPhase()==PHASE_MAIN1 
@@ -1086,7 +1088,7 @@ function ChaosDragonOnSelectPosition(id, available)
     then
       result=POS_FACEUP_ATTACK
     else
-      result=POS_FACEUP_DEFENCE
+      result=POS_FACEUP_DEFENSE
     end
   end
   if id == 61901281 or id == 99234526 then
@@ -1094,7 +1096,7 @@ function ChaosDragonOnSelectPosition(id, available)
     then
       result=POS_FACEUP_ATTACK
     else
-      result=POS_FACEUP_DEFENCE
+      result=POS_FACEUP_DEFENSE
     end
   end
   return result

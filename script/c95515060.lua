@@ -12,7 +12,7 @@ function c95515060.initial_effect(c)
 	--Def
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_EQUIP)
-	e2:SetCode(EFFECT_UPDATE_DEFENCE)
+	e2:SetCode(EFFECT_UPDATE_DEFENSE)
 	e2:SetValue(500)
 	c:RegisterEffect(e2)
 	--Equip limit
@@ -66,9 +66,8 @@ function c95515060.distg(e,c)
 	return eq and c:GetCardTarget():IsContains(eq) and c:IsType(TYPE_SPELL)
 end
 function c95515060.disop(e,tp,eg,ep,ev,re,r,rp)
-	if not re:IsActiveType(TYPE_SPELL) then return end
 	local ec=e:GetHandler()
-	if not ec:GetEquipTarget() or not re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) then return end
+	if not ec:GetEquipTarget() or not re:IsActiveType(TYPE_SPELL) or not re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) then return end
 	local g=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS)
 	if not g or not g:IsContains(ec:GetEquipTarget()) then return end
 	Duel.NegateEffect(ev)

@@ -96,14 +96,7 @@ end
 function c59255742.operation(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<g:GetCount() then return end
-	local tc=g:GetFirst()
-	while tc do
-		if Duel.GetControl(tc,tp) then
-		elseif not tc:IsImmuneToEffect(e) and tc:IsAbleToChangeControler() then
-			Duel.Destroy(tc,REASON_EFFECT)
-		end
-		tc=g:GetNext()
-	end
+	Duel.GetControl(g,tp)
 end
 function c59255742.ctcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

@@ -53,7 +53,7 @@ function c85101097.ctlcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()==tp
 end
 function c85101097.filter(c)
-	return (c:GetSequence()==6 or c:GetSequence()==7) and c:IsDestructable()
+	return (c:GetSequence()==6 or c:GetSequence()==7)
 end
 function c85101097.ctltg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_SZONE) and chkc:IsControler(tp) and c85101097.filter(chkc) end
@@ -68,10 +68,8 @@ function c85101097.ctlop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and Duel.Destroy(tc,REASON_EFFECT)~=0
-		and c:IsRelateToEffect(e) and c:IsFaceup() and not Duel.GetControl(c,1-tp) then
-		if not c:IsImmuneToEffect(e) and c:IsAbleToChangeControler() then
-			Duel.Destroy(c,REASON_EFFECT)
-		end
+		and c:IsRelateToEffect(e) and c:IsFaceup() then
+		Duel.GetControl(c,1-tp)
 	end
 end
 function c85101097.damcon(e,tp,eg,ep,ev,re,r,rp)

@@ -28,13 +28,12 @@ end
 function c11508758.ctlop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
-		if not Duel.GetControl(tc,tp,PHASE_BATTLE,1) then
-			if not tc:IsImmuneToEffect(e) and tc:IsAbleToChangeControler() then
-				Duel.Destroy(tc,REASON_EFFECT)
-			end
-		else
-			if tc:IsAttackPos() then
-				Duel.ChangeAttacker(tc)
+		if Duel.GetControl(tc,tp,PHASE_BATTLE,1)~=0 then
+			if tc:IsAttackable() and not tc:IsImmuneToEffect(e) then
+				local ats=tc:GetAttackableTarget()
+				Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(11508758,1))
+				local g=ats:Select(tp,1,1,nil)
+				Duel.CalculateDamage(tc,g:GetFirst())
 			end
 		end
 	end

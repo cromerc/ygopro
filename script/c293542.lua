@@ -31,8 +31,10 @@ function c293542.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c293542.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) then
+		Duel.SendtoGrave(c,REASON_RULE)
 	end
 end
 function c293542.regop(e,tp,eg,ep,ev,re,r,rp)
@@ -52,7 +54,7 @@ function c293542.regop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c293542.filter(c)
-	return c:IsSetCard(0x27) and c:GetCode()~=293542 and c:IsAbleToHand()
+	return c:IsSetCard(0x27) and not c:IsCode(293542) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
 end
 function c293542.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c293542.filter,tp,LOCATION_DECK,0,1,nil) end

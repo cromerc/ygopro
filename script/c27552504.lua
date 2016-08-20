@@ -9,6 +9,7 @@ function c27552504.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E)
 	e1:SetCountLimit(1)
 	e1:SetCost(c27552504.tgcost)
 	e1:SetTarget(c27552504.tgtg)
@@ -43,7 +44,7 @@ end
 function c27552504.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():GetFlagEffect(27552504)==0
 		and Duel.IsExistingMatchingCard(Card.IsAbleToGrave,tp,LOCATION_DECK,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,0,1,tp,LOCATION_DECK)
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
 end
 function c27552504.tgop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
@@ -54,7 +55,7 @@ function c27552504.tgop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c27552504.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:GetPreviousControler()==tp and rp~=tp and c:IsReason(REASON_DESTROY)
+	return c:GetPreviousControler()==tp and rp==1-tp and c:IsReason(REASON_DESTROY)
 end
 function c27552504.spfilter(c,e,tp)
 	return c:IsSetCard(0xb1) and c:IsCanBeSpecialSummoned(e,0,tp,true,false)

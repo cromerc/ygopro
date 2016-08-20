@@ -44,7 +44,7 @@ function GangaridaiFilter1(c)
 end
 function GangaridaiFilter2(c)
 		return ((c.attack >= 3200 and FilterPosition(c,POS_ATTACK))
-			or (c.defense >= 3200 and FilterPosition(c,POS_DEFENCE))
+			or (c.defense >= 3200 and FilterPosition(c,POS_DEFENSE))
 			or c:is_affected_by(EFFECT_INDESTRUCTABLE_BATTLE)
 			or (MP2Check() and c.attack > 4000)) and not c:is_affected_by(EFFECT_INDESTRUCTABLE_EFFECT)
 end
@@ -121,7 +121,7 @@ function ExpressInit(cards)
 	if HasID(Rep,49032236,FilterPosition,POS_ATTACK) and (OppHasStrongestMonster() or MP2Check()) then
 		return {COMMAND_CHANGE_POS,CurrentIndex}
 	end
-	if HasID(Rep,49032236,FilterPosition,POS_DEFENCE) and not OppHasStrongestMonster() then
+	if HasID(Rep,49032236,FilterPosition,POS_DEFENSE) and not OppHasStrongestMonster() then
 		return {COMMAND_CHANGE_POS,CurrentIndex}
 	end
 	return nil
@@ -304,7 +304,7 @@ function ChainSkillDrain(card)
 	if c then
 		return true
 	end
-	if Duel.GetCurrentPhase() == PHASE_BATTLE then
+	if IsBattlePhase() then
 		if Duel.GetTurnPlayer()==player_ai 
 		and not OppHasStrongestMonster() 
 		and CardsMatchingFilter(OppMon(),NegateBPCheck)>0 
@@ -324,9 +324,9 @@ function ChainSkillDrain(card)
 			and source:GetAttack() <= target:GetAttack()+QliphortAttackBonus(target:GetCode(),target:GetLevel(),target)
 			and not (source:GetAttack() == target:GetAttack() 
 			and QliphortAttackBonus(target:GetCode(),target:GetLevel(),target)==0)
-			or source:IsPosition(POS_FACEUP_DEFENCE)
-			and source:GetDefence() >= target:GetAttack() 
-			and source:GetDefence() < target:GetAttack()+QliphortAttackBonus(target:GetCode(),target:GetLevel(),target))
+			or source:IsPosition(POS_FACEUP_DEFENSE)
+			and source:GetDefense() >= target:GetAttack() 
+			and source:GetDefense() < target:GetAttack()+QliphortAttackBonus(target:GetCode(),target:GetLevel(),target))
 			and target:IsPosition(POS_FACEUP_ATTACK) 
 			then
 				return true
@@ -400,7 +400,7 @@ function ExpressPosition(id,available)
 	if id == 49032236 and (CardsMatchingFilter(OppMon(),SuperiorDoraPosFilter)>0
 		or AI.GetCurrentPhase() == PHASE_MAIN2 or Duel.GetTurnCount() ==1
 		or not GlobalBPAllowed) then
-		result = POS_FACEUP_DEFENCE
+		result = POS_FACEUP_DEFENSE
 	end
 	return result
 end

@@ -46,9 +46,10 @@ function c75180828.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c75180828.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,1,tp,tp,false,false,POS_FACEUP)
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(c,1,tp,tp,false,false,POS_FACEUP)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) then
+		Duel.SendtoGrave(c,REASON_RULE)
 	end
 end
 function c75180828.descon(e,tp,eg,ep,ev,re,r,rp)
@@ -57,16 +58,13 @@ end
 function c75180828.descount(c)
 	return c:IsSetCard(0x74) and c:IsType(TYPE_MONSTER)
 end
-function c75180828.desfilter(c)
-	return c:IsDestructable()
-end
 function c75180828.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsOnField() and c75180828.desfilter(chkc) end
+	if chkc then return chkc:IsControler(1-tp) and chkc:IsOnField() end
 	if chk==0 then return true end
 	local ct=Duel.GetMatchingGroupCount(c75180828.descount,tp,LOCATION_GRAVE,0,nil)
 	if ct>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local g=Duel.SelectTarget(tp,c75180828.desfilter,tp,0,LOCATION_ONFIELD,1,ct,nil)
+		local g=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,ct,nil)
 		Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
 	end
 end
@@ -115,12 +113,12 @@ function c75180828.atkop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c75180828.destg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	local d=Duel.GetAttackTarget()
-	if chk ==0 then	return Duel.GetAttacker()==e:GetHandler() and d~=nil and d:IsDefencePos() end
+	if chk ==0 then	return Duel.GetAttacker()==e:GetHandler() and d~=nil and d:IsDefensePos() end
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,d,1,0,0)
 end
 function c75180828.desop2(e,tp,eg,ep,ev,re,r,rp)
 	local d=Duel.GetAttackTarget()
-	if d~=nil and d:IsRelateToBattle() and d:IsDefencePos() then
+	if d~=nil and d:IsRelateToBattle() and d:IsDefensePos() then
 		Duel.Destroy(d,REASON_EFFECT)
 	end
 end

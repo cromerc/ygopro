@@ -561,7 +561,7 @@ function ChainSwiftScarecrow(id)
   return UnchainableCheck(id) and ExpectedDamage() >= 0.35*AI.GetPlayerLP(1)
 end
 function ChainCotHGadget()
-  if Duel.GetCurrentPhase() == PHASE_BATTLE and DeckCheck(DECK_GADGET) then
+  if IsBattlePhase() and DeckCheck(DECK_GADGET) then
 		local source = Duel.GetAttacker()
     local graveatt = Get_Card_Att_Def(AIGrave(),"attack",">",nil,"attack")
     local oppatt = Get_Card_Att_Def(OppMon(),"attack",">",POS_FACEUP_ATTACK,"attack")
@@ -615,7 +615,7 @@ function ChainStardustSpark()
       return cg:IsExists(StardustSparkFilter, 1, nil)
     end
   end
-  if Duel.GetCurrentPhase() == PHASE_BATTLE then
+  if IsBattlePhase() then
 		local source = Duel.GetAttacker()
 		local target = Duel.GetAttackTarget()
     if source and target then
@@ -705,15 +705,15 @@ function GadgetOnSelectPosition(id, available)
     if GadgetAtt[i]==id then result=POS_FACEUP_ATTACK end
   end
   for i=1,#GadgetDef do
-    if GadgetDef[i]==id then result=POS_FACEUP_DEFENCE end
+    if GadgetDef[i]==id then result=POS_FACEUP_DEFENSE end
   end
   if id==22110647 then
     if AI.GetCurrentPhase() == PHASE_MAIN2 or Duel.GetTurnCount() == 1 then
-      result=POS_FACEUP_DEFENCE
+      result=POS_FACEUP_DEFENSE
     end
   end
   if id==22110648 then
-    result=POS_FACEUP_DEFENCE
+    result=POS_FACEUP_DEFENSE
   end
   return result
 end

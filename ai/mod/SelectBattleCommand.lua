@@ -137,6 +137,7 @@ function BestAttackTarget(cards,source,ignorebonus,filter,opt)
   for i=1,#cards do
     local c = cards[i]
     c.index = i
+    c.prio = 0
     if FilterPosition(c,POS_FACEUP_ATTACK) then
       if c.attack<atk 
       or (CrashCheck(source) and c.attack==atk 
@@ -153,7 +154,7 @@ function BestAttackTarget(cards,source,ignorebonus,filter,opt)
         c.prio = c.attack * -1
       end
     end
-    if FilterPosition(c,POS_DEFENCE) then
+    if FilterPosition(c,POS_DEFENSE) then
       if FilterPublic(c) then
         if c.defense<atk then 
           c.prio = math.max(c.defense - 1,c.attack)
@@ -175,7 +176,7 @@ function BestAttackTarget(cards,source,ignorebonus,filter,opt)
     if CanFinishGame(source,c) then
       c.prio=99999
     end
-    if FilterPosition(c,POS_DEFENCE) and FilterPrivate(c) then
+    if FilterPosition(c,POS_DEFENSE) and FilterPrivate(c) then
       if atk>=1500 then
         c.prio = -1
       else
@@ -427,7 +428,7 @@ function OnSelectBattleCommand(cards,activatable)
   if #targets>0 and #cards>0  then
     for i=1,#cards do
       for j=1,#targets do
-        if FilterPosition(targets[j],POS_FACEDOWN_DEFENCE) and (cards[i].attack >= 1500 
+        if FilterPosition(targets[j],POS_FACEDOWN_DEFENSE) and (cards[i].attack >= 1500 
         or FilterPublic(targets[j]) and cards[i].attack > targets[j].defense)
         then
           return Attack(i)
@@ -491,6 +492,9 @@ function OnSelectBattleCommand(cards,activatable)
   if HasID(activatable,83555666,ChainRoD) then -- Ring of Destruction
     return 2,CurrentIndex
   end
+  if HasID(activatable,83555666,ChainRoD) then -- Ring of Destruction
+    return 2,CurrentIndex
+  end
   local result,result2 = nil,nil
   local d = DeckCheck()
   if d and d.Chain then
@@ -546,7 +550,7 @@ end
 function AttackMaiden(c,source)
   return Negated(c)
   or ArmadesCheck(source)
-  or FilterPosition(c,POS_DEFENCE)
+  or FilterPosition(c,POS_DEFENSE)
   or CardsMatchingFilter(AIMon(),FilterAttackMin,3000)>0
   or not DualityCheck(2)
 end

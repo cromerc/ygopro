@@ -1,6 +1,6 @@
 --カードブロッカー
 function c42256406.initial_effect(c)
-	--to defence
+	--to defense
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(42256406,0))
 	e1:SetCategory(CATEGORY_POSITION)
@@ -22,10 +22,13 @@ function c42256406.initial_effect(c)
 	e4:SetCode(EVENT_BE_BATTLE_TARGET)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCondition(c42256406.cbcon)
+	e4:SetTarget(c42256406.cbtg)
 	e4:SetOperation(c42256406.cbop)
 	c:RegisterEffect(e4)
+	--def
 	local e5=Effect.CreateEffect(c)
 	e5:SetDescription(aux.Stringid(42256406,2))
+	e5:SetCategory(CATEGORY_DEFCHANGE)
 	e5:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e5:SetCode(EVENT_BE_BATTLE_TARGET)
 	e5:SetCost(c42256406.defcost)
@@ -39,7 +42,7 @@ end
 function c42256406.poop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsFaceup() and c:IsAttackPos() and c:IsRelateToEffect(e) then
-		Duel.ChangePosition(c,POS_FACEUP_DEFENCE)
+		Duel.ChangePosition(c,POS_FACEUP_DEFENSE)
 	end
 end
 function c42256406.cbcon(e,tp,eg,ep,ev,re,r,rp)
@@ -47,8 +50,14 @@ function c42256406.cbcon(e,tp,eg,ep,ev,re,r,rp)
 	local bt=eg:GetFirst()
 	return r~=REASON_REPLACE and c~=bt and bt:IsFaceup() and bt:GetControler()==c:GetControler()
 end
+function c42256406.cbtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetAttacker():GetAttackableTarget():IsContains(e:GetHandler()) end
+end
 function c42256406.cbop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.ChangeAttackTarget(e:GetHandler())
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) and not Duel.GetAttacker():IsImmuneToEffect(e) then
+		Duel.ChangeAttackTarget(c)
+	end
 end
 function c42256406.defcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDiscardDeckAsCost(tp,1) end
@@ -71,7 +80,7 @@ function c42256406.defop(e,tp,eg,ep,ev,re,r,rp)
 		local ct=e:GetLabel()
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_UPDATE_DEFENCE)
+		e1:SetCode(EFFECT_UPDATE_DEFENSE)
 		e1:SetReset(RESET_EVENT+0x1ff0000+RESET_PHASE+PHASE_END)
 		e1:SetValue(ct*500)
 		c:RegisterEffect(e1)

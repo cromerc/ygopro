@@ -11,17 +11,16 @@ function c19048328.initial_effect(c)
 	c:RegisterEffect(e1)
 	--act limit
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e2:SetCode(EFFECT_CANNOT_ACTIVATE)
-	e2:SetRange(LOCATION_MZONE)
-	e2:SetTargetRange(0,1)
-	e2:SetCondition(c19048328.condition)
-	e2:SetValue(c19048328.aclimit)
+	e2:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_SINGLE)
+	e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e2:SetCondition(c19048328.regcon)
+	e2:SetOperation(c19048328.regop)
 	e2:SetLabelObject(e1)
 	c:RegisterEffect(e2)
 	--search
 	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(19048328,0))
 	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
@@ -32,6 +31,7 @@ function c19048328.initial_effect(c)
 	c:RegisterEffect(e3)
 	--spsummon
 	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(19048328,1))
 	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e4:SetCode(EVENT_DESTROYED)
@@ -53,8 +53,43 @@ function c19048328.matcheck(e,c)
 	end
 	e:SetLabel(att)
 end
-function c19048328.condition(e)
+function c19048328.regcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetSummonType()==SUMMON_TYPE_SYNCHRO
+end
+function c19048328.regop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+	e1:SetRange(LOCATION_MZONE)
+	e1:SetTargetRange(0,1)
+	e1:SetReset(RESET_EVENT+0x1fe0000)
+	e1:SetValue(c19048328.aclimit)
+	e1:SetLabelObject(e:GetLabelObject())
+	c:RegisterEffect(e1)
+	local att=e:GetLabelObject():GetLabel()
+	if bit.band(att,ATTRIBUTE_EARTH)~=0 then
+		c:RegisterFlagEffect(0,RESET_EVENT+0x1fe0000,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(19048328,2))
+	end
+	if bit.band(att,ATTRIBUTE_WATER)~=0 then
+		c:RegisterFlagEffect(0,RESET_EVENT+0x1fe0000,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(19048328,3))
+	end
+	if bit.band(att,ATTRIBUTE_FIRE)~=0 then
+		c:RegisterFlagEffect(0,RESET_EVENT+0x1fe0000,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(19048328,4))
+	end
+	if bit.band(att,ATTRIBUTE_WIND)~=0 then
+		c:RegisterFlagEffect(0,RESET_EVENT+0x1fe0000,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(19048328,5))
+	end
+	if bit.band(att,ATTRIBUTE_LIGHT)~=0 then
+		c:RegisterFlagEffect(0,RESET_EVENT+0x1fe0000,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(19048328,6))
+	end
+	if bit.band(att,ATTRIBUTE_DARK)~=0 then
+		c:RegisterFlagEffect(0,RESET_EVENT+0x1fe0000,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(19048328,7))
+	end
+	if bit.band(att,ATTRIBUTE_DEVINE)~=0 then
+		c:RegisterFlagEffect(0,RESET_EVENT+0x1fe0000,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(19048328,8))
+	end
 end
 function c19048328.aclimit(e,re,tp)
 	local att=e:GetLabelObject():GetLabel()
@@ -64,7 +99,7 @@ end
 function c19048328.thcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return c:IsReason(REASON_DESTROY) and c:IsReason(REASON_BATTLE+REASON_EFFECT)
-		and c:GetSummonType()==SUMMON_TYPE_SYNCHRO
+		and c:IsPreviousLocation(LOCATION_MZONE) and c:GetSummonType()==SUMMON_TYPE_SYNCHRO
 end
 function c19048328.thfilter(c)
 	return c:IsType(TYPE_TUNER) and c:IsAbleToHand()
@@ -112,6 +147,6 @@ function c19048328.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,c19048328.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp,e:GetLabel())
 	if g:GetCount()>0 then
-		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP_DEFENCE)
+		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
 	end
 end

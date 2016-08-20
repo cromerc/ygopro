@@ -1,7 +1,7 @@
 --混沌の場
 function c40089744.initial_effect(c)
-	c:EnableCounterPermit(0x3001)
-	c:SetCounterLimit(0x3001,6)
+	c:EnableCounterPermit(0x1)
+	c:SetCounterLimit(0x1,6)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
@@ -30,7 +30,7 @@ function c40089744.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function c40089744.filter(c)
-	return ((c:IsSetCard(0xcf) and c:IsType(TYPE_RITUAL)) or c:IsSetCard(0xbd)) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
+	return ((c:IsSetCard(0x10cf) and c:IsType(TYPE_RITUAL)) or c:IsSetCard(0xbd)) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
 end
 function c40089744.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c40089744.filter,tp,LOCATION_DECK,0,1,nil) end
@@ -51,12 +51,12 @@ end
 function c40089744.acop(e,tp,eg,ep,ev,re,r,rp)
 	local ct=eg:FilterCount(c40089744.cfilter,nil)
 	if ct>0 then
-		e:GetHandler():AddCounter(0x3001,ct)
+		e:GetHandler():AddCounter(0x1,ct,true)
 	end
 end
 function c40089744.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsCanRemoveCounter(tp,0x3001,3,REASON_COST) end
-	e:GetHandler():RemoveCounter(tp,0x3001,3,REASON_COST)
+	if chk==0 then return e:GetHandler():IsCanRemoveCounter(tp,0x1,3,REASON_COST) end
+	e:GetHandler():RemoveCounter(tp,0x1,3,REASON_COST)
 end
 function c40089744.thfilter(c)
 	return c:GetType()==TYPE_SPELL+TYPE_RITUAL and c:IsAbleToHand()

@@ -1,13 +1,13 @@
 --No.88 ギミック・パペット－デステニー・レオ
 function c48995978.initial_effect(c)
-	c:EnableCounterPermit(0x302b)
+	c:EnableCounterPermit(0x2b)
 	--xyz summon
 	aux.AddXyzProcedure(c,nil,8,3)
 	c:EnableReviveLimit()
 	--counter
 	local e1=Effect.CreateEffect(c)
-	e1:SetCategory(CATEGORY_COUNTER)
 	e1:SetDescription(aux.Stringid(48995978,0))
+	e1:SetCategory(CATEGORY_COUNTER)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetCountLimit(1)
 	e1:SetRange(LOCATION_MZONE)
@@ -16,6 +16,14 @@ function c48995978.initial_effect(c)
 	e1:SetTarget(c48995978.target)
 	e1:SetOperation(c48995978.operation)
 	c:RegisterEffect(e1)
+	--win
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e2:SetCode(EVENT_CHAIN_SOLVING)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_DELAY)
+	e2:SetOperation(c48995978.winop)
+	c:RegisterEffect(e2)
 end
 c48995978.xyz_number=88
 function c48995978.filter(c)
@@ -36,16 +44,19 @@ function c48995978.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c48995978.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_EFFECT)
-		and e:GetHandler():IsCanAddCounter(0x302b,1) end
-	Duel.SetOperationInfo(0,CATEGORY_COUNTER,nil,1,0,0x302b)
+		and e:GetHandler():IsCanAddCounter(0x2b,1) end
+	Duel.SetOperationInfo(0,CATEGORY_COUNTER,nil,1,0,0x2b)
 end
 function c48995978.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) and c:IsFaceup() and c:RemoveOverlayCard(tp,1,1,REASON_EFFECT) then
-		c:AddCounter(0x302b,1)
-		if c:GetCounter(0x302b)==3 then
-			local WIN_REASON_DESTINY_LEO=0x17
-			Duel.Win(c:GetControler(),WIN_REASON_DESTINY_LEO)
-		end
+		c:AddCounter(0x2b,1)
+	end
+end
+function c48995978.winop(e,tp,eg,ep,ev,re,r,rp)
+	local WIN_REASON_DESTINY_LEO=0x17
+	local c=e:GetHandler()
+	if c:GetCounter(0x2b)==3 then
+		Duel.Win(tp,WIN_REASON_DESTINY_LEO)
 	end
 end

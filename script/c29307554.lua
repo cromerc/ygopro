@@ -23,7 +23,7 @@ function c29307554.checkop(e,tp,eg,ep,ev,re,r,rp)
 	local p1=false
 	local p2=false
 	while tc do
-		if tc:IsPreviousLocation(LOCATION_MZONE) and tc:IsPreviousPosition(POS_DEFENCE) then
+		if tc:IsPreviousLocation(LOCATION_MZONE) and tc:IsPreviousPosition(POS_DEFENSE) then
 			if tc:GetReasonPlayer()==0 and tc:GetPreviousControler()==1 then p1=true end
 			if tc:GetReasonPlayer()==1 and tc:GetPreviousControler()==0 then p2=true end
 		end
@@ -34,7 +34,7 @@ function c29307554.checkop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c29307554.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetFlagEffect(tp,29307554)~=0 and Duel.GetTurnPlayer()==tp
-		and (Duel.IsAbleToEnterBP() or Duel.GetCurrentPhase()==PHASE_BATTLE)
+		and (Duel.IsAbleToEnterBP() or (Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE))
 end
 function c29307554.filter(c)
 	return c:IsFaceup() and c:IsLevelAbove(8) and c:GetEffectCount(EFFECT_EXTRA_ATTACK)==0

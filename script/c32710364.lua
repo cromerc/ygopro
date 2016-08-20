@@ -32,7 +32,7 @@ function c32710364.repop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetReset(RESET_EVENT+0x1fc0000)
 	e1:SetValue(TYPE_SPELL+TYPE_CONTINUOUS)
 	c:RegisterEffect(e1)
-	Duel.RaiseEvent(c,47408488,e,0,tp,0,0)
+	Duel.RaiseEvent(c,EVENT_CUSTOM+47408488,e,0,tp,0,0)
 end
 function c32710364.filter(c,e,sp)
 	return c:IsFaceup() and c:IsSetCard(0x1034) and c:IsCanBeSpecialSummoned(e,0,sp,true,false)
@@ -41,6 +41,7 @@ function c32710364.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c32710364.filter,tp,LOCATION_SZONE,0,1,nil,e,tp)
 		and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 end
 	local ct=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ct=1 end
 	local gct=Duel.GetMatchingGroupCount(c32710364.filter,tp,LOCATION_SZONE,0,nil,e,tp)
 	if ct>gct then
 		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,gct,tp,LOCATION_SZONE)
@@ -48,9 +49,10 @@ function c32710364.target(e,tp,eg,ep,ev,re,r,rp,chk)
 		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,ct,tp,LOCATION_SZONE)
 	end
 end
-function c32710364.operation(e,tp,eg,ep,ev,re,r,rp,chk)
+function c32710364.operation(e,tp,eg,ep,ev,re,r,rp)
 	local ct=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	if ct==0 then return end
+	if ct<=0 then return end
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ct=1 end
 	local g=Duel.GetMatchingGroup(c32710364.filter,tp,LOCATION_SZONE,0,nil,e,tp)
 	local gc=g:GetCount()
 	if gc==0 then return end

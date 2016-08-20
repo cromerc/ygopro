@@ -35,7 +35,7 @@ function c17810268.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function c17810268.sdcon(e)
-	return e:GetHandler():IsPosition(POS_FACEUP_DEFENCE)
+	return e:GetHandler():IsPosition(POS_FACEUP_DEFENSE)
 end
 function c17810268.cfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x18)
@@ -43,15 +43,15 @@ end
 function c17810268.addc(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetHandler():IsRelateToEffect(e) then
 		local ct=Duel.GetMatchingGroupCount(c17810268.cfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
-		e:GetHandler():AddCounter(0x19,ct)
+		e:GetHandler():AddCounter(COUNTER_NEED_ENABLE+0x1019,ct)
 	end
 end
 function c17810268.descost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsCanRemoveCounter(tp,0x19,2,REASON_COST) end
-	e:GetHandler():RemoveCounter(tp,0x19,2,REASON_COST)
+	if chk==0 then return e:GetHandler():IsCanRemoveCounter(tp,0x1019,2,REASON_COST) end
+	e:GetHandler():RemoveCounter(tp,0x1019,2,REASON_COST)
 end
 function c17810268.filter(c)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsDestructable()
+	return c:IsType(TYPE_SPELL+TYPE_TRAP)
 end
 function c17810268.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and c17810268.filter(chkc) end

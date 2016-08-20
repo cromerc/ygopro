@@ -1,7 +1,7 @@
 --Emハットトリッカー
 function c31292357.initial_effect(c)
-	c:EnableCounterPermit(0x3036)
-	c:SetCounterLimit(0x3036,3)
+	c:EnableCounterPermit(0x36)
+	c:SetCounterLimit(0x36,3)
 	--special summon rule
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
@@ -23,7 +23,8 @@ function c31292357.initial_effect(c)
 	--atk
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e3:SetCode(31292357)
+	e3:SetCode(EVENT_ADD_COUNTER+0x36)
+	e3:SetCondition(c31292357.atkcon)
 	e3:SetOperation(c31292357.atkop)
 	c:RegisterEffect(e3)
 end
@@ -34,14 +35,11 @@ function c31292357.spcon(e,c)
 		and Duel.GetFieldGroupCount(tp,LOCATION_MZONE,LOCATION_MZONE)>=2
 end
 function c31292357.cttg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsCanAddCounter(0x3036,1) end
+	if chk==0 then return e:GetHandler():IsCanAddCounter(0x36,1) end
 end
 function c31292357.ctop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and c:AddCounter(0x3036,1)~=0 then
-		if c:GetCounter(0x3036)==3 then
-			Duel.RaiseSingleEvent(c,31292357,e,0,0,tp,0)
-		end
+	if c:IsRelateToEffect(e) and c:AddCounter(0x36,1) then
 		local cid=Duel.GetChainInfo(ev,CHAININFO_CHAIN_ID)
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_FIELD)
@@ -61,6 +59,9 @@ function c31292357.damval(e,re,val,r,rp,rc)
 	if cid~=e:GetLabel() then return val end
 	return 0
 end
+function c31292357.atkcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():GetCounter(0x36)==3
+end
 function c31292357.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local e1=Effect.CreateEffect(c)
@@ -70,6 +71,6 @@ function c31292357.atkop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetReset(RESET_EVENT+0x1ff0000)
 	c:RegisterEffect(e1)
 	local e2=e1:Clone()
-	e2:SetCode(EFFECT_SET_DEFENCE_FINAL)
+	e2:SetCode(EFFECT_SET_DEFENSE_FINAL)
 	c:RegisterEffect(e2)
 end

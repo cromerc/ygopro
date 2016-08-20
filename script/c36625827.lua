@@ -23,18 +23,18 @@ end
 function c36625827.addc(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
 	if tc and tc:IsFaceup() and tc:IsCode(75041269) then
-		tc:AddCounter(0x1b+COUNTER_NEED_ENABLE,1)
+		tc:AddCounter(0x1b,1)
 	end
 	tc=Duel.GetFieldCard(1-tp,LOCATION_SZONE,5)
 	if tc and tc:IsFaceup() and tc:IsCode(75041269) then
-		tc:AddCounter(0x1b+COUNTER_NEED_ENABLE,1)
+		tc:AddCounter(0x1b,1)
 	end
 end
 function c36625827.descon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsLocation(LOCATION_GRAVE) and e:GetHandler():IsReason(REASON_BATTLE)
 end
 function c36625827.filter(c)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsDestructable()
+	return c:IsType(TYPE_SPELL+TYPE_TRAP)
 end
 function c36625827.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and chkc:IsControler(tp) and c36625827.filter(chkc) end

@@ -17,6 +17,7 @@ function c69529567.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_PHASE+PHASE_STANDBY)
 	e2:SetRange(LOCATION_GRAVE)
+	e2:SetCountLimit(1)
 	e2:SetCondition(c69529567.spcon)
 	e2:SetTarget(c69529567.sptg)
 	e2:SetOperation(c69529567.spop)
@@ -29,7 +30,7 @@ function c69529567.descon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(c69529567.desfilter,tp,0,LOCATION_MZONE,1,nil,e:GetHandler():GetAttack())
 end
 function c69529567.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsDestructable() end
+	if chk==0 then return e:GetHandler():IsLocation(LOCATION_ONFIELD) end
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,e:GetHandler(),1,0,0)
 end
 function c69529567.desop(e,tp,eg,ep,ev,re,r,rp)

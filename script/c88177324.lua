@@ -6,10 +6,10 @@ function c88177324.initial_effect(c)
 	--negate
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(88177324,0))
-	e1:SetType(EFFECT_TYPE_QUICK_O)
-	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e1:SetCode(EVENT_PHASE+PHASE_BATTLE_START)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetHintTiming(TIMING_BATTLE_START,0)
+	e1:SetCountLimit(1)
 	e1:SetCondition(c88177324.negcon)
 	e1:SetCost(c88177324.negcost)
 	e1:SetTarget(c88177324.negtg)
@@ -26,7 +26,7 @@ function c88177324.initial_effect(c)
 end
 c88177324.xyz_number=107
 function c88177324.negcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()==tp and Duel.GetCurrentPhase()==PHASE_BATTLE and not Duel.CheckPhaseActivity() and Duel.GetCurrentChain()==0
+	return Duel.GetTurnPlayer()==tp
 end
 function c88177324.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
@@ -36,7 +36,7 @@ function c88177324.filter1(c)
 	return c:IsFaceup() and c:IsType(TYPE_EFFECT) and not c:IsDisabled()
 end
 function c88177324.filter2(c)
-	return c:IsFaceup() and (c:GetAttack()~=c:GetBaseAttack() or c:GetDefence()~=c:GetBaseDefence())
+	return c:IsFaceup() and (c:GetAttack()~=c:GetBaseAttack() or c:GetDefense()~=c:GetBaseDefense())
 end
 function c88177324.filter3(c)
 	return c:IsFaceup() and c:IsType(TYPE_EFFECT)
@@ -75,11 +75,11 @@ function c88177324.negop(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetReset(RESET_EVENT+0x1fe0000)
 			tc:RegisterEffect(e1)
 		end
-		if tc:GetDefence()~=tc:GetBaseDefence() then
+		if tc:GetDefense()~=tc:GetBaseDefense() then
 			local e1=Effect.CreateEffect(c)
 			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_SET_DEFENCE_FINAL)
-			e1:SetValue(tc:GetBaseDefence())
+			e1:SetCode(EFFECT_SET_DEFENSE_FINAL)
+			e1:SetValue(tc:GetBaseDefense())
 			e1:SetReset(RESET_EVENT+0x1fe0000)
 			tc:RegisterEffect(e1)
 		end

@@ -25,9 +25,9 @@ function c27062594.activate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e)
 		or not Duel.IsPlayerCanSpecialSummonMonster(tp,27062594,0,0x21,0,0,1,RACE_FIEND,ATTRIBUTE_LIGHT) then return end
-	c:AddTrapMonsterAttribute(TYPE_EFFECT,ATTRIBUTE_LIGHT,RACE_FIEND,1,0,0)
-	Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP)
-	c:TrapMonsterBlock()
+	c:AddMonsterAttribute(TYPE_EFFECT+TYPE_TRAP)
+	Duel.SpecialSummonStep(c,0,tp,tp,true,false,POS_FACEUP)
+	c:AddMonsterAttributeComplete()
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(27062594,0))
 	e1:SetCategory(CATEGORY_DAMAGE)
@@ -40,13 +40,14 @@ function c27062594.activate(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetTarget(c27062594.damtg)
 	e1:SetOperation(c27062594.damop)
 	e1:SetReset(RESET_EVENT+0x1fe0000)
-	c:RegisterEffect(e1)
+	c:RegisterEffect(e1,true)
+	Duel.SpecialSummonComplete()
 end
 function c27062594.damcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()==tp
 end
 function c27062594.cfilter(c)
-	return c:IsSetCard(0x7f) and c:IsAbleToRemoveAsCost()
+	return c:IsSetCard(0x107f) and c:IsAbleToRemoveAsCost()
 end
 function c27062594.damcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c27062594.cfilter,tp,LOCATION_GRAVE,0,1,nil) end

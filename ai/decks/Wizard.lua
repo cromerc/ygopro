@@ -10,7 +10,7 @@ function WizardStartup(deck)
 	deck.Unchainable = WizardUnchainable
 	deck.PriorityList = WizardPriorityList
 end
-DECK_WIZARD = NewDeck("Wizard",72714461,WizardStartup)
+DECK_WIZARD = NewDeck("Wizard",{72714461,16691074},WizardStartup)
 function ScaleBetween(lv)
 	local cards = AIST()
 	local lsc = 0
@@ -645,7 +645,7 @@ function ChainPtolemiMagi(c)
 		GlobalPtolemiMagi = 34945480
 		return true
 	end
-	if Duel.GetCurrentPhase() == PHASE_BATTLE then
+	if IsBattlePhase() then
 		local source = Duel.GetAttacker()
 		local target = Duel.GetAttackTarget()
 		if source and target then

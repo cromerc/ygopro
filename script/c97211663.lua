@@ -20,29 +20,41 @@ function c97211663.initial_effect(c)
 	e2:SetOperation(c97211663.thop)
 	c:RegisterEffect(e2)
 end
-function c97211663.filter(c,e,tp,m)
+function c97211663.filter(c,e,tp,m,ft)
 	if not c:IsSetCard(0xb4) or bit.band(c:GetType(),0x81)~=0x81
-		or not c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_RITUAL,tp,false,true) or c:IsHasEffect(EFFECT_NECRO_VALLEY) then return false end
+		or not c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_RITUAL,tp,false,true) then return false end
 	local mg=m:Filter(Card.IsCanBeRitualMaterial,c,c)
-	if c:IsCode(21105106) then return c:ritual_custom_condition(mg) end
+	if c:IsCode(21105106) then return c:ritual_custom_condition(mg,ft) end
 	if c.mat_filter then
 		mg=mg:Filter(c.mat_filter,nil)
 	end
-	return mg:CheckWithSumEqual(Card.GetRitualLevel,c:GetLevel(),1,99,c)
+	if ft>0 then
+		return mg:CheckWithSumEqual(Card.GetRitualLevel,c:GetLevel(),1,99,c)
+	else
+		return ft>-1 and mg:IsExists(c97211663.mfilterf,1,nil,tp,mg,c)
+	end
+end
+function c97211663.mfilterf(c,tp,mg,rc)
+	if c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) then
+		Duel.SetSelectedCard(c)
+		return mg:CheckWithSumEqual(Card.GetRitualLevel,rc:GetLevel(),0,99,rc)
+	else return false end
 end
 function c97211663.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local mg=Duel.GetRitualMaterial(tp)
-		return Duel.IsExistingMatchingCard(c97211663.filter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil,e,tp,mg)
+		local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+		return Duel.IsExistingMatchingCard(c97211663.filter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil,e,tp,mg,ft)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND+LOCATION_GRAVE)
 end
 function c97211663.activate(e,tp,eg,ep,ev,re,r,rp)
 	local mg=Duel.GetRitualMaterial(tp)
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local tg=Duel.SelectMatchingCard(tp,c97211663.filter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,1,nil,e,tp,mg)
+	local tg=Duel.SelectMatchingCard(tp,c97211663.filter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,1,nil,e,tp,mg,ft)
 	local tc=tg:GetFirst()
-	if tc then
+	if tc and not tc:IsHasEffect(EFFECT_NECRO_VALLEY) then
 		mg=mg:Filter(Card.IsCanBeRitualMaterial,tc,tc)
 		if tc:IsCode(21105106) then
 			tc:ritual_custom_operation(mg)
@@ -52,8 +64,18 @@ function c97211663.activate(e,tp,eg,ep,ev,re,r,rp)
 			if tc.mat_filter then
 				mg=mg:Filter(tc.mat_filter,nil)
 			end
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-			local mat=mg:SelectWithSumEqual(tp,Card.GetRitualLevel,tc:GetLevel(),1,99,tc)
+			local mat=nil
+			if ft>0 then
+				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
+				mat=mg:SelectWithSumEqual(tp,Card.GetRitualLevel,tc:GetLevel(),1,99,tc)
+			else
+				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
+				mat=mg:FilterSelect(tp,c97211663.mfilterf,1,1,nil,tp,mg,tc)
+				Duel.SetSelectedCard(mat)
+				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
+				local mat2=mg:SelectWithSumEqual(tp,Card.GetRitualLevel,tc:GetLevel(),0,99,tc)
+				mat:Merge(mat2)
+			end
 			tc:SetMaterial(mat)
 			Duel.ReleaseRitualMaterial(mat)
 		end

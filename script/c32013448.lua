@@ -26,7 +26,7 @@ end
 function c32013448.mtop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetFlagEffect(tp,32013448)~=0 then return end
 	local c=e:GetHandler()
-	local g=eg:Filter(Card.IsSetCard,nil,0xcf)
+	local g=eg:Filter(Card.IsSetCard,nil,0x10cf)
 	local rc=g:GetFirst()
 	if not rc then return end
 	local e1=Effect.CreateEffect(c)
@@ -58,6 +58,7 @@ function c32013448.mtop(e,tp,eg,ep,ev,re,r,rp)
 		e3:SetReset(RESET_EVENT+0x1fe0000)
 		rc:RegisterEffect(e3,true)
 	end
+	rc:RegisterFlagEffect(0,RESET_EVENT+0x1fe0000,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(32013448,2))
 	Duel.RegisterFlagEffect(tp,32013448,RESET_PHASE+PHASE_END,0,1)
 end
 function c32013448.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)

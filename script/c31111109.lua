@@ -30,11 +30,11 @@ end
 function c31111109.fuscon(e,g,gc,chkf)
 	if g==nil then return false end
 	if gc then return false end
-	local g1=g:Filter(Card.IsSetCard,nil,0x9)
+	local g1=g:Filter(Card.IsFusionSetCard,nil,0x9)
 	local c1=g1:GetCount()
-	local g2=g:Filter(Card.IsSetCard,nil,0x1f)
+	local g2=g:Filter(Card.IsFusionSetCard,nil,0x1f)
 	local c2=g2:GetCount()
-	local g3=g:Filter(Card.IsSetCard,nil,0x8)
+	local g3=g:Filter(Card.IsFusionSetCard,nil,0x8)
 	local c3=g3:GetCount()
 	local ag=g1:Clone()
 	ag:Merge(g2)
@@ -44,9 +44,9 @@ function c31111109.fuscon(e,g,gc,chkf)
 end
 function c31111109.fusop(e,tp,eg,ep,ev,re,r,rp,gc,chkf)
 	if gc then return end
-	local g1=eg:Filter(Card.IsSetCard,nil,0x9)
-	local g2=eg:Filter(Card.IsSetCard,nil,0x1f)
-	local g3=eg:Filter(Card.IsSetCard,nil,0x8)
+	local g1=eg:Filter(Card.IsFusionSetCard,nil,0x9)
+	local g2=eg:Filter(Card.IsFusionSetCard,nil,0x1f)
+	local g3=eg:Filter(Card.IsFusionSetCard,nil,0x8)
 	local ag=g1:Clone()
 	ag:Merge(g2)
 	ag:Merge(g3)
@@ -81,7 +81,7 @@ function c31111109.fusop(e,tp,eg,ep,ev,re,r,rp,gc,chkf)
 end
 function c31111109.filter(c)
 	return (c:IsSetCard(0x9) or c:IsSetCard(0x1f) or c:IsSetCard(0x8)) and c:IsType(TYPE_MONSTER)
-		and not c:IsHasEffect(EFFECT_FORBIDDEN) and c:IsAbleToRemove()
+		and not c:IsForbidden() and c:IsAbleToRemove()
 end
 function c31111109.copytg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c31111109.filter(chkc) end

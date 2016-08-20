@@ -11,7 +11,7 @@ function c6903857.initial_effect(c)
 	e1:SetTarget(c6903857.target)
 	e1:SetOperation(c6903857.operation)
 	c:RegisterEffect(e1)
-	--to defence
+	--to defense
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(6903857,1))
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
@@ -26,7 +26,7 @@ function c6903857.condition(e,tp,eg,ep,ev,re,r,rp)
 		and (not c:IsReason(REASON_BATTLE) or c==Duel.GetAttackTarget())
 end
 function c6903857.dfilter(c)
-	return c:IsFaceup() and c:IsDestructable() and c:IsType(TYPE_SPELL+TYPE_TRAP)
+	return c:IsFaceup() and c:IsType(TYPE_SPELL+TYPE_TRAP)
 end
 function c6903857.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) and c6903857.dfilter(chkc) end
@@ -47,6 +47,6 @@ end
 function c6903857.posop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsAttackPos() and c:IsRelateToBattle() then
-		Duel.ChangePosition(c,POS_FACEUP_DEFENCE)
+		Duel.ChangePosition(c,POS_FACEUP_DEFENSE)
 	end
 end

@@ -36,7 +36,6 @@ function c33622465.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,tc)
 	end
 end
 function c33622465.cfilter(c)
@@ -53,17 +52,11 @@ end
 function c33622465.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e)
-		and Duel.IsPlayerCanSpecialSummonMonster(tp,33622465,0,0x11,3,1200,400,RACE_WARRIOR,ATTRIBUTE_EARTH) then
-		c:SetStatus(STATUS_NO_LEVEL,false)
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_CHANGE_TYPE)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetValue(TYPE_NORMAL+TYPE_MONSTER)
-		e1:SetReset(RESET_EVENT+0x47c0000)
-		c:RegisterEffect(e1,true)
-		Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP_DEFENCE)
+	if c:IsRelateToEffect(e) and Duel.IsPlayerCanSpecialSummonMonster(tp,33622465,0,0x11,3,1200,400,RACE_WARRIOR,ATTRIBUTE_EARTH) then
+		c:AddMonsterAttribute(TYPE_NORMAL)
+		Duel.SpecialSummonStep(c,0,tp,tp,true,false,POS_FACEUP_DEFENSE)
+		c:AddMonsterAttributeComplete()
+		--redirect
 		local e2=Effect.CreateEffect(c)
 		e2:SetType(EFFECT_TYPE_SINGLE)
 		e2:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
@@ -71,5 +64,6 @@ function c33622465.spop(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetReset(RESET_EVENT+0x47e0000)
 		e2:SetValue(LOCATION_REMOVED)
 		c:RegisterEffect(e2,true)
+		Duel.SpecialSummonComplete()
 	end
 end

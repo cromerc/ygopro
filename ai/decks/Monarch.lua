@@ -560,7 +560,7 @@ function UseDullahan(c,mode)
   end
 end
 function RepoJackfrost(c,mode)
-  if FilterPosition(c,POS_FACEDOWN_DEFENCE)
+  if FilterPosition(c,POS_FACEDOWN_DEFENSE)
   and FieldCheck(1)>0
   and HasID(AIExtra(),46895036,true,SummonDullahan,mode)
   then
@@ -1219,14 +1219,14 @@ function MonarchPosition(id,available)
   for i=1,#MonarchDef do
     if MonarchDef[i]==id 
     then 
-      result=POS_FACEUP_DEFENCE 
+      result=POS_FACEUP_DEFENSE 
     end
   end
   if id==09126351 and TurnEndCheck() then
-    result=POS_FACEUP_DEFENCE 
+    result=POS_FACEUP_DEFENSE 
   end
   if id==53334641 and TurnEndCheck() then
-    result=POS_FACEUP_DEFENCE 
+    result=POS_FACEUP_DEFENSE 
   end
   return result
 end

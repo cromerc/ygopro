@@ -16,7 +16,11 @@ function OnSelectEffectYesNo(id,triggeringCard)
   if d and d.EffectYesNo then
     result = d.EffectYesNo(id,triggeringCard)
   end
-  if result then return result end
+  if result then 
+    if result == true then result = 1 end
+    if result == false then result = 0 end
+    return result 
+  end
   local YesNoFunctions = {
   FireFistOnSelectEffectYesNo,MermailOnSelectEffectYesNo,
   GadgetOnSelectEffectYesNo,
@@ -32,7 +36,11 @@ function OnSelectEffectYesNo(id,triggeringCard)
       result = func(id,triggeringCard)
     end
   end
-  if result then return result end
+  if result then 
+    if result == true then result = 1 end
+    if result == false then result = 0 end
+    return result 
+  end
   if CardIsScripted(id)>0 then
     result = 0
   else

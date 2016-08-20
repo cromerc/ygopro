@@ -11,13 +11,13 @@ function c30341772.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c30341772.cfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0x7f)
+	return c:IsFaceup() and c:IsSetCard(0x107f)
 end
 function c30341772.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(c30341772.cfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 function c30341772.filter(c)
-	return c:IsFaceup() and c:IsDestructable()
+	return c:IsFaceup()
 end
 function c30341772.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c30341772.filter,tp,0,LOCATION_MZONE,1,nil) end

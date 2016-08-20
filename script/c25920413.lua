@@ -15,18 +15,24 @@ function c25920413.initial_effect(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(25920413,0))
 	e2:SetCategory(CATEGORY_COUNTER)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e2:SetCondition(c25920413.ctcon)
 	e2:SetOperation(c25920413.ctop)
 	c:RegisterEffect(e2)
 	--atk def
 	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e3:SetCode(EVENT_DAMAGE_CALCULATING)
+	e3:SetType(EFFECT_TYPE_FIELD)
+	e3:SetCode(EFFECT_UPDATE_ATTACK)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetOperation(c25920413.adval)
+	e3:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+	e3:SetCondition(c25920413.adcon)
+	e3:SetTarget(c25920413.adtg)
+	e3:SetValue(c25920413.adval)
 	c:RegisterEffect(e3)
+	local e4=e3:Clone()
+	e4:SetCode(EFFECT_UPDATE_DEFENSE)
+	c:RegisterEffect(e4)
 end
 function c25920413.spfilter(c)
 	return c:IsLevelBelow(3) and c:IsFaceup() and c:IsReleasable()
@@ -58,25 +64,16 @@ end
 function c25920413.ctop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsFaceup() and c:IsRelateToEffect(e) then
-		c:AddCounter(0xe,1)
+		c:AddCounter(COUNTER_NEED_ENABLE+0x100e,1)
 	end
 end
-function c25920413.addown(c,e)
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_UPDATE_ATTACK)
-	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-	e1:SetReset(RESET_PHASE+PHASE_DAMAGE_CAL)
-	e1:SetValue(c:GetCounter(0xe)*-300)
-	c:RegisterEffect(e1)
-	local e2=e1:Clone()
-	e2:SetCode(EFFECT_UPDATE_DEFENCE)
-	c:RegisterEffect(e2)
+function c25920413.adcon(e)
+	return Duel.GetCurrentPhase()==PHASE_DAMAGE_CAL and Duel.GetAttackTarget()
 end
-function c25920413.adval(e,tp,eg,ep,ev,re,r,rp)
-	local a=Duel.GetAttacker()
-	local d=Duel.GetAttackTarget()
-	if not d then return end
-	if a:GetCounter(0xe)>0 and d:IsSetCard(0xc) then c25920413.addown(a,e) end
-	if d:GetCounter(0xe)>0 and a:IsSetCard(0xc) then c25920413.addown(d,e) end
+function c25920413.adtg(e,c)
+	local bc=c:GetBattleTarget()
+	return bc and c:GetCounter(0x100e)~=0 and bc:IsSetCard(0xc)
+end
+function c25920413.adval(e,c)
+	return c:GetCounter(0x100e)*-300
 end

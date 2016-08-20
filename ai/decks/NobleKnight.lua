@@ -1344,7 +1344,7 @@ end
 
 
 function HighSallyTarget(cards)
-  if Duel.GetCurrentPhase() == PHASE_BATTLE then
+  if IsBattlePhase() then
     return Add(cards)
   else
     local result = ArmsByAtk(cards,2100)
@@ -1646,7 +1646,7 @@ function ChainMerlin()
       return #GlobalMerlinID>0
     end
   end
-  if Duel.GetCurrentPhase() == PHASE_BATTLE then
+  if IsBattlePhase() then
     if Duel.GetTurnPlayer() == player_ai then
       if ExpectedDamage(2)==0 then
         --return true
@@ -1737,8 +1737,8 @@ function ChainGwen()
     end
     if (target:IsPosition(POS_ATTACK) and source:IsPosition(POS_ATTACK) and (source:GetAttack() > target:GetAttack()
     or source:GetAttack() == target:GetAttack() and not target:IsHasEffect(EFFECT_INDESTRUCTIBLE_COUNT))
-    or target:IsPosition(POS_ATTACK) and source:IsPosition(POS_DEFENCE) and source:GetDefence() >= target:GetAttack()
-    or target:IsPosition(POS_DEFENCE) and source:IsPosition(POS_ATTACK) and source:GetAttack() >= target:GetDefence()
+    or target:IsPosition(POS_ATTACK) and source:IsPosition(POS_DEFENSE) and source:GetDefense() >= target:GetAttack()
+    or target:IsPosition(POS_DEFENSE) and source:IsPosition(POS_ATTACK) and source:GetAttack() >= target:GetDefense()
     or source:IsPosition(POS_FACEDOWN) and not target:IsCode(83519853)
     or source:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE)
     or source:IsHasEffect(EFFECT_INDESTRUCTABLE_COUNT))
@@ -1826,7 +1826,7 @@ function NoblePosition(id,available)
     if NobleAtt[i]==id then result=POS_FACEUP_ATTACK end
   end
   for i=1,#NobleDef do
-    if NobleDef[i]==id then result=POS_FACEUP_DEFENCE end
+    if NobleDef[i]==id then result=POS_FACEUP_DEFENSE end
   end
   if id == 93085839 and Duel.GetCurrentPhase()==PHASE_MAIN1 and GlobalBPAllowed
   and (GwenCheck() or OppGetStrongestAttDef()<1600)

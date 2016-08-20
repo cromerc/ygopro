@@ -27,18 +27,18 @@ function c90616316.spcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function c90616316.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN_DEFENCE) end
+		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN_DEFENSE) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 function c90616316.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEDOWN_DEFENCE)
+		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEDOWN_DEFENSE)
 		Duel.ConfirmCards(1-tp,c)
 	end
 end
 function c90616316.cfilter(c)
-	return c:IsSetCard(0x35) and not c:IsPublic()
+	return c:IsSetCard(0x35) and c:IsType(TYPE_MONSTER) and not c:IsPublic()
 end
 function c90616316.cost2(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c90616316.cfilter,tp,LOCATION_HAND,0,1,nil) end
@@ -48,7 +48,7 @@ function c90616316.cost2(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.ShuffleHand(tp)
 end
 function c90616316.filter2(c)
-	return c:IsSetCard(0x35) and c:IsAbleToGrave()
+	return c:IsSetCard(0x35) and c:IsType(TYPE_MONSTER) and c:IsAbleToGrave()
 end
 function c90616316.tg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c90616316.filter2,tp,LOCATION_DECK,0,1,nil) end

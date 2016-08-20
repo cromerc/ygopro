@@ -9,7 +9,7 @@ function c71870152.initial_effect(c)
 	e1:SetValue(c71870152.value)
 	c:RegisterEffect(e1)
 	local e2=e1:Clone()
-	e2:SetCode(EFFECT_SET_DEFENCE)
+	e2:SetCode(EFFECT_SET_DEFENSE)
 	c:RegisterEffect(e2)
 	--level up
 	local e3=Effect.CreateEffect(c)
@@ -54,7 +54,7 @@ function c71870152.descon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsFaceup() and c:IsAttackPos() and c:GetSummonType()==SUMMON_TYPE_SPECIAL+0x8
 end
 function c71870152.filter(c)
-	return c:IsFaceup() and c:IsDestructable()
+	return c:IsFaceup()
 end
 function c71870152.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and c71870152.filter(chkc) end

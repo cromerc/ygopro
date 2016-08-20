@@ -38,9 +38,6 @@ function c22382087.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c22382087.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
-	end
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
@@ -49,6 +46,11 @@ function c22382087.spop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetTargetRange(1,0)
 	e1:SetTarget(c22382087.splimit)
 	Duel.RegisterEffect(e1,tp)
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) then
+		Duel.SendtoGrave(c,REASON_RULE)
+	end
 end
 function c22382087.splimit(e,c,sump,sumtype,sumpos,targetp,se)
 	return c:IsLocation(LOCATION_EXTRA)
@@ -57,7 +59,7 @@ function c22382087.thcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsReason(REASON_SUMMON)
 end
 function c22382087.filter(c)
-	return c:GetAttack()==800 and c:GetDefence()==1000 and not c:IsCode(22382087) and c:IsAbleToHand()
+	return c:GetAttack()==800 and c:GetDefense()==1000 and not c:IsCode(22382087) and c:IsAbleToHand()
 end
 function c22382087.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c22382087.filter,tp,LOCATION_DECK,0,1,nil) end

@@ -11,7 +11,7 @@ function c89882100.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c89882100.filter(c)
-	return c:IsFacedown() and c:IsDestructable()
+	return c:IsFacedown()
 end
 function c89882100.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_SZONE) and chkc:IsControler(1-tp) and c89882100.filter(chkc) end
@@ -19,7 +19,9 @@ function c89882100.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectTarget(tp,c89882100.filter,tp,0,LOCATION_SZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
-	Duel.SetChainLimit(c89882100.limit(g:GetFirst()))
+	if e:IsHasType(EFFECT_TYPE_ACTIVATE) then
+		Duel.SetChainLimit(c89882100.limit(g:GetFirst()))
+	end
 end
 function c89882100.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()

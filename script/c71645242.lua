@@ -11,7 +11,7 @@ function c71645242.initial_effect(c)
 	e4:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_TOKEN)
 	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e4:SetRange(LOCATION_FZONE)
-	e4:SetCode(71645242)
+	e4:SetCode(EVENT_CUSTOM+71645242)
 	e4:SetTarget(c71645242.sptg)
 	e4:SetOperation(c71645242.spop)
 	c:RegisterEffect(e4)
@@ -53,7 +53,7 @@ function c71645242.regcon(e,tp,eg,ep,ev,re,r,rp)
 	return sf~=0
 end
 function c71645242.regop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.RaiseEvent(eg,71645242,e,r,rp,ep,e:GetLabel())
+	Duel.RaiseEvent(eg,EVENT_CUSTOM+71645242,e,r,rp,ep,e:GetLabel())
 end
 function c71645242.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsRelateToEffect(e) end
@@ -89,7 +89,7 @@ function c71645242.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SpecialSummonComplete()
 end
 function c71645242.desfilter(c)
-	return c:IsFaceup() and c:IsRace(RACE_PLANT) and c:IsDestructable()
+	return c:IsFaceup() and c:IsRace(RACE_PLANT)
 end
 function c71645242.filter2(c,atk,e,tp)
 	return c:GetAttack()==atk and c:IsCanBeSpecialSummoned(e,0x20,tp,false,false)
@@ -111,7 +111,7 @@ function c71645242.sptg2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function c71645242.spop2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if not (c:IsRelateToEffect(e) and c:IsDestructable() and c:IsDestructable(e)) then return end
+	if not (c:IsRelateToEffect(e) and c:IsDestructable(e)) then return end
 	local dg=Duel.GetMatchingGroup(c71645242.desfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
 	dg:AddCard(c)
 	Duel.Destroy(dg,REASON_EFFECT)

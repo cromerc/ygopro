@@ -21,12 +21,11 @@ function c12600382.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE)
 	e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e3:SetCode(EFFECT_SPSUMMON_CONDITION)
-	e3:SetValue(c12600382.splimit)
 	c:RegisterEffect(e3)
 	--atkup
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(12600382,0))
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)	
+	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e4:SetCategory(CATEGORY_ATKCHANGE)
 	e4:SetCode(EVENT_PHASE+PHASE_STANDBY)
 	e4:SetRange(LOCATION_MZONE)
@@ -44,16 +43,14 @@ function c12600382.initial_effect(c)
 	c:RegisterEffect(e5)
 end
 function c12600382.efdes(e,re)
-	return not re:GetHandler():IsType(TYPE_MONSTER)
-end
-function c12600382.splimit(e,se,sp,st)
-	return st==(SUMMON_TYPE_SPECIAL+332449)
+	return re:IsActiveType(TYPE_SPELL+TYPE_TRAP)
 end
 function c12600382.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	return tp==Duel.GetTurnPlayer()
 end
 function c12600382.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) or c:IsFacedown() then return end
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(EFFECT_UPDATE_ATTACK)

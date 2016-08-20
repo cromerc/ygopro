@@ -35,23 +35,23 @@ function c69031175.initial_effect(c)
 end
 function c69031175.condition1(e,tp,eg,ep,ev,re,r,rp)
 	local atg=Duel.GetAttackTarget()
-	return Duel.GetAttacker()==e:GetHandler() and atg and atg:IsRelateToBattle() and atg:GetCounter(0x2)==0
+	return Duel.GetAttacker()==e:GetHandler() and atg and atg:IsRelateToBattle() and atg:GetCounter(0x1002)==0
 end
 function c69031175.operation1(e,tp,eg,ep,ev,re,r,rp)
 	local atg=Duel.GetAttackTarget()
 	if atg:IsRelateToBattle() then
-		atg:AddCounter(0x2,1)
+		atg:AddCounter(0x1002,1)
 	end
 end
 function c69031175.filter(c)
-	return c:GetCounter(0x2)>0
+	return c:GetCounter(0x1002)>0
 end
 function c69031175.cost2(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c69031175.filter,tp,0,LOCATION_MZONE,1,nil) end
 	local g=Duel.GetMatchingGroup(c69031175.filter,tp,0,LOCATION_MZONE,nil)
 	local t=g:GetFirst()
 	while t do
-		t:RemoveCounter(tp,0x2,t:GetCounter(0x2),REASON_COST)
+		t:RemoveCounter(tp,0x1002,t:GetCounter(0x1002),REASON_COST)
 		t=g:GetNext()
 	end
 	Duel.SetTargetCard(g)
@@ -70,7 +70,7 @@ function c69031175.operation2(e,tp,eg,ep,ev,re,r,rp)
 			t:RegisterEffect(e1)
 			local e2=Effect.CreateEffect(c)
 			e2:SetType(EFFECT_TYPE_SINGLE)
-			e2:SetCode(EFFECT_SET_DEFENCE_FINAL)
+			e2:SetCode(EFFECT_SET_DEFENSE_FINAL)
 			e2:SetValue(0)
 			e2:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
 			t:RegisterEffect(e2)

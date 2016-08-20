@@ -24,7 +24,7 @@ function c24857466.initial_effect(c)
 	e4:SetCategory(CATEGORY_DAMAGE)
 	e4:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	e4:SetCode(24857466)
+	e4:SetCode(EVENT_CUSTOM+24857466)
 	e4:SetCondition(c24857466.damcon)
 	e4:SetTarget(c24857466.damtg)
 	e4:SetOperation(c24857466.damop)
@@ -35,7 +35,7 @@ function c24857466.initial_effect(c)
 	e5:SetCategory(CATEGORY_DESTROY)
 	e5:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
 	e5:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e5:SetCode(24857466)
+	e5:SetCode(EVENT_CUSTOM+24857466)
 	e5:SetCondition(c24857466.descon)
 	e5:SetTarget(c24857466.destg)
 	e5:SetOperation(c24857466.desop)
@@ -46,7 +46,7 @@ function c24857466.initial_effect(c)
 	e6:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e6:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
 	e6:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e6:SetCode(24857466)
+	e6:SetCode(EVENT_CUSTOM+24857466)
 	e6:SetCondition(c24857466.spcon)
 	e6:SetTarget(c24857466.sptg)
 	e6:SetOperation(c24857466.spop)
@@ -87,9 +87,13 @@ function c24857466.hsptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c24857466.hspop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)>0 then
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)~=0 then
 		local tpe=Duel.GetChainInfo(0,CHAININFO_TARGET_PARAM)
-		Duel.RaiseSingleEvent(c,24857466,e,0,0,tp,tpe)
+		Duel.RaiseSingleEvent(c,EVENT_CUSTOM+24857466,e,0,0,tp,tpe)
+	elseif Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) then
+		Duel.SendtoGrave(c,REASON_RULE)
 	end
 end
 function c24857466.damcon(e,tp,eg,ep,ev,re,r,rp)
@@ -109,10 +113,10 @@ function c24857466.descon(e,tp,eg,ep,ev,re,r,rp)
 	return bit.band(ev,TYPE_TRAP)~=0
 end
 function c24857466.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsOnField() and chkc:IsDestructable() end
+	if chkc then return chkc:IsControler(1-tp) and chkc:IsOnField() end
 	if chk==0 then return true end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,Card.IsDestructable,tp,0,LOCATION_ONFIELD,1,1,nil)
+	local g=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
 end
 function c24857466.desop(e,tp,eg,ep,ev,re,r,rp)

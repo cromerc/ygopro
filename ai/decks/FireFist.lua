@@ -80,10 +80,13 @@ function SummonSpirit()
   return CardsMatchingFilter(AIGrave(),SpiritFilter)>0 --or CanXYZ(3)
 end
 function WolfbarkFilter(c)
-  return bit32.band(c.race,RACE_BEASTWARRIOR)>0 and bit32.band(c.attribute,ATTRIBUTE_FIRE)>0 and c.level==4 
+  return FilterRace(c,RACE_BEASTWARRIOR)
+  and FilterAttribute(c,ATTRIBUTE_FIRE)
+  and c.level==4
 end
 function GetWolfbark()
-  return CardsMatchingFilter(AIGrave(),WolfbarkFilter)>0 or HasID(UseLists({AIHand(),AIMon()}),06353603,true)
+  return CardsMatchingFilter(AIGrave(),WolfbarkFilter)>0 
+  or HasID(UseLists({AIHand(),AIMon()}),06353603,true)
 end
 function SummonWolfbark()
   return CardsMatchingFilter(AIGrave(),WolfbarkFilter)>0 and OPTCheck(03534077)
@@ -730,7 +733,7 @@ function ChainTensen()
         source = Duel.GetAttackTarget()
       end
       if (source:GetAttack() >= target:GetAttack() and source:GetAttack() <= target:GetAttack()+1000 and source:IsPosition(POS_FACEUP_ATTACK)
-      or source:GetDefence() >= target:GetAttack() and source:GetDefence() <= target:GetAttack()+1000 and source:IsPosition(POS_FACEUP_DEFENCE))
+      or source:GetDefense() >= target:GetAttack() and source:GetDefense() <= target:GetAttack()+1000 and source:IsPosition(POS_FACEUP_DEFENSE))
       and target:IsPosition(POS_FACEUP_ATTACK) and target:IsControler(player_ai) and target:IsRace(RACE_BEASTWARRIOR) 
       then
         GlobalTargetSet(target,AIMon())
@@ -817,7 +820,7 @@ function VeilerTarget(card)
   local att=AIGetStrongestAttack()
   if bit32.band(card.position,POS_FACEUP_ATTACK)>0 then
     value=card.attack
-  elseif bit32.band(card.position,POS_FACEUP_DEFENCE)>0 then
+  elseif bit32.band(card.position,POS_FACEUP_DEFENSE)>0 then
     value=card.defense
   end
   if value and att>value and NegateBPCheck(card) 
@@ -841,7 +844,7 @@ function FireFistOnChain(cards,only_chains_by_player)
   if HasID(cards,23434538) and ChainMaxxC() then
     return {1,CurrentIndex}
   end
-  if HasIDNotNegated(cards,46772449) and UseFieldNuke(1) then
+  if HasIDNotNegated(cards,46772449,UseFieldNuke,1) then
     return {1,CurrentIndex}
   end
   if HasIDNotNegated(cards,01662004) then
@@ -910,17 +913,17 @@ function FFGetPos(id)
     if FFAtt[i]==id then return POS_FACEUP_ATTACK end
   end
   for i=1,#FFDef do
-    if FFDef[i]==id then return POS_FACEUP_DEFENCE end
+    if FFDef[i]==id then return POS_FACEUP_DEFENSE end
   end
   if id == 12014404 then -- Cowboy
     if AI.GetPlayerLP(2)<=800 or not BattlePhaseCheck() then
-      return POS_FACEUP_DEFENCE
+      return POS_FACEUP_DEFENSE
     else
       return POS_FACEUP_ATTACK
     end
   end
   if id == 89856523 and AI.GetCurrentPhase() == PHASE_MAIN2 then -- Kirin
-    return POS_FACEUP_DEFENCE
+    return POS_FACEUP_DEFENSE
   end
   return result
 end

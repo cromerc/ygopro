@@ -14,7 +14,7 @@ function c49680980.initial_effect(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(49680980,3))
 	e2:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e2:SetCode(EVENT_CHAINING)
 	e2:SetRange(LOCATION_MZONE)
@@ -34,6 +34,8 @@ function c49680980.cfilter2(c)
 	return c:IsType(TYPE_MONSTER) and c:IsRace(RACE_ROCK) and not c:IsPublic()
 end
 function c49680980.mtop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	Duel.HintSelection(Group.FromCards(c))
 	local g1=Duel.GetMatchingGroup(c49680980.cfilter1,tp,LOCATION_HAND,0,nil)
 	local g2=Duel.GetMatchingGroup(c49680980.cfilter2,tp,LOCATION_HAND,0,nil)
 	local select=2
@@ -44,8 +46,10 @@ function c49680980.mtop(e,tp,eg,ep,ev,re,r,rp)
 		select=Duel.SelectOption(tp,aux.Stringid(49680980,0),aux.Stringid(49680980,2))
 		if select==1 then select=2 end
 	elseif g2:GetCount()>0 then
-		select=Duel.SelectOption(tp,aux.Stringid(49680980,1),aux.Stringid(49680980,2))
-		select=select+1
+		select=Duel.SelectOption(tp,aux.Stringid(49680980,1),aux.Stringid(49680980,2))+1
+	else
+		select=Duel.SelectOption(tp,aux.Stringid(49680980,2))
+		select=2
 	end
 	if select==0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
@@ -57,7 +61,7 @@ function c49680980.mtop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,g)
 		Duel.ShuffleHand(tp)
 	else
-		Duel.Destroy(e:GetHandler(),REASON_RULE)
+		Duel.Destroy(c,REASON_COST)
 	end
 end
 function c49680980.condition(e,tp,eg,ep,ev,re,r,rp)

@@ -11,6 +11,27 @@ function XYZSummon(index,id)
   end
   return {COMMAND_SPECIAL_SUMMON,index}
 end
+function SynchroSummon(index,id)
+  if index == nil then
+    index = CurrentIndex
+  end
+  GlobalMaterial = true
+  GlobalSynchroMaterial = true
+  if id then
+    GlobalSSCardID = id
+  end
+  return {COMMAND_SPECIAL_SUMMON,index}
+end
+function PendulumSummon(index,id)
+  if index == nil then
+    index = CurrentIndex
+  end
+  if id then
+    GlobalSSCardID = id
+  end
+  GlobalPendulumSummon = true
+  return {COMMAND_SPECIAL_SUMMON,index}
+end
 function Summon(index)
   if index == nil then
     index = CurrentIndex
@@ -73,16 +94,16 @@ function SummonExtraDeck(cards,prio)
   if HasIDNotNegated(Rep,12014404,false,nil,nil,POS_FACEUP_ATTACK) and UseCowboyDef() then 
     return {COMMAND_CHANGE_POS,CurrentIndex}                                -- Gagaga Cowboy finish
   end
-  if HasIDNotNegated(Act,12014404,false,nil,nil,POS_DEFENCE) and UseCowboyDef() then 
+  if HasIDNotNegated(Act,12014404,false,nil,nil,POS_DEFENSE) and UseCowboyDef() then 
     return {COMMAND_ACTIVATE,CurrentIndex}                                -- Gagaga Cowboy finish
   end
   if HasIDNotNegated(Act,29669359) and UseVolcasaurus() then                -- Volcasaurus finish
     return {COMMAND_ACTIVATE,CurrentIndex}
   end  
-  if HasIDNotNegated(Act,46772449) and UseFieldNuke(1) then       -- Evilswarm Exciton Knight
+  if HasIDNotNegated(Act,46772449,UseFieldNuke,1) then       -- Evilswarm Exciton Knight
     return {COMMAND_ACTIVATE,CurrentIndex}
   end  
-  if HasIDNotNegated(Act,57774843) and UseFieldNuke(1) then       -- Judgment Dragon
+  if HasIDNotNegated(Act,57774843,UseFieldNuke,1) then       -- Judgment Dragon
     return {COMMAND_ACTIVATE,CurrentIndex}
   end  
   if HasIDNotNegated(Act,39765958,UseJeweledRDA,0) then 
@@ -113,8 +134,14 @@ function SummonExtraDeck(cards,prio)
   then  
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
+  if HasID(Act,60082869,nil,nil,LOCATION_SZONE,UseDustTornado) then
+    return {COMMAND_ACTIVATE,CurrentIndex}
+  end
   if HasID(Act,05318639,nil,nil,LOCATION_SZONE,UseMST) then
     return {COMMAND_ACTIVATE,CurrentIndex}
+  end
+  if HasID(Act,43898403,UseTwinTwister) then
+    return Activate()
   end
   if HasID(Act,05318639,UseMST) then
     return {COMMAND_ACTIVATE,CurrentIndex}
@@ -140,13 +167,13 @@ function SummonExtraDeck(cards,prio)
   if HasIDNotNegated(SpSum,88120966,SummonGiantGrinderFinish) then
     return XYZSummon()
   end
-  if HasIDNotNegated(SpSum,46772449) and SummonBelzebuth() then          
+  if HasIDNotNegated(SpSum,46772449,SummonBelzebuth) then          
     return XYZSummon()
   end
-  if HasID(SpSum,57774843) and SummonJD() then                 
+  if HasID(SpSum,57774843,SummonJD,1) then                 
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
   end
-  if HasIDNotNegated(SpSum,73580471) and UseFieldNuke(-2) then             -- Black Rose
+  if HasIDNotNegated(SpSum,73580471,UseFieldNuke,-2) then             -- Black Rose
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
   end
   if HasIDNotNegated(SpSum,16195942) and SummonRebellionFinish() then 
@@ -209,7 +236,10 @@ function SummonExtraDeck(cards,prio)
     GlobalCardMode = 1
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
-    if HasIDNotNegated(Act,22653490) then -- Chidori                         
+  if HasIDNotNegated(Act,63519819,UseTER) then
+    return Activate()
+  end
+  if HasIDNotNegated(Act,22653490) then -- Chidori                         
     GlobalCardMode = 2
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
@@ -257,6 +287,20 @@ function SummonExtraDeck(cards,prio)
 ---- 
 
 -- Synchro
+  if HasIDNotNegated(SpSum,52687916,SummonSyncTrishula) then
+    return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
+  end
+  
+  -- Trishula enabling
+  for i=1,#Sum do
+    if TrishulaCheck(Sum[i]) then
+      return Summon(i)
+    end
+  end
+  if HasID(Act,01845204,ShaddollUseInstantFusion,1) then
+    return Activate()
+  end
+  
   if HasID(SpSum,08561192,SummonLeoh) then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
   end
@@ -308,7 +352,10 @@ function SummonExtraDeck(cards,prio)
 -- XYZ
 
 -- Rank 8
-  if HasIDNotNegated(SpSum,01639384,SummonFelgrand) then
+  if HasIDNotNegated(SpSum,63767246,SummonTitanicGalaxy,1) then
+    return XYZSummon()
+  end
+  if HasIDNotNegated(SpSum,01639384,SummonFelgrand,1) then
     return XYZSummon()
   end
   if HasIDNotNegated(SpSum,88120966,SummonGiantGrinder) then
@@ -318,6 +365,12 @@ function SummonExtraDeck(cards,prio)
     return XYZSummon()
   end
   if HasID(SpSum,73445448,SummonZombiestein) then
+    return XYZSummon()
+  end
+  if HasIDNotNegated(SpSum,01639384,SummonFelgrand,2) then
+    return XYZSummon()
+  end
+  if HasIDNotNegated(SpSum,63767246,SummonTitanicGalaxy,2) then
     return XYZSummon()
   end
   
@@ -395,7 +448,7 @@ function SummonExtraDeck(cards,prio)
   if HasIDNotNegated(SpSum,82633039) and SummonSkyblaster() then 
     return XYZSummon()
   end
-  if HasID(SpSum,26329679,SummonOmega) then 
+  if HasID(SpSum,26329679,SummonConstellarOmega) then 
     return XYZSummon()
   end
   if HasID(SpSum,16195942,SummonRebellion) then 
@@ -456,7 +509,7 @@ function SummonExtraDeck(cards,prio)
   if HasIDNotNegated(SpSum,12014404) and SummonCowboyAtt() then
     return XYZSummon()
   end
-  if HasIDNotNegated(Rep,12014404,nil,nil,POS_DEFENCE,UseCowboyAtt) then
+  if HasIDNotNegated(Rep,12014404,nil,nil,POS_DEFENSE,UseCowboyAtt) then
     return {COMMAND_CHANGE_POS,CurrentIndex}
   end
   if HasIDNotNegated(Act,12014404,FilterPosition,POS_FACEUP_ATTACK) and UseCowboyAtt() then
@@ -491,6 +544,68 @@ function SummonExtraDeck(cards,prio)
   if HasIDNotNegated(SpSum,81330115,SummonAcidGolem) then
     return XYZSummon()
   end
+  
+-- Pendulum scales
+  local scales={}
+  for i,c in pairs(Act) do
+    if c.description == 1160  -- activate as pendulum scale
+    and CardIsScripted(c.id) == 0
+    then
+      scales[#scales+1]=c
+      c.index = i
+    end
+  end
+  if #scales>0 then
+    table.sort(scales,function(a,b) return a.lscale>b.lscale end)
+    local high = scales[1]
+    local low = scales[#scales]
+    local levels = 0
+    local mons = SubGroup(UseLists(AIHand(),AIExtra()),FilterPendulumSummonable)
+    local targets = {}
+    local targets2 = {}
+    if ScaleCheck() == false then -- no active scales
+      table.remove(mons,FindCard(high,mons,true)[1])
+      table.remove(mons,FindCard(low,mons,true)[1])
+      for i,c in pairs(mons) do
+        if high.lscale>c.level and c.level>low.lscale then
+          targets[#targets+1]=c
+        end
+      end
+      if #targets>1 then
+        return Activate(high.index)
+      end
+    elseif ScaleCheck() == true then -- 2 active scales, and you can still use some?
+      print("Warning: Can activate more than 2 scales?")
+    else -- one scale active
+      table.remove(mons,FindCard(high,mons,true)[1])
+      for i,c in pairs(mons) do
+        if high.lscale>c.level and c.level>ScaleCheck() then
+          targets[#targets+1]=c
+        end
+      end
+      table.insert(mons,high)
+      table.remove(mons,FindCard(low,mons,true)[1])
+      for i,c in pairs(mons) do
+        if ScaleCheck()>c.level and c.level>low.lscale then
+          targets2[#targets2+1]=c
+        end
+      end
+      if #targets>1 or #targets2>1 then
+        if #targets>#targets2 then
+          return Activate(high.index)
+        else
+          return Activate(low.index)
+        end
+      end
+    end
+  end
+  
+-- Pendulum summoning
+  for i,c in pairs(SpSum) do
+    if FilterLocation(c,LOCATION_SZONE) then
+      return PendulumSummon(i)
+    end
+  end
 
   
 -- if the opponent still has stronger monsters, use Raigeki  
@@ -501,13 +616,16 @@ function SummonExtraDeck(cards,prio)
   if HasID(Act,54447022) and UseSoulCharge() then
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
-  if HasIDNotNegated(Act,01845204) and UseInstantFusion(2) then
+  if HasIDNotNegated(Act,01845204,UseInstantFusion,2) then
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
-  if HasIDNotNegated(Act,01845204) and UseInstantFusion(1) then
+  if HasIDNotNegated(Act,01845204,UseInstantFusion,1) then
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
-  if HasIDNotNegated(Act,01845204) and UseInstantFusion(3) then
+  if HasIDNotNegated(Act,01845204,UseInstantFusion,4) then
+    return {COMMAND_ACTIVATE,CurrentIndex}
+  end
+  if HasIDNotNegated(Act,01845204,UseInstantFusion,3) then
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
   if HasIDNotNegated(Act,98645731)  -- Duality
@@ -526,12 +644,70 @@ function SummonExtraDeck(cards,prio)
     local c=Rep[i]
     local equips = c:get_equipped_cards()
     if HasIDNotNegated(equips,19508728,true)
-    and FilterPosition(c,POS_DEFENCE)
+    and FilterPosition(c,POS_DEFENSE)
     then
       return Repo()
     end
   end
   return nil
+end
+function TERFilter(c)
+  return Affected(c,TYPE_MONSTER,1)
+  and Targetable(c,TYPE_MONSTER)
+end
+function UseTER(c)
+  if CardsMatchingFilter(OppMon(),TERFilter)>0 then
+    return true
+  end
+end
+function UseTwinTwister(c,mode)
+  local targets = DestroyCheck(OppST())
+  local facedown = DestroyCheck(OppST(),nil,nil,nil,FilterPosition,POS_FACEDOWN)
+  local prio = HasPriorityTarget(OppST(),true)
+  if facedown>1 then
+    GlobalTwinTwisterTarget = function(c) return FilterPosition(c,POS_FACEDOWN) end
+    return true
+  end
+  if prio and targets>1 then
+    return true
+  end
+  if PriorityCheck(AIHand(),PRIO_TOGRAVE)>3 
+  and targets>1 then
+    return true
+  end
+end
+GlobalTwinTwisterTarget = nil
+function ChainTwinTwister(c,mode)
+  local targets = DestroyCheck(OppST())
+  local facedown = DestroyCheck(OppST(),nil,nil,nil,FilterPosition,POS_FACEDOWN)
+  local prio = HasPriorityTarget(OppST(),true)
+  local endphase = CardsMatchingFilter(OppST(),MSTEndPhaseFilter)
+  if RemovalCheckCard(c)
+  then
+    return targets>1 or targets>0 and PriorityCheck(AIHand(),PRIO_TOGRAVE)>3
+  end
+  if not UnchainableCheck(c) then
+    return false
+  end
+  if Duel.CheckTiming(TIMING_END_PHASE)
+  and Duel.GetCurrentChain()==0
+  and endphase>0
+  and targets>1
+  then
+    GlobalTwinTwisterTarget = MSTEndPhaseFilter
+    return true
+  end
+  if Duel.GetTurnPlayer()==1-player_ai
+  and prio
+  and targets>1
+  then
+    return true
+  end
+  local target = RemoveOnActivation(nil,MSTFilter)
+  if target and targets>1 then
+    GlobalTwinTwisterTarget = target
+    return true
+  end
 end
 function SummonDelteros(c,mode)
   if DeckCheck(DECK_TELLARKNIGHT) then return false end
@@ -659,7 +835,7 @@ function UsePtolemaios(c)
 end
 function SummonNova(c)
   return HasIDNotNegated(AIExtra(),10443957,true)
-  and UseInfinity(FindID(10443957,AIExtra()))
+  --and UseInfinity(FindID(10443957,AIExtra()))
 end
 function SummonInfinity(c)
   return HasID(AIMon(),58069384,true)
@@ -687,15 +863,18 @@ function UseMST(c)
   end
   local OppTargets=SubGroup(OppST(),filter)
   if (#AIField()==0 
-  or #AIField()==CardsMatchingFilter(AIField(),FilterID,05318639))
+  or #AIField()==CardsMatchingFilter(AIField(),FilterID,c.id))
   and #OppTargets>0
-  and #OppTargets<=CardsMatchingFilter(AICards(),FilterID,05318639)
+  and #OppTargets<=CardsMatchingFilter(AICards(),FilterID,c.id)
   then
     GlobalCardMode = 1
     GlobalTargetSet(OppTargets[math.random(1,#OppTargets)])
     return true
   end
   return false
+end
+function UseDustTornado(c)
+  return UseMST(c)
 end
 function SummonStardust(c)
   return OppGetStrongestAttDef()<2500 and MP2Check(c)
@@ -736,14 +915,44 @@ function SummonZombiestein(c)
   return MP2Check(c) and OppHasStrongestMonster() --and OppGetStrongestAttack()>2800
   and OppGetStrongestAttack()<4500
 end
-function SummonFelgrand(c)
-  return MP2Check(c) and OppGetStrongestAttack()<2800
-  and not SkillDrainCheck()
+function SummonFelgrand(c,mode)
+  if mode == 1 
+  and NotNegated(c)
+  and MP2Check(c) 
+  and OppGetStrongestAttack()<c.attack
+  then
+    return true
+  end
+  if mode == 2
+  and OppHasStrongestMonster()
+  and CanWinBattle(c,OppMon())
+  then
+    return true
+  end
 end
-function UseFieldNuke(exclude)
-  return (DestroyCheck(OppField())+exclude)-DestroyCheck(AIField())>0 
+function SummonTitanicGalaxy(c,mode)
+  if mode == 1 
+  and NotNegated(c) 
+  and MP2Check(c) 
+  and OppGetStrongestAttack()<c.attack
+  then
+    return true
+  end
+  if mode == 2
+  and OppHasStrongestMonster()
+  and CanWinBattle(c,OppMon())
+  then
+    return true
+  end
 end
-function SummonBelzebuth()
+function FieldNukeFilter(c,source)
+  return Affected(c,TYPE_MONSTER,source.level)
+end
+function UseFieldNuke(source,exclude)
+  local targets = SubGroup(OppField(),FieldNukeFilter,source)
+  return DestroyCheck(targets,exclude,true)-DestroyCheck(AIField(),true)>0 
+end
+function SummonBelzebuth(c)
   if DeckCheck(DECK_CONSTELLAR) and HasIDNotNegated(AIMon(),70908596,true)
   and CardsMatchingFilter(AIMon(),ConstellarNonXYZFilter)>1
   and (SummonVolcasaurusFinish() or SummonVolcaGaiaFinish(1))
@@ -752,7 +961,7 @@ function SummonBelzebuth()
   end
   local AICards=UseLists({AIHand(),AIField()})
   local OppCards=UseLists({OppHand(),OppField()})
-  return #AICards<=#OppCards and UseFieldNuke(-1)
+  return #AICards<=#OppCards and UseFieldNuke(c,-1)
 end
 function SummonCowboyDef(mode)
   return AI.GetPlayerLP(2)<=800 
@@ -850,7 +1059,7 @@ function SummonNaturiaBeast(c)
 end
 function SummonArmades(c)
   return BattlePhaseCheck()
-  and CanWinBattle(c,OppMon())
+  and c and CanWinBattle(c,OppMon())
 end
 function SummonStardustSpark(c)
   return NotNegated(c) and MP2Check(c) 
@@ -1012,10 +1221,7 @@ function SummonVolcaGaiaFinish(mode)
     return result >= AI.GetPlayerLP(2) and result2 < AI.GetPlayerLP(2)
   end
 end
-function SummonJD()
-  return UseFieldNuke(-1) and not HasID(AIMon(),57774843,true) 
-  or #OppField()==0 and Duel.GetCurrentPhase()==PHASE_MAIN1 and GlobalBPAllowed
-end
+
 function LeviairFilter(c)
   return bit32.band(c.type,TYPE_MONSTER)>0 and c.level<5 
   and c:is_affected_by(EFFECT_SPSUMMON_CONDITION)==0
@@ -1042,8 +1248,8 @@ function SummonSharkKnight(cards)
 end
 function CowboyFilter(c)
   return ((c.attack<3000 and bit32.band(c.position,POS_ATTACK)>0
-  or c.defense<2500 and bit32.band(c.position,POS_DEFENCE)>0
-  and (bit32.band(c.position,POS_FACEUP)>0 or bit32.band(c.status,STATUS_IS_PUBLIC)>0))
+  or c.defense<2500 and bit32.band(c.position,POS_DEFENSE)>0
+  and FilterPublic(c))
   and c:is_affected_by(EFFECT_INDESTRUCTABLE_BATTLE)==0 
   and c:is_affected_by(EFFECT_CANNOT_BE_BATTLE_TARGET)==0)
 end
@@ -1166,7 +1372,7 @@ function ChainPleiades(c)
       end
     end	
   end
-  if Duel.GetCurrentPhase()==PHASE_BATTLE and Duel.GetTurnPlayer()~=player_ai and targets>0 then
+  if IsBattlePhase() and Duel.GetTurnPlayer()~=player_ai and targets>0 then
     local source=Duel.GetAttacker()
     local target=Duel.GetAttackTarget()
     if source and target 
@@ -1292,7 +1498,7 @@ function RepoZenmaines(c)
   and Duel.GetCurrentPhase()==PHASE_MAIN1
   and GlobalBPAllowed
   then
-    return FilterPosition(c,POS_DEFENCE)
+    return FilterPosition(c,POS_DEFENSE)
   else
     return FilterPosition(c,POS_ATTACK)
   end
@@ -1466,15 +1672,15 @@ function SummonUtopiaRay(c,mode)
   return false
 end
 function SummonUtopia(c,mode)
-  local c = FindID(56832966,AIExtra()) 
-  if mode == 1 and c and SummonUtopiaLightning(c,2) then
+  local lightning = FindID(56832966,AIExtra()) 
+  if mode == 1 and lightning and SummonUtopiaLightning(lightning,2) then
     return true
   end
-  if mode == 2 and c and SummonUtopiaLightning(c,3) then
+  if mode == 2 and lightning and SummonUtopiaLightning(lightning,3) then
     return true
   end
   if mode == 3 and CanWinBattle(c,OppMon()) 
-  and not c and MP2Check(2500)
+  and not lightning and MP2Check(2500)
   then
     return true
   end
@@ -1505,7 +1711,7 @@ function SummonGaiaDragonFinish(source)
   end
   return result
 end
-function ChainOmega(source)
+function ChainConstellarOmega(source)
   local cards = RemovalCheckList(AIMon(),nil,TYPE_SPELL+TYPE_TRAP,nil,nil,ConstellarMonsterFilter)
   if cards and #cards>0 then
     return true
@@ -1516,7 +1722,7 @@ function ChainOmega(source)
   end
   return false
 end
-function SummonOmega(c)
+function SummonConstellarOmega(c)
   return NotNegated(c) and (not OppHasStrongestMonster() or OppGetStrongestAttDef()<c.attack)
   and CardsMatchingFilter(OppST(),FilterPosition,POS_FACEDOWN)>2
   or Negated(c) and OppHasStrongestMonster() and OppGetStrongestAttDef()<c.attack
@@ -1526,31 +1732,61 @@ function InstantFusionFilter(c)
   return bit32.band(c.attribute,ATTRIBUTE_LIGHT)>0 and c.level==5
   or c.id==70908596 and NotNegated(c)
 end
-function NodenFilter(c)
-  return c.level==4 and c.id~=17412721
+function NodenFilter(c,level)
+  return (level and c.level==level or c.level<=4) --and c.id~=17412721 -- Norden
 end
-function UseInstantFusion(mode)
+function NodenTunerFilter(c,level)
+  return NodenFilter(c,level-4)
+  and FilterType(c,TYPE_TUNER)
+end
+function UseInstantFusion(c,mode)
   if not (WindaCheck() and DualityCheck) then return false end
   if mode == 1 
-  and CardsMatchingFilter(AIGrave(),NodenFilter)>0 
-  and HasIDNotNegated(AIExtra(),17412721,true)
+  and CardsMatchingFilter(AIGrave(),NodenFilter,4)>0 
+  and HasIDNotNegated(AIExtra(),17412721,true) -- Norden
   and (FieldCheck(4)==1 and OverExtendCheck(2,6) 
   or #AIMon()==0 and #OppMon()>0
-  or DeckCheck(DECK_TELLARKNIGHT) and FieldCheck(1) and DestroyCheck(OppField())>0) 
+  or DeckCheck(DECK_TELLARKNIGHT) and FieldCheck(4)==1 and DestroyCheck(OppField())>0) 
   then
     GlobalCardMode = nil
     return true
   elseif mode == 2 and CardsMatchingFilter(AIMon(),InstantFusionFilter)==1 
-  and HasID(AIExtra(),73964868,true)
+  and HasID(AIExtra(),73964868,true) -- Pleiades
   then
     GlobalCardMode = 1
     return true
   elseif mode == 3 and HasPriorityTarget(OppField(),true)
-  and HasID(AIExtra(),73964868,true) and TurnEndCheck()
+  and HasID(AIExtra(),72959823,true) and TurnEndCheck()  -- Panzer Dragon
   and MacroCheck()
   then
     GlobalCardMode = 1
     return true
+  end
+  if mode == 4 
+  and HasPriorityTarget(OppField(),true)
+  and HasID(AIExtra(),63519819,true)
+  then
+    GlobalIFTarget = 63519819 -- Thousand-Eyes Restrict
+    return true
+  end
+  if mode == 5
+  and HasIDNotNegated(AIExtra(),17412721,true) -- Norden
+  and LocCheck()>1
+  and (OverExtendCheck(2,6)
+  or #AIMon()==0)
+  then
+    for i,c in pairs(AIExtra()) do
+      if FilterType(c,TYPE_SYNCHRO) 
+      and c.level>4 and c.level<9
+      then
+        for j,target in pairs(AIGrave()) do
+          if NodenTunerFilter(target,c.level) then
+            GlobalNordenFilter=function(card)return FilterTuner(card,c.level) end
+            return true
+          end
+        end
+      end
+    end
   end
   return false
 end
@@ -1644,7 +1880,7 @@ function ChainBTS(card)
     GlobalTargetSet(c,OppMon())
     return true
   end
-  if Duel.GetCurrentPhase() == PHASE_BATTLE then
+  if IsBattlePhase() then
     if Duel.GetTurnPlayer()==player_ai then
       local cards=OppMon()
       for i=1,#cards do
@@ -1680,7 +1916,7 @@ function ChainFiendish(card)
     GlobalTargetSet(c,OppMon())
     return true
   end
-  if Duel.GetCurrentPhase() == PHASE_BATTLE and Duel.GetTurnPlayer()~=player_ai then
+  if IsBattlePhase() and Duel.GetTurnPlayer()~=player_ai then
 		local source = Duel.GetAttacker()
 		local target = Duel.GetAttackTarget()
     if source and target and WinsBattle(source,target) 
@@ -1713,7 +1949,7 @@ function ChainSkillDrain(card)
     --GlobalTargetSet(c,OppMon())
     return true
   end
-  if Duel.GetCurrentPhase() == PHASE_BATTLE then
+  if IsBattlePhase() then
     if Duel.GetTurnPlayer()==player_ai 
     and not OppHasStrongestMonster() 
     and CardsMatchingFilter(OppMon(),NegateBPCheck)>0 
@@ -1733,9 +1969,9 @@ function ChainSkillDrain(card)
       and source:GetAttack() <= target:GetAttack()+QliphortAttackBonus(target:GetCode(),target:GetLevel())
       and not (source:GetAttack() == target:GetAttack() 
       and QliphortAttackBonus(target:GetCode(),target:GetLevel())==0)
-      or source:IsPosition(POS_FACEUP_DEFENCE)
-      and source:GetDefence() >= target:GetAttack() 
-      and source:GetDefence() < target:GetAttack()+QliphortAttackBonus(target:GetCode(),target:GetLevel()))
+      or source:IsPosition(POS_FACEUP_DEFENSE)
+      and source:GetDefense() >= target:GetAttack() 
+      and source:GetDefense() < target:GetAttack()+QliphortAttackBonus(target:GetCode(),target:GetLevel()))
       and target:IsPosition(POS_FACEUP_ATTACK) 
       then
         return true
@@ -1972,12 +2208,12 @@ function ChainCompulse()
   if targets2 > 0 then
     return true
   end
-  if Duel.GetCurrentPhase()==PHASE_BATTLE and targets>0 then
+  if IsBattlePhase() and targets>0 then
     local source=Duel.GetAttacker()
     local target=Duel.GetAttackTarget()
     if source and target then
       if source:IsControler(1-player_ai) and target:IsControler(player_ai) 
-      and (target:IsPosition(POS_DEFENCE) and source:GetAttack()>target:GetDefence() 
+      and (target:IsPosition(POS_DEFENSE) and source:GetAttack()>target:GetDefense() 
       or target:IsPosition(POS_ATTACK) and source:GetAttack()>=target:GetAttack())
       and not source:IsHasEffect(EFFECT_CANNOT_BE_EFFECT_TARGET)
       and not source:IsHasEffect(EFFECT_IMMUNE_EFFECT)
@@ -1995,8 +2231,7 @@ function MSTFilter(c)
   return c:is_affected_by(EFFECT_CANNOT_BE_EFFECT_TARGET)==0 
   and c:is_affected_by(EFFECT_INDESTRUCTABLE_EFFECT)==0 
   and not (DestroyBlacklist(c)
-  and (bit32.band(c.position, POS_FACEUP)>0 
-  or bit32.band(c.status,STATUS_IS_PUBLIC)>0))
+  and FilterPublic(c))
 end
 function MSTEndPhaseFilter(c)
   return MSTFilter(c) and bit32.band(c.status,STATUS_SET_TURN)>0
@@ -2024,13 +2259,13 @@ function ChainMST(c)
       return true
     end
   end
-  if not UnchainableCheck(05318639) then
+  if not UnchainableCheck(c.id) then
     return false
   end
   if targets3 > 0 and ArtifactCheck() then
     return true
   end
-  if Duel.GetCurrentPhase()==PHASE_BATTLE then
+  if IsBattlePhase() then
     local source=Duel.GetAttacker()
     local target=Duel.GetAttackTarget()
     if source and source:IsControler(1-player_ai) then
@@ -2071,8 +2306,21 @@ function ChainMST(c)
   end
   return false
 end
+function ChainDustTornado(c)
+  return ChainMST(c)
+end
 function ChainPanzerDragon(c)
   return DestroyCheck(OppField())>0
+end
+function ChainTitanicGalaxy(c)
+  local aimon,oppmon = GetBattlingMons()
+  if NotNegated(c)
+  and WinsBattle(oppmon,aimon)
+  and not WinsBattle(oppmon,c)
+  and Affected(oppmon,TYPE_MONSTER,8)
+  then
+    return true
+  end
 end
 function PriorityChain(cards) -- chain these before anything else
   if HasIDNotNegated(cards,58120309,ChainNegation) then -- Starlight Road
@@ -2096,6 +2344,9 @@ function PriorityChain(cards) -- chain these before anything else
   if HasID(cards,61257789,false,nil,LOCATION_MZONE,ChainNegation) then -- Stardust AM
     return {1,CurrentIndex}
   end
+  if HasIDNotNegated(cards,63767246,ChainNegation) then -- Titanic Galaxy
+    return {1,CurrentIndex}
+  end
   if HasIDNotNegated(cards,35952884,false,nil,LOCATION_MZONE,ChainNegation) then -- Quasar
     return {1,CurrentIndex}
   end
@@ -2106,6 +2357,12 @@ function PriorityChain(cards) -- chain these before anything else
     return {1,CurrentIndex}
   end
   if HasIDNotNegated(cards,99188141,ChainNegation) then -- THRIO
+    return {1,CurrentIndex}
+  end
+  if HasID(cards,74822425,false,nil,LOCATION_MZONE,ChainNegation) then -- Shekinaga
+    return {1,CurrentIndex}
+  end
+  if HasIDNotNegated(cards,27346636,ChainNegation) then -- Heraklinos
     return {1,CurrentIndex}
   end
   if HasIDNotNegated(cards,29616929,ChainNegation) then -- Traptrix Trap Hole Nighmare
@@ -2121,6 +2378,9 @@ function PriorityChain(cards) -- chain these before anything else
     return {1,CurrentIndex}
   end
   if HasIDNotNegated(cards,06511113,ChainRafflesia,1) then -- Rafflesia
+    return {1,CurrentIndex}
+  end
+  if HasIDNotNegated(cards,96216229,ChainNegation) then -- War Chariot
     return {1,CurrentIndex}
   end
   if HasIDNotNegated(cards,41510920,ChainNegation) then -- Stellarnova Alpha
@@ -2193,7 +2453,7 @@ function PriorityChain(cards) -- chain these before anything else
   if HasIDNotNegated(cards,99590524,ChainTreacherous) then
     return {1,CurrentIndex}
   end
-  if HasIDNotNegated(cards,26329679,ChainOmega) then
+  if HasIDNotNegated(cards,26329679,ChainConstellarOmega) then
     return {1,CurrentIndex}
   end
   if HasIDNotNegated(cards,51452091,ChainDecree) then
@@ -2207,6 +2467,12 @@ function PriorityChain(cards) -- chain these before anything else
   return nil
 end
 function GenericChain(cards)
+  if HasID(cards,43898403,ChainTwinTwister) then
+    return Chain()
+  end
+  if HasID(cards,60082869,ChainDustTornado) then
+    return {1,CurrentIndex}
+  end
   if HasID(cards,05318639,ChainMST) then
     return {1,CurrentIndex}
   end
@@ -2363,17 +2629,7 @@ end
 function VolcasaurusTarget(cards)
   return BestTargets(cards,1,true)
 end
-function MichaelTarget(cards,c)
-  local result = {}
-  if FilterLocation(c,LOCATION_MZONE) then
-    result = BestTargets(cards,1,TARGET_BANISH)
-  else
-    for i=1,#cards do
-      result[i]=i
-    end
-  end
-  return result
-end
+
 function ArcaniteTarget(cards)
   return BestTargets(cards,1,true)
 end
@@ -2399,7 +2655,9 @@ function MSTTarget(cards)
   if cards[1].prio then TargetSet(cards[1]) else TargetSet(cards[result[1]]) end
   return result
 end
-
+function DustTornadoTarget(cards)
+  return MSTTarget(cards)
+end
 function SoulChargeTarget(cards,min,max)
   local result={}
   local count = max
@@ -2433,10 +2691,61 @@ function DwellerTarget(cards)
   local filter = function(c) return not FilterAttribute(c,ATTRIBUTE_WATER) end
   return Add(cards,PRIO_TOGRAVE,1,filter)
 end
+function TwinTwisterTarget(cards)
+  if LocCheck(cards,LOCATION_HAND) then
+    return Add(cards,PRIO_TOGRAVE)
+  end
+  local filter = function(c) return true end
+  local targets = {}
+  if GlobalTwinTwisterTarget then
+    if type(GlobalTwinTwisterTarget) == "function" then
+      filter = GlobalTwinTwisterTarget
+    elseif type(GlobalTwinTwisterTarget) == "table" then
+      if GlobalTwinTwisterTarget.id then
+        targets[1]=GlobalTwinTwisterTarget
+      else
+        targets=GlobalTwinTwisterTarget
+      end
+      filter=function(card) 
+        for i,c in pairs(targets) do
+          if CardsEqual(c,card) then
+            return true
+          end
+        end
+      end
+    end
+    GlobalTwinTwisterTarget = nil
+  end
+  local count = 0
+  local check = DestroyCheck(cards,false,true,false,FilterController,2)
+  if #targets == 0 then
+    count = check
+  else
+    count = 2,math.max(#targets,check)
+  end
+  count = math.min(2,count)
+  return BestTargets(cards,count,TARGET_DESTROY,filter)
+end
+function TERTarget(cards)
+  return BestTargets(cards,1,TARGET_TOGRAVE)
+end
+function PendulumSummonTarget(cards,max)
+  return BestTargets(cards,max,TARGET_PROTECT,FilterLocation,LOCATION_EXTRA)
+end
 function GenericCard(cards,min,max,id,c)
   if c then
     id = c.id
   end 
+  if GlobalPendulumSummon then
+    GlobalPendulumSummon = nil
+    return PendulumSummonTarget(cards,max)
+  end
+  if id == 63519819 then
+    return TERTarget(cards)
+  end
+  if id == 43898403 then
+    return TwinTwisterTarget(cards)
+  end
   if id == 21044178 then
     return DwellerTarget(cards)
   end
@@ -2497,6 +2806,9 @@ function GenericCard(cards,min,max,id,c)
   if id == 05318639 then
     return MSTTarget(cards)
   end
+  if id == 60082869 then
+    return DustTornadoTarget(cards)
+  end
   if id == 94192409 then
     return CompulseTarget(cards)
   end
@@ -2547,10 +2859,13 @@ function GenericEffectYesNo(id,card)
   if id == 33698022 then -- Moonlight Rose
     retult = 1
   end
-  if id == 72959823 and ChainPanzerDragon(Card) then
+  if id == 72959823 and ChainPanzerDragon(card) then
     result = 1
   end
   if id == 73176465 and grave then -- Felis
+    result = 1
+  end
+  if id == 63767246 and ChainTitanicGalaxy(card) then
     result = 1
   end
   return result
@@ -2568,7 +2883,7 @@ function GenericPosition(id,available)
     if GenericAtt[i]==id then result=POS_FACEUP_ATTACK end
   end
   for i=1,#GenericDef do
-    if GenericDef[i]==id then result=POS_FACEUP_DEFENCE end
+    if GenericDef[i]==id then result=POS_FACEUP_DEFENSE end
   end
   if id == 78156759 then -- Zenmaines
     local c = FindID(78156759,AIExtra())
@@ -2579,7 +2894,7 @@ function GenericPosition(id,available)
     then
       result = POS_FACEUP_ATTACK
     else
-      result = POS_FACEUP_DEFENCE
+      result = POS_FACEUP_DEFENSE
     end
   end
   return result

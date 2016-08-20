@@ -1,5 +1,6 @@
 --ドングリス
 function c13478040.initial_effect(c)
+	c:EnableCounterPermit(0x17)
 	--spsummon
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
@@ -24,7 +25,7 @@ function c13478040.cfilter(c,tp)
 end
 function c13478040.ctop(e,tp,eg,ep,ev,re,r,rp)
 	if eg:IsExists(c13478040.cfilter,1,nil,1-tp) then
-		e:GetHandler():AddCounter(0x17+COUNTER_NEED_ENABLE,1)
+		e:GetHandler():AddCounter(0x17,1)
 	end
 end
 function c13478040.descost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -32,10 +33,10 @@ function c13478040.descost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:GetHandler():RemoveCounter(tp,0x17,1,REASON_COST)
 end
 function c13478040.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_MZONE) and chkc:IsDestructable() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsDestructable,tp,0,LOCATION_MZONE,1,nil) end
+	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_MZONE) end
+	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,Card.IsDestructable,tp,0,LOCATION_MZONE,1,1,nil)
+	local g=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_MZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function c13478040.desop(e,tp,eg,ep,ev,re,r,rp)

@@ -22,7 +22,11 @@ function OnSelectYesNo(description_id)
   if d and d.YesNo then
     result = d.YesNo(description_id)
   end
-  if result~=nil then return result end
+  if result then 
+    if result == true then result = 1 end
+    if result == false then result = 0 end
+    return result 
+  end
 
 	if description_id == 30 then
     local cards = nil

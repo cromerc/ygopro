@@ -1,6 +1,5 @@
 --レッドアイズ・バーン
 function c71782404.initial_effect(c)
-	Duel.EnableGlobalFlag(GLOBALFLAG_DELAYED_QUICKEFFECT)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetCategory(CATEGORY_DAMAGE)
@@ -14,7 +13,7 @@ function c71782404.initial_effect(c)
 end
 function c71782404.cfilter(c,e,tp)
 	return c:IsPreviousPosition(POS_FACEUP) and c:GetPreviousControler()==tp and c:IsPreviousLocation(LOCATION_MZONE) and c:IsReason(REASON_EFFECT+REASON_BATTLE)
-		and c:IsSetCard(0x3b) and c:GetBaseAttack()>0 and c:IsCanBeEffectTarget(e) and c:IsLocation(LOCATION_GRAVE+LOCATION_REMOVED)
+		and c:IsPreviousSetCard(0x3b) and c:GetBaseAttack()>0 and c:IsCanBeEffectTarget(e) and c:IsLocation(LOCATION_GRAVE+LOCATION_REMOVED)
 end
 function c71782404.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return eg:IsContains(chkc) and c71782404.cfilter(chkc,e,tp) end
@@ -27,7 +26,8 @@ end
 function c71782404.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
-		Duel.Damage(1-tp,tc:GetBaseAttack(),REASON_EFFECT)
-		Duel.Damage(tp,tc:GetBaseAttack(),REASON_EFFECT)
+		Duel.Damage(1-tp,tc:GetBaseAttack(),REASON_EFFECT,true)
+		Duel.Damage(tp,tc:GetBaseAttack(),REASON_EFFECT,true)
+		Duel.RDComplete()
 	end
 end

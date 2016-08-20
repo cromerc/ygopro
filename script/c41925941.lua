@@ -20,18 +20,20 @@ function c41925941.condition(e,tp,eg,ep,ev,re,r,rp)
 	local d=Duel.GetAttackTarget()
 	if a:IsControler(tp) then 
 		e:SetLabelObject(d)
-		return a:IsFaceup() and a:IsRace(RACE_FIEND) and a:IsRelateToBattle() and d and d:IsFaceup() and d:IsRelateToBattle()
-	else
+		return a:IsFaceup() and a:IsRace(RACE_FIEND) and a:IsRelateToBattle()
+			and d and d:IsFaceup() and d:IsRelateToBattle()
+	elseif d and d:IsControler(tp) then
 		e:SetLabelObject(a)
-		return d:IsFaceup() and d:IsRace(RACE_FIEND) and d:IsRelateToBattle() and a and a:IsFaceup() and a:IsRelateToBattle()
+		return d:IsFaceup() and d:IsRace(RACE_FIEND) and d:IsRelateToBattle()
+			and a and a:IsFaceup() and a:IsRelateToBattle()
 	end
 end
 function c41925941.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local bc=e:GetLabelObject()
-	if chk==0 then return Duel.CheckLPCost(tp,100) and (bc:IsAttackAbove(100) or bc:IsDefenceAbove(100)) end
+	if chk==0 then return Duel.CheckLPCost(tp,100) and (bc:IsAttackAbove(100) or bc:IsDefenseAbove(100)) end
 	local maxc=Duel.GetLP(tp)
 	local maxpay=bc:GetAttack()
-	local def=bc:GetDefence()
+	local def=bc:GetDefense()
 	if maxpay<def then maxpay=def end
 	if maxpay<maxc then maxc=maxpay end
 	if maxc>5000 then maxc=5000 end
@@ -61,6 +63,6 @@ function c41925941.operation(e,tp,eg,ep,ev,re,r,rp,chk)
 	e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
 	bc:RegisterEffect(e1)
 	local e2=e1:Clone()
-	e2:SetCode(EFFECT_UPDATE_DEFENCE)
+	e2:SetCode(EFFECT_UPDATE_DEFENSE)
 	bc:RegisterEffect(e2)
 end

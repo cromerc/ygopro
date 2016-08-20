@@ -19,15 +19,6 @@ function c78949372.initial_effect(c)
 	e2:SetTarget(c78949372.drtg)
 	e2:SetOperation(c78949372.drop)
 	c:RegisterEffect(e2)
-	--cannot disable
-	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_FIELD)
-	e3:SetCode(EFFECT_CANNOT_DISABLE)
-	e3:SetRange(LOCATION_SZONE)
-	e3:SetTargetRange(LOCATION_SZONE,0)
-	e3:SetCondition(c78949372.tgcon)
-	e3:SetValue(c78949372.effectfilter)
-	c:RegisterEffect(e3)
 	--inactivatable
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_FIELD)
@@ -78,8 +69,8 @@ function c78949372.drop(e,tp,eg,ep,ev,re,r,rp)
 	local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
 	if not tg or tg:FilterCount(Card.IsRelateToEffect,nil,e)~=5 then return end
 	Duel.SendtoDeck(tg,nil,0,REASON_EFFECT)
-	Duel.ShuffleDeck(tp)
 	local g=Duel.GetOperatedGroup()
+	if g:IsExists(Card.IsLocation,1,nil,LOCATION_DECK) then Duel.ShuffleDeck(tp) end
 	local ct=g:FilterCount(Card.IsLocation,nil,LOCATION_DECK+LOCATION_EXTRA)
 	if ct==5 then
 		Duel.BreakEffect()

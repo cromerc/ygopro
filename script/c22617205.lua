@@ -7,10 +7,9 @@ function c22617205.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_FIELD)
 	e2:SetRange(LOCATION_PZONE)
 	e2:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE)
+	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_NEGATE)
 	e2:SetTargetRange(1,0)
 	e2:SetTarget(c22617205.splimit)
-	e2:SetCondition(aux.nfbdncon)
 	c:RegisterEffect(e2)
 	--destroy
 	local e3=Effect.CreateEffect(c)
@@ -40,10 +39,10 @@ end
 function c22617205.filter1(c)
 	return ((c:IsLocation(LOCATION_MZONE) and c:IsFaceup())
 		or (c:IsLocation(LOCATION_SZONE) and (c:GetSequence()==6 or c:GetSequence()==7)))
-		and (c:IsSetCard(0x9c) or c:IsSetCard(0xc4)) and c:IsDestructable()
+		and (c:IsSetCard(0x9c) or c:IsSetCard(0xc4))
 end
 function c22617205.filter2(c)
-	return c:IsFacedown() and c:IsDestructable()
+	return c:IsFacedown()
 end
 function c22617205.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end

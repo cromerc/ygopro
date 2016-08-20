@@ -12,7 +12,7 @@ function c62878208.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c62878208.eqcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetCurrentPhase()==PHASE_BATTLE
+	return (Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE)
 end
 function c62878208.filter1(c,e,tp)
 	local ec=c:GetEquipTarget()
@@ -25,7 +25,7 @@ end
 function c62878208.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
 	if chk==0 then return Duel.IsExistingTarget(c62878208.filter1,tp,LOCATION_SZONE,LOCATION_SZONE,1,nil,e,tp) end
-	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(62878208,2))
+	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(62878208,0))
 	local g1=Duel.SelectTarget(tp,c62878208.filter1,tp,LOCATION_SZONE,LOCATION_SZONE,1,1,nil,e,tp)
 	e:SetLabelObject(g1:GetFirst())
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUPATTACK)
@@ -48,7 +48,7 @@ function c62878208.eqop(e,tp,eg,ep,ev,re,r,rp)
 			d=eqc
 		end
 		if a:IsAttackable() and not a:IsImmuneToEffect(e) and not d:IsImmuneToEffect(e) then
-			Duel.CalculateDamage(a,d)
+			Duel.CalculateDamage(a,d,true)
 		end
 	end
 end

@@ -17,7 +17,7 @@ function c81587028.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsReason(REASON_DESTROY)
 end
 function c81587028.filter1(c,e,tp)
-	return c:IsType(TYPE_NORMAL) and (c:GetAttack()==0 or c:GetDefence()==0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsType(TYPE_NORMAL) and (c:GetAttack()==0 or c:GetDefense()==0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c81587028.filter2(c,g)
 	return g:IsExists(c81587028.filter3,1,c,c:GetCode())
@@ -27,6 +27,7 @@ function c81587028.filter3(c,code)
 end
 function c81587028.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
+		if Duel.IsPlayerAffectedByEffect(tp,59822133) then return false end
 		if Duel.GetLocationCount(tp,LOCATION_MZONE)<2 then return false end
 		local g=Duel.GetMatchingGroup(c81587028.filter1,tp,LOCATION_DECK,0,nil,e,tp)
 		return g:IsExists(c81587028.filter2,1,nil,g)
@@ -34,6 +35,7 @@ function c81587028.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,2,tp,LOCATION_DECK)
 end
 function c81587028.spop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then return end
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<2 then return end
 	local g=Duel.GetMatchingGroup(c81587028.filter1,tp,LOCATION_DECK,0,nil,e,tp)
 	local dg=g:Filter(c81587028.filter2,nil,g)
@@ -44,8 +46,8 @@ function c81587028.spop(e,tp,eg,ep,ev,re,r,rp)
 		dg:Remove(Card.IsCode,nil,tc1:GetCode())
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local tc2=dg:Select(tp,1,1,nil):GetFirst()
-		Duel.SpecialSummonStep(tc1,0,tp,tp,false,false,POS_FACEUP_DEFENCE)
-		Duel.SpecialSummonStep(tc2,0,tp,tp,false,false,POS_FACEUP_DEFENCE)
+		Duel.SpecialSummonStep(tc1,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
+		Duel.SpecialSummonStep(tc2,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
 		tc1:RegisterFlagEffect(81587028,RESET_EVENT+0x1fe0000,0,1)
 		tc2:RegisterFlagEffect(81587028,RESET_EVENT+0x1fe0000,0,1)
 		local e1=Effect.CreateEffect(e:GetHandler())

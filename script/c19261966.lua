@@ -22,7 +22,7 @@ function c19261966.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_FIELD)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH)
+	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e3:SetTargetRange(1,1)
 	e3:SetTarget(c19261966.sumlimit)
 	c:RegisterEffect(e3)
@@ -38,7 +38,7 @@ function c19261966.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function c19261966.ffilter1(c)
-	return c:IsSetCard(0x9d)
+	return c:IsFusionSetCard(0x9d)
 end
 function c19261966.ffilter2(c)
 	return c:IsAttribute(ATTRIBUTE_WATER) or c:IsHasEffect(4904633)
@@ -166,6 +166,5 @@ function c19261966.thop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,tc)
 	end
 end

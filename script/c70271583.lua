@@ -5,14 +5,6 @@ function c70271583.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(EFFECT_MUST_ATTACK)
 	c:RegisterEffect(e1)
-	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD)
-	e2:SetCode(EFFECT_CANNOT_EP)
-	e2:SetRange(LOCATION_MZONE)
-	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e2:SetTargetRange(1,0)
-	e2:SetCondition(c70271583.becon)
-	c:RegisterEffect(e2)
 	--pos change
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(70271583,0))
@@ -39,13 +31,10 @@ function c70271583.initial_effect(c)
 	e5:SetValue(1)
 	c:RegisterEffect(e5)
 end
-function c70271583.becon(e)
-	return e:GetHandler():IsAttackable()
-end
 function c70271583.posop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsFaceup() and c:IsRelateToEffect(e) then
-		Duel.ChangePosition(c,POS_FACEUP_DEFENCE,0,POS_FACEUP_ATTACK,0)
+		Duel.ChangePosition(c,POS_FACEUP_DEFENSE,0,POS_FACEUP_ATTACK,0)
 	end
 end
 function c70271583.atkcon(e,tp,eg,ep,ev,re,r,rp)
@@ -67,7 +56,7 @@ function c70271583.atkop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetValue(800)
 		tc:RegisterEffect(e1)
 		local e2=e1:Clone()
-		e2:SetCode(EFFECT_UPDATE_DEFENCE)
+		e2:SetCode(EFFECT_UPDATE_DEFENSE)
 		tc:RegisterEffect(e2)
 		tc=g:GetNext()
 	end

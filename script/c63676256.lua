@@ -43,7 +43,7 @@ function c63676256.initial_effect(c)
 	e5:SetValue(-500)
 	c:RegisterEffect(e5)
 	local e6=e5:Clone()
-	e6:SetCode(EFFECT_UPDATE_DEFENCE)
+	e6:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e6)
 	--search
 	local e7=Effect.CreateEffect(c)
@@ -91,15 +91,17 @@ function c63676256.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c63676256.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP_ATTACK)
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP_ATTACK)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,true,false) then
+		Duel.SendtoGrave(c,REASON_RULE)
 	end
 end
 function c63676256.descon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsStatus(STATUS_UNION) and eg:GetCount()==1 and eg:GetFirst()==e:GetHandler():GetEquipTarget()
 end
 function c63676256.dfilter(c,rac)
-	return c:IsFaceup() and c:IsRace(rac) and c:IsDestructable()
+	return c:IsFaceup() and c:IsRace(rac)
 end
 function c63676256.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

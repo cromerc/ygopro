@@ -13,7 +13,7 @@ function c16111820.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c16111820.filter(c,tp)
-	return c:GetPreviousControler()==tp and c:IsPreviousPosition(POS_DEFENCE) and c:IsReason(REASON_BATTLE) and c:IsLocation(LOCATION_GRAVE) 
+	return c:GetPreviousControler()==tp and c:IsPreviousPosition(POS_DEFENSE) and c:IsReason(REASON_BATTLE) and c:IsLocation(LOCATION_GRAVE) 
 		and c:IsSetCard(0x22) and c:GetCode()~=16111820
 end
 function c16111820.condition(e,tp,eg,ep,ev,re,r,rp)
@@ -26,7 +26,9 @@ function c16111820.target(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c16111820.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsLocation(LOCATION_HAND) then
+		Duel.SendtoGrave(c,REASON_RULE)
 	end
 end

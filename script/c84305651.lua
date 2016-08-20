@@ -14,7 +14,6 @@ function c84305651.initial_effect(c)
 	c:RegisterEffect(e1)
 	--special summon
 	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetCode(EVENT_BATTLE_DESTROYING)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCondition(aux.bdogcon)
@@ -58,7 +57,10 @@ function c84305651.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 	if op==0 then
 		Duel.SetTargetCard(bc)
+		e:SetCategory(CATEGORY_SPECIAL_SUMMON)
 		Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,bc,1,0,0)
+	else
+		e:SetCategory(CATEGORY_CONTROL)
 	end
 	e:SetLabel(op)
 end
@@ -72,10 +74,8 @@ function c84305651.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONTROL)
 		local g=Duel.SelectMatchingCard(tp,c84305651.ctfilter,tp,0,LOCATION_MZONE,1,1,nil)
 		local tc=g:GetFirst()
-		if tc and not Duel.GetControl(tc,tp) then
-			if not tc:IsImmuneToEffect(e) and tc:IsAbleToChangeControler() then
-				Duel.Destroy(tc,REASON_EFFECT)
-			end
+		if tc then
+			Duel.GetControl(tc,tp)
 		end
 	end
 end

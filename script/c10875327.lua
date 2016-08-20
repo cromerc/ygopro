@@ -1,6 +1,6 @@
 --地縛神 Aslla piscu
 function c10875327.initial_effect(c)
-	c:SetUniqueOnField(1,1,10000000)
+	c:SetUniqueOnField(1,1,10000000,LOCATION_MZONE)
 	--
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_SINGLE)
@@ -43,10 +43,10 @@ end
 function c10875327.descon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return c:IsPreviousPosition(POS_FACEUP) and not c:IsLocation(LOCATION_DECK)
-		and (not re or re:GetHandler()~=c)
+		and (not re or re:GetOwner()~=c)
 end
 function c10875327.desfilter(c)
-	return c:IsFaceup() and c:IsDestructable()
+	return c:IsFaceup()
 end
 function c10875327.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

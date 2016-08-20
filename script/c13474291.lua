@@ -36,7 +36,7 @@ function c13474291.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function c13474291.sdcon(e)
-	return e:GetHandler():IsPosition(POS_FACEUP_DEFENCE)
+	return e:GetHandler():IsPosition(POS_FACEUP_DEFENSE)
 end
 function c13474291.cfilter(c)
 	return c:IsSetCard(0x18) and c:IsType(TYPE_MONSTER) and c:IsAbleToRemoveAsCost()
@@ -61,6 +61,6 @@ end
 function c13474291.ctop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsFaceup() and tc:IsRelateToEffect(e) then
-		tc:AddCounter(0x19,1)
+		tc:AddCounter(0x1019,1)
 	end
 end

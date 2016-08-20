@@ -23,12 +23,13 @@ function c62180201.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_FIELD)
 	e4:SetCode(EFFECT_SET_ATTACK_FINAL)
 	e4:SetRange(LOCATION_MZONE)
+	e4:SetProperty(EFFECT_FLAG_DELAY)
 	e4:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
 	e4:SetTarget(c62180201.atktg)
 	e4:SetValue(c62180201.atkval)
 	c:RegisterEffect(e4)
 	local e5=e4:Clone()
-	e5:SetCode(EFFECT_SET_DEFENCE_FINAL)
+	e5:SetCode(EFFECT_SET_DEFENSE_FINAL)
 	e5:SetValue(c62180201.defval)
 	c:RegisterEffect(e5)
 end
@@ -48,5 +49,5 @@ function c62180201.atkval(e,c)
 	return c:GetAttack()/2
 end
 function c62180201.defval(e,c)
-	return c:GetDefence()/2
+	return c:GetDefense()/2
 end

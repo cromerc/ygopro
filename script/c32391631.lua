@@ -5,7 +5,7 @@ function c32391631.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	c:RegisterEffect(e1)
-	--to defence
+	--to defense
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(32391631,0))
 	e2:SetCategory(CATEGORY_RECOVER)
@@ -22,14 +22,6 @@ function c32391631.initial_effect(c)
 	e3:SetRange(LOCATION_FZONE)
 	e3:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
 	c:RegisterEffect(e3)
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_FIELD)
-	e4:SetCode(EFFECT_CANNOT_EP)
-	e4:SetRange(LOCATION_FZONE)
-	e4:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
-	e4:SetTargetRange(1,1)
-	e4:SetCondition(c32391631.becon)
-	c:RegisterEffect(e4)
 	--destroy
 	local e5=Effect.CreateEffect(c)
 	e5:SetDescription(aux.Stringid(32391631,1))
@@ -82,12 +74,9 @@ function c32391631.recop(e,tp,eg,ep,ev,re,r,rp)
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 	Duel.Recover(p,d,REASON_EFFECT)
 end
-function c32391631.becon(e)
-	return Duel.IsExistingMatchingCard(Card.IsAttackable,Duel.GetTurnPlayer(),LOCATION_MZONE,0,1,nil)
-end
 function c32391631.desfilter(c)
 	local ct=c:GetFlagEffectLabel(32391631)
-	return c:IsPosition(POS_FACEUP_ATTACK) and (not ct or ct==0) and c:IsDestructable()
+	return c:IsPosition(POS_FACEUP_ATTACK) and (not ct or ct==0)
 end
 function c32391631.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

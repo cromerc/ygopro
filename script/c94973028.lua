@@ -68,6 +68,7 @@ function c94973028.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c94973028.spop(e,tp,eg,ep,ev,re,r,rp)
 	if not c94973028.spcon(e,tp,eg,ep,ev,re,r,rp) then return end
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then return end
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=1 then return end
 	if Duel.IsPlayerCanSpecialSummonMonster(tp,31533705,0x101b,0x4011,0,0,3,RACE_MACHINE,ATTRIBUTE_WIND) then
 		local token=Duel.CreateToken(tp,94973029)
@@ -83,7 +84,7 @@ function c94973028.descost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Release(g,REASON_COST)
 end
 function c94973028.desfilter(c)
-	return c:IsDestructable() and c:IsAbleToRemove()
+	return c:IsAbleToRemove()
 end
 function c94973028.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(1-tp) and chkc:IsOnField() and c94973028.desfilter(chkc) end

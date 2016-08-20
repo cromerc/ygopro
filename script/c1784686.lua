@@ -19,20 +19,16 @@ function c1784686.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c1784686.tgfilter0(c,e,tp)
-	return c:IsFaceup() and c:IsSetCard(0xa2)
+	return c:IsFaceup() and c:IsSetCard(0x10a2)
 		and c:IsCanBeFusionMaterial() and Duel.IsExistingMatchingCard(c1784686.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,c:GetCode())
 end
 function c1784686.tgfilter(c,e,tp)
-	return c:IsFaceup() and c:IsSetCard(0xa2)
+	return c:IsFaceup() and c:IsSetCard(0x10a2)
 		and c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e)
 		and Duel.IsExistingMatchingCard(c1784686.spfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,c:GetCode())
 end
 function c1784686.spfilter(c,e,tp,code)
-	if not c.material or not c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false) then return false end
-	for i,mcode in ipairs(c.material) do
-		if code==mcode then return true end
-	end
-	return false
+	return aux.IsMaterialListCode(c,code) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_FUSION,tp,false,false)
 end
 function c1784686.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc==0 then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and c1784686.tgfilter(chkc,e,tp) end

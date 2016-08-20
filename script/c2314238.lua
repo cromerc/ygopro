@@ -10,6 +10,7 @@ function c2314238.initial_effect(c)
 	e1:SetOperation(c2314238.activate)
 	c:RegisterEffect(e1)
 end
+c2314238.card_code_list={46986414}
 function c2314238.cfilter(c)
 	return c:IsFaceup() and c:IsCode(46986414)
 end
@@ -17,7 +18,7 @@ function c2314238.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(c2314238.cfilter,tp,LOCATION_ONFIELD,0,1,nil)
 end
 function c2314238.filter(c)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsDestructable()
+	return c:IsType(TYPE_SPELL+TYPE_TRAP)
 end
 function c2314238.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

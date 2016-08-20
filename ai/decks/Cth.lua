@@ -465,7 +465,7 @@ function CthGetPos(id)
     if CthAtt[i]==id then return POS_FACEUP_ATTACK end
   end
   for i=1,#CthDef do
-    if CthDef[i]==id then return POS_FACEUP_DEFENCE end
+    if CthDef[i]==id then return POS_FACEUP_DEFENSE end
   end
   return result
 end

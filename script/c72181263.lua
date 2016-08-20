@@ -33,11 +33,11 @@ function c72181263.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function c72181263.desfilter1(c,tp,ec)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsDestructable()
+	return c:IsType(TYPE_SPELL+TYPE_TRAP)
 		and Duel.IsExistingTarget(c72181263.desfilter2,tp,LOCATION_ONFIELD,0,1,c,ec)
 end
 function c72181263.desfilter2(c,ec)
-	return c~=ec and c:IsFaceup() and (c:IsSetCard(0xaf) or c:IsSetCard(0xae)) and c:IsDestructable()
+	return c~=ec and c:IsFaceup() and (c:IsSetCard(0xaf) or c:IsSetCard(0xae))
 end
 function c72181263.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end
@@ -67,8 +67,10 @@ function c72181263.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function c72181263.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 and Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) then
+		Duel.SendtoGrave(c,REASON_RULE)
 	end
 end
 function c72181263.regop(e,tp,eg,ep,ev,re,r,rp)

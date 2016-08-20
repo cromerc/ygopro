@@ -46,7 +46,11 @@ function c18631392.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	Duel.SendtoGrave(g1,REASON_COST)
 end
 function c18631392.anctg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsPlayerCanDiscardDeck(tp,3) end
+	if chk==0 then 
+		if not Duel.IsPlayerCanDiscardDeck(tp,3) then return false end
+		local g=Duel.GetDecktopGroup(tp,3)
+		return g:FilterCount(Card.IsAbleToHand,nil)>0
+	end
 	Duel.Hint(HINT_SELECTMSG,tp,0)
 	local ac1=Duel.AnnounceCard(tp)
 	Duel.Hint(HINT_SELECTMSG,tp,0)
@@ -56,8 +60,7 @@ function c18631392.anctg(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:SetOperation(c18631392.retop(ac1,ac2,ac3))
 end
 function c18631392.hfilter(c,code1,code2,code3)
-	local code=c:GetCode()
-	return (code==code1 or code==code2 or code==code3) and c:IsAbleToHand()
+	return c:IsCode(code1,code2,code3) and c:IsAbleToHand()
 end
 function c18631392.retop(code1,code2,code3)
 	return
@@ -86,7 +89,7 @@ function c18631392.retop(code1,code2,code3)
 				e1:SetReset(RESET_EVENT+0x1ff0000)
 				c:RegisterEffect(e1)
 				local e2=e1:Clone()
-				e2:SetCode(EFFECT_SET_DEFENCE_FINAL)
+				e2:SetCode(EFFECT_SET_DEFENSE_FINAL)
 				c:RegisterEffect(e2)
 			end
 		end

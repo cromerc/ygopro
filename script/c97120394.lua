@@ -11,11 +11,13 @@ function c97120394.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c97120394.condition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetCurrentPhase()==PHASE_BATTLE and not Duel.CheckPhaseActivity()
+	return Duel.GetCurrentPhase()==PHASE_BATTLE_START
 end
 function c97120394.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	Duel.SetChainLimit(aux.FALSE)
+	if e:IsHasType(EFFECT_TYPE_ACTIVATE) then
+		Duel.SetChainLimit(aux.FALSE)
+	end
 end
 function c97120394.activate(e,tp,eg,ep,ev,re,r,rp)
 	local e1=Effect.CreateEffect(e:GetHandler())

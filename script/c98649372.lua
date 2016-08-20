@@ -21,7 +21,7 @@ function c98649372.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c98649372.filter(c)
-	return c:IsFaceup() and c:IsType(TYPE_SPELL) and c:IsDestructable()
+	return c:IsFaceup() and c:IsType(TYPE_SPELL)
 end
 function c98649372.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) and c98649372.filter(chkc) end
@@ -39,6 +39,6 @@ end
 function c98649372.posop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
-		Duel.ChangePosition(c,POS_FACEUP_DEFENCE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
+		Duel.ChangePosition(c,POS_FACEUP_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
 	end
 end

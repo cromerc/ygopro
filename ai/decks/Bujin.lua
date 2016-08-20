@@ -182,7 +182,7 @@ function UseRegaliaGrave()
     GlobalCardMode=2
     return true
   end
-  if Duel.GetCurrentPhase() == PHASE_BATTLE and HasID(AIGrave(),68601507,true) 
+  if IsBattlePhase() and HasID(AIGrave(),68601507,true) 
   and not HasID(AIHand(),68601507,true) and not HasID(AIHand(),37742478,true)
   then
 		local source = Duel.GetAttacker()
@@ -196,9 +196,9 @@ function UseRegaliaGrave()
       and (source:GetAttack() >= target:GetAttack() 
       and source:GetAttack() <= target:GetBaseAttack()*2
       and source:IsPosition(POS_FACEUP_ATTACK) 
-      or source:GetDefence() >= target:GetAttack()  
-      and source:GetDefence() < target:GetBaseAttack()*2
-      and source:IsPosition(POS_FACEUP_DEFENCE))
+      or source:GetDefense() >= target:GetAttack()  
+      and source:GetDefense() < target:GetBaseAttack()*2
+      and source:IsPosition(POS_FACEUP_DEFENSE))
       and target:IsPosition(POS_FACEUP_ATTACK)
       and not source:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE) 
       and not target:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE) 
@@ -356,7 +356,7 @@ if DeckCheck(DECK_BUJIN) then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
   end
 
-  if HasID(SpSummonable,46772449) and DeckCheck(DECK_BUJIN) and SummonBelzebuth() then
+  if HasID(SpSummonable,46772449,SummonBelzebuth) and DeckCheck(DECK_BUJIN) then
     return {COMMAND_SPECIAL_SUMMON,IndexByID(SpSummonable,46772449)}
   end
   if HasID(SpSummonable,01855932) and SummonKagutsuchi() then
@@ -611,7 +611,7 @@ function ChainHare()
       return true
     end
   end
-  if Duel.GetCurrentPhase() == PHASE_BATTLE then
+  if IsBattlePhase() then
 		local source = Duel.GetAttacker()
 		local target = Duel.GetAttackTarget()
     if source and target then
@@ -657,9 +657,9 @@ function ChainCrane()
       and (source:GetAttack() >= target:GetAttack() 
       and source:GetAttack() <= target:GetBaseAttack()*2
       and source:IsPosition(POS_FACEUP_ATTACK) 
-      or source:GetDefence() >= target:GetAttack()  
-      and source:GetDefence() < target:GetBaseAttack()*2
-      and source:IsPosition(POS_FACEUP_DEFENCE))
+      or source:GetDefense() >= target:GetAttack()  
+      and source:GetDefense() < target:GetBaseAttack()*2
+      and source:IsPosition(POS_FACEUP_DEFENSE))
       and target:IsPosition(POS_FACEUP_ATTACK)
       and not source:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE) 
       and not target:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE) 
@@ -690,9 +690,9 @@ function ChainHonest()
       if target:IsControler(player_ai)
       and (source:GetAttack() >= target:GetAttack() 
       and source:IsPosition(POS_FACEUP_ATTACK) 
-      or source:GetDefence() >= target:GetAttack() 
-      and source:GetDefence() < target:GetAttack()+source:GetAttack()
-      and source:IsPosition(POS_FACEUP_DEFENCE))
+      or source:GetDefense() >= target:GetAttack() 
+      and source:GetDefense() < target:GetAttack()+source:GetAttack()
+      and source:IsPosition(POS_FACEUP_DEFENSE))
       and target:IsPosition(POS_FACEUP_ATTACK)
       and not source:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE) 
       and not target:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE) 
@@ -723,9 +723,9 @@ function ChainSinyou()
       if target:IsControler(player_ai)
       and (source:GetAttack() >= target:GetAttack() 
       and source:IsPosition(POS_FACEUP_ATTACK) 
-      or source:GetDefence() >= target:GetAttack() 
-      and source:GetDefence() < target:GetAttack()+source:GetAttack()
-      and source:IsPosition(POS_FACEUP_DEFENCE))
+      or source:GetDefense() >= target:GetAttack() 
+      and source:GetDefense() < target:GetAttack()+source:GetAttack()
+      and source:IsPosition(POS_FACEUP_DEFENSE))
       and target:IsPosition(POS_FACEUP_ATTACK)
       and not source:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE) 
       and not target:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE) 
@@ -817,7 +817,7 @@ function BujinOnSelectPosition(id, available)
     if BujinAtt[i]==id then result=POS_FACEUP_ATTACK end
   end
   for i=1,#BujinDef do
-    if BujinDef[i]==id then result=POS_FACEUP_DEFENCE end
+    if BujinDef[i]==id then result=POS_FACEUP_DEFENSE end
   end
   return result
 end

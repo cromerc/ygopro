@@ -38,11 +38,12 @@ function c48680970.initial_effect(c)
 	e4:SetOperation(c48680970.desop)
 	c:RegisterEffect(e4)
 end
+c48680970.card_code_list={46986414}
 function c48680970.filter1(c,e,tp)
-	return c:IsCode(46986414) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
+	return c:IsCode(46986414) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c48680970.filter2(c)
-	return (c:IsCode(2314238) or c:IsCode(63391643)) and c:IsAbleToHand()
+	return c:IsCode(2314238,63391643) and c:IsAbleToHand()
 end
 function c48680970.target1(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -76,7 +77,7 @@ function c48680970.operation(e,tp,eg,ep,ev,re,r,rp)
 		if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local g=Duel.SelectMatchingCard(tp,c48680970.filter1,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,1,nil,e,tp)
-		if g:GetCount()>0 then
+		if g:GetCount()>0 and not g:GetFirst():IsHasEffect(EFFECT_NECRO_VALLEY) then
 			Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 		end
 	else
@@ -124,10 +125,10 @@ function c48680970.descon(e,tp,eg,ep,ev,re,r,rp)
 end
 function c48680970.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
-	local g=Duel.GetMatchingGroup(Card.IsDestructable,tp,LOCATION_MZONE,0,nil)
+	local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_MZONE,0,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
 end
 function c48680970.desop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(Card.IsDestructable,tp,LOCATION_MZONE,0,nil)
+	local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_MZONE,0,nil)
 	Duel.Destroy(g,REASON_EFFECT)
 end

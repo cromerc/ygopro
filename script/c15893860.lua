@@ -32,12 +32,12 @@ function c15893860.operation(e,tp,eg,ep,ev,re,r,rp)
 	for i=1,ct do
 		Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(15893860,1))
 		local tc=g:Select(tp,1,1,nil):GetFirst()
-		tc:AddCounter(0x15,1)
+		tc:AddCounter(0x1015,1)
 	end
 	if ct>=3 and Duel.SelectYesNo(tp,aux.Stringid(15893860,2)) then
 		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local dg=Duel.SelectMatchingCard(tp,Card.IsDestructable,tp,0,LOCATION_ONFIELD,1,1,nil)
+		local dg=Duel.SelectMatchingCard(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,1,nil)
 		Duel.Destroy(dg,REASON_EFFECT)
 	end
 end

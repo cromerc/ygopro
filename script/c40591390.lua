@@ -23,7 +23,7 @@ function c40591390.initial_effect(c)
 	e3:SetValue(c40591390.val)
 	c:RegisterEffect(e3)
 	local e4=e3:Clone()
-	e4:SetCode(EFFECT_SET_DEFENCE)
+	e4:SetCode(EFFECT_SET_DEFENSE)
 	c:RegisterEffect(e4)
 end
 function c40591390.spcon(e,tp,eg,ep,ev,re,r,rp)
@@ -46,6 +46,7 @@ function c40591390.spop(e,tp,eg,ep,ev,re,r,rp)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
 	if ft<=0 then return end
 	if ft>2 then ft=2 end
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
 	g=Duel.GetMatchingGroup(c40591390.spfilter,tp,LOCATION_GRAVE,0,nil,e,tp)
 	if g:GetCount()~=0 and Duel.SelectYesNo(tp,aux.Stringid(40591390,1)) then
 		Duel.BreakEffect()

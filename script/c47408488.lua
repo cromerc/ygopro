@@ -1,5 +1,6 @@
 --宝玉の樹
 function c47408488.initial_effect(c)
+	c:EnableCounterPermit(0x6)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
@@ -11,7 +12,7 @@ function c47408488.initial_effect(c)
 	e2:SetDescription(aux.Stringid(47408488,0))
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e2:SetRange(LOCATION_SZONE)
-	e2:SetCode(47408488)
+	e2:SetCode(EVENT_CUSTOM+47408488)
 	e2:SetOperation(c47408488.ctop)
 	c:RegisterEffect(e2)
 	--equip
@@ -40,7 +41,7 @@ function c47408488.eqcon(e,tp,eg,ep,ev,re,r,rp)
 	return tc:IsFaceup() and tc:IsSetCard(0x1034)
 end
 function c47408488.ctop(e,tp,eg,ep,ev,re,r,rp)
-	e:GetHandler():AddCounter(0x6+COUNTER_NEED_ENABLE,1)
+	e:GetHandler():AddCounter(0x6,1)
 end
 function c47408488.plcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsAbleToGraveAsCost() end
@@ -53,12 +54,15 @@ function c47408488.pltg(e,tp,eg,ep,ev,re,r,rp,chk)
 		return ct>0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>=ct
 	end
 end
+function c47408488.plfilter(c)
+	return c:IsSetCard(0x1034) and not c:IsForbidden()
+end
 function c47408488.plop(e,tp,eg,ep,ev,re,r,rp)
 	local ft=Duel.GetLocationCount(tp,LOCATION_SZONE)
 	if ft<=0 then return end
 	if ft>e:GetLabel() then ft=e:GetLabel() end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-	local g=Duel.SelectMatchingCard(tp,Card.IsSetCard,tp,LOCATION_DECK,0,ft,ft,nil,0x1034)
+	local g=Duel.SelectMatchingCard(tp,c47408488.plfilter,tp,LOCATION_DECK,0,ft,ft,nil)
 	if g:GetCount()>0 then
 		local tc=g:GetFirst()
 		while tc do
@@ -72,6 +76,6 @@ function c47408488.plop(e,tp,eg,ep,ev,re,r,rp)
 			tc:RegisterEffect(e1)
 			tc=g:GetNext()
 		end
-		Duel.RaiseEvent(g,47408488,e,0,tp,0,0)
+		Duel.RaiseEvent(g,EVENT_CUSTOM+47408488,e,0,tp,0,0)
 	end
 end

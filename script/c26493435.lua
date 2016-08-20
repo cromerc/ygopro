@@ -1,5 +1,6 @@
 --希望郷－オノマトピア－
 function c26493435.initial_effect(c)
+	c:EnableCounterPermit(0x30)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
@@ -23,7 +24,7 @@ function c26493435.initial_effect(c)
 	e3:SetValue(c26493435.val)
 	c:RegisterEffect(e3)
 	local e4=e3:Clone()
-	e4:SetCode(EFFECT_UPDATE_DEFENCE)
+	e4:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e4)
 	--special summon
 	local e5=Effect.CreateEffect(c)
@@ -38,13 +39,13 @@ function c26493435.initial_effect(c)
 	c:RegisterEffect(e5)
 end
 function c26493435.ctfilter(c,tp)
-	return c:IsFaceup() and c:IsSetCard(0x7f) and c:IsControler(tp)
+	return c:IsFaceup() and c:IsSetCard(0x107f) and c:IsControler(tp)
 end
 function c26493435.ctcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(c26493435.ctfilter,1,nil,tp)
 end
 function c26493435.ctop(e,tp,eg,ep,ev,re,r,rp)
-	e:GetHandler():AddCounter(0x30+COUNTER_NEED_ENABLE,1)
+	e:GetHandler():AddCounter(0x30,1)
 end
 function c26493435.val(e,c)
 	return e:GetHandler():GetCounter(0x30)*200

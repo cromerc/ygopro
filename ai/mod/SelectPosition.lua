@@ -11,8 +11,8 @@
 From constants.lua
 POS_FACEUP_ATTACK		=0x1
 POS_FACEDOWN_ATTACK		=0x2
-POS_FACEUP_DEFENCE		=0x4
-POS_FACEDOWN_DEFENCE	=0x8
+POS_FACEUP_DEFENSE		=0x4
+POS_FACEDOWN_DEFENSE	=0x8
 --]]
 function OnSelectPosition(id, available)
 	local result = 0
@@ -26,7 +26,7 @@ function OnSelectPosition(id, available)
   -------------------------------------------------------
   if GlobalActivatedCardID == 27337596 -- Hieratic Dragon King of Atum
   then
-    result = POS_FACEUP_DEFENCE
+    result = POS_FACEUP_DEFENSE
     GlobalActivatedCardID = nil
     GlobalTributedCardID = nil
   end
@@ -36,14 +36,14 @@ function OnSelectPosition(id, available)
   -- or if any actions can be taken to gain advantage over player.
   -- Then summon or set monster in available position depending on results.
   ------------------------------------------------------
- if band(POS_FACEDOWN_DEFENCE,available) > 0 and Get_Card_Count_Pos(OppMon(), POS_FACEUP) > 0 then
+ if band(POS_FACEDOWN_DEFENSE,available) > 0 and Get_Card_Count_Pos(OppMon(), POS_FACEUP) > 0 then
   if AIMonGetAttackById(id) < Get_Card_Att_Def(OppMon(),"attack",">",POS_FACEUP_ATTACK,"attack") and CanChangeOutcomeSS(id) == 0 and AIMonGetAttackById(id) < 2400 then -- Also check if any action can be taken by CanChangeOutcomeSS
-    result = POS_FACEDOWN_DEFENCE
+    result = POS_FACEDOWN_DEFENSE
     end 
   end
- if band(POS_FACEUP_DEFENCE,available) > 0 and Get_Card_Count_Pos(OppMon(), POS_FACEUP) > 0 then 
+ if band(POS_FACEUP_DEFENSE,available) > 0 and Get_Card_Count_Pos(OppMon(), POS_FACEUP) > 0 then 
   if AIMonGetAttackById(id) < Get_Card_Att_Def(OppMon(),"attack",">",POS_FACEUP_ATTACK,"attack") and CanChangeOutcomeSS(id) == 0 and AIMonGetAttackById(id) < 2400 then -- Also check if any action can be taken by CanChangeOutcomeSS
-   result = POS_FACEUP_DEFENCE
+   result = POS_FACEUP_DEFENSE
    end 
  end
   -------------------------------------------------------
@@ -58,13 +58,13 @@ function OnSelectPosition(id, available)
     if Get_Card_Count_ID(AIHand(),31036355,nil) == 0 or
        Get_Card_Count(OppMon()) ~= 1 or
        Get_Card_Count(AIMon()) ~= 0 then
-      result = POS_FACEUP_DEFENCE
+      result = POS_FACEUP_DEFENSE
     end
   end
 
   ------------------------------------
   -- Cards to be always summoned in
-  -- defence position.
+  -- defense position.
   -- Expanding upon the above example.
   -- More cards to be added later.
   ------------------------------------
@@ -74,7 +74,7 @@ function OnSelectPosition(id, available)
      id == 58058134 or id == 10389142 or   -- Slacker Magician, Tomahawk
      id == 46384403 or id == 14677495 then -- Nimble Manta, Tanngnjostr
     
-	result = POS_FACEUP_DEFENCE
+	result = POS_FACEUP_DEFENSE
   end
   
   ------------------------------------
@@ -111,10 +111,10 @@ function OnSelectPosition(id, available)
   if band(result,available) == 0 then
     if band(POS_FACEUP_ATTACK,available) > 0 then
       result = POS_FACEUP_ATTACK
-    elseif band(POS_FACEUP_DEFENCE,available) > 0 then
-      result = POS_FACEUP_DEFENCE
-    elseif band(POS_FACEDOWN_DEFENCE,available) > 0 then
-      result = POS_FACEDOWN_DEFENCE
+    elseif band(POS_FACEUP_DEFENSE,available) > 0 then
+      result = POS_FACEUP_DEFENSE
+    elseif band(POS_FACEDOWN_DEFENSE,available) > 0 then
+      result = POS_FACEDOWN_DEFENSE
     else
       result = POS_FACEDOWN_ATTACK
     end

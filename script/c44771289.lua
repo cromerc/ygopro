@@ -78,15 +78,6 @@ function c44771289.activate(e,tp,eg,ep,ev,re,r,rp)
 			fop(ce,e,tp,tc,mat2)
 		end
 		tc:CompleteProcedure()
-	else
-		local cg1=Duel.GetFieldGroup(tp,LOCATION_HAND+LOCATION_MZONE,0)
-		local cg2=Duel.GetFieldGroup(tp,LOCATION_EXTRA,0)
-		if cg1:GetCount()>1 and cg2:IsExists(Card.IsFacedown,1,nil)
-			and Duel.IsPlayerCanSpecialSummon(tp) and not Duel.IsPlayerAffectedByEffect(tp,27581098) then
-			Duel.ConfirmCards(1-tp,cg1)
-			Duel.ConfirmCards(1-tp,cg2)
-			Duel.ShuffleHand(tp)
-		end
 	end
 end
 function c44771289.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -112,7 +103,7 @@ function c44771289.atkop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END+RESET_OPPO_TURN)
 		tc:RegisterEffect(e1)
 		local e2=e1:Clone()
-		e2:SetCode(EFFECT_UPDATE_DEFENCE)
+		e2:SetCode(EFFECT_UPDATE_DEFENSE)
 		tc:RegisterEffect(e2)
 	end
 end

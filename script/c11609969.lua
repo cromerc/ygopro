@@ -7,9 +7,8 @@ function c11609969.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_FIELD)
 	e2:SetRange(LOCATION_PZONE)
 	e2:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE)
+	e2:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CANNOT_NEGATE)
 	e2:SetTargetRange(1,0)
-	e2:SetCondition(aux.nfbdncon)
 	e2:SetTarget(c11609969.splimit)
 	c:RegisterEffect(e2)
 	--scale change
@@ -44,7 +43,7 @@ function c11609969.sccon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()==tp
 end
 function c11609969.filter(c,lv)
-	return c:IsFaceup() and not c:IsSetCard(0xaf) and c:IsLevelAbove(lv) and c:IsDestructable()
+	return c:IsFaceup() and not c:IsSetCard(0xaf) and c:IsLevelAbove(lv)
 end
 function c11609969.sctg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

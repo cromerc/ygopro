@@ -12,15 +12,13 @@ function c26268488.initial_effect(c)
 	c:RegisterEffect(e1)
 	--indes
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e2:SetCode(EFFECT_DESTROY_REPLACE)
+	e2:SetType(EFFECT_TYPE_FIELD)
+	e2:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+	e2:SetCode(EFFECT_INDESTRUCTABLE_COUNT)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetTarget(c26268488.reptg)
-	e2:SetValue(c26268488.repval)
+	e2:SetTargetRange(LOCATION_ONFIELD,0)
+	e2:SetValue(c26268488.indct)
 	c:RegisterEffect(e2)
-	local g=Group.CreateGroup()
-	g:KeepAlive()
-	e2:SetLabelObject(g)
 	--disable
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(26268488,0))
@@ -45,24 +43,10 @@ function c26268488.initial_effect(c)
 	e4:SetOperation(c26268488.spop)
 	c:RegisterEffect(e4)
 end
-function c26268488.repfilter(c,tp)
-	return c:IsControler(tp) and c:IsOnField() and c:IsReason(REASON_BATTLE+REASON_EFFECT) and c:GetFlagEffect(26268488)==0
-end
-function c26268488.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return eg:IsExists(c26268488.repfilter,1,nil,tp) end
-	local g=eg:Filter(c26268488.repfilter,nil,tp)
-	local tc=g:GetFirst()
-	while tc do
-		tc:RegisterFlagEffect(26268488,RESET_EVENT+0x1fc0000+RESET_PHASE+PHASE_END,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(26268488,2))
-		tc=g:GetNext()
-	end
-	e:GetLabelObject():Clear()
-	e:GetLabelObject():Merge(g)
-	return true
-end
-function c26268488.repval(e,c)
-	local g=e:GetLabelObject()
-	return g:IsContains(c)
+function c26268488.indct(e,re,r,rp)
+	if bit.band(r,REASON_BATTLE+REASON_EFFECT)~=0 then
+		return 1
+	else return 0 end
 end
 function c26268488.discon(e,tp,eg,ep,ev,re,r,rp)
 	return not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED) and rp~=tp and re:IsActiveType(TYPE_MONSTER) and Duel.IsChainDisablable(ev)
@@ -70,14 +54,15 @@ end
 function c26268488.distg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
-	local g=Duel.GetMatchingGroup(Card.IsDestructable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
+	local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function c26268488.disop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.NegateEffect(ev)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectMatchingCard(tp,Card.IsDestructable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
 	if g:GetCount()>0 then
+		Duel.HintSelection(g)
 		Duel.Destroy(g,REASON_EFFECT)
 	end
 end

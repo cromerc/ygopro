@@ -19,7 +19,7 @@ AddPriority({
 
 
 [26400609] = {6,3,4,2,6,4,5,4,0,0,TidalCond},         -- Tidal
-[78868119] = {8,3,2,2,2,1,1,1,2,2,DivaCond},          -- Deep Sea Diva
+[78868119] = {8,3,2,2,2,1,4,1,2,2,DivaCond},          -- Deep Sea Diva
 [04904812] = {4,2,2,2,2,1,5,1,3,3,UndineCond},        -- Genex Undine
 [68505803] = {2,1,2,2,3,1,4,1,5,5,ControllerCond},    -- Genex Controller
 
@@ -281,13 +281,16 @@ function SquallCond(loc)
   end
   return true
 end
-function DivaCond(loc)
+function DivaCond(c,loc)
   if loc == PRIO_TOHAND then
     return ((HasIDNotNegated(AIST(),60202749,true) 
     or FieldCheck(4)>1) 
     and Duel.GetTurnPlayer()==player_ai 
     and not NormalSummonCheck(player_ai))
     or not HasID(AICards(),21565445,true)
+  end
+  if loc == PRIO_TRIBUTE then
+    return FilterLocation(c,LOCATION_MZONE)
   end
   return true
 end
@@ -425,8 +428,13 @@ function UseTeus()
   return MermailPriorityCheck(AIHand(),PRIO_DISCARD,1,FilterAttribute,ATTRIBUTE_WATER)>4
 end
 function UseLeed(card)
-  return bit32.band(card.location,LOCATION_HAND)>0 and MermailPriorityCheck(AIHand(),PRIO_DISCARD,3,FilterAttribute,ATTRIBUTE_WATER)>5 
-  and CardsMatchingFilter(AIGrave(),function(c) return bit32.band(c.setcode,0x75)>0 and bit32.band(c.type,TYPE_SPELL+TYPE_TRAP)>0 end)>0 
+  return FilterLocation(card,LOCATION_HAND)
+  and MermailPriorityCheck(AIHand(),PRIO_DISCARD,3,FilterAttribute,ATTRIBUTE_WATER)>5 
+  and CardsMatchingFilter(AIGrave(),
+    function(c) 
+      return FilterSet(c,0x75)
+      and FilterType(c,TYPE_SPELL+TYPE_TRAP)
+    end)>0 
 end
 function LeedFilter(c)
   return bit32.band(c.position,POS_FACEUP_ATTACK)>0 
@@ -444,7 +452,8 @@ function UseTurge(c)
   return TurgeCond(PRIO_TOFIELD,c)
 end
 function UseSalvage()
-  return MermailPriorityCheck(AIGrave(),PRIO_TOHAND,2,function(c) return bit32.band(c.attribute,ATTRIBUTE_WATER)>0 and c.attack<=1500 end)>1
+  return MermailPriorityCheck(AIGrave(),PRIO_TOHAND,2,
+    function(c) return FilterAttribute(c,ATTRIBUTE_WATER) and c.attack<=1500 end)>1
   and #AIHand()<6
   and CardsMatchingFilter(AIGrave(),FilterAttribute,ATTRIBUTE_WATER)~=5
 end
@@ -787,7 +796,7 @@ function MermailOnSelectInit(cards, to_bp_allowed, to_ep_allowed)
   if HasID(SetableMon,68505803) and MermailOpenFieldCheck() then
     return {COMMAND_SET_MONSTER,CurrentIndex}
   end
-  if HasID(Repositionable,23899727,false,nil,nil,POS_FACEDOWN_DEFENCE) and SummonLinde() then
+  if HasID(Repositionable,23899727,false,nil,nil,POS_FACEDOWN_DEFENSE) and SummonLinde() then
     return {COMMAND_CHANGE_POS,CurrentIndex}
   end
   if HasIDNotNegated(Activatable,47826112,false,nil,LOCATION_HAND,SummonPoseidra) then
@@ -1041,28 +1050,32 @@ function UseSphereBP()
 end
 function ChainSphere(c)
   if RemovalCheckCard(c) then
+    if HasID(AIDeck(),23899727,true) and LindeCond(PRIO_TOFIELD) then -- Linde
+      GlobalSphere = 1
+      GlobalSphereID = 23899727 -- Linde
+    end
     return true
   end
   local effect = Duel.GetChainInfo(Duel.GetCurrentChain(), CHAININFO_TRIGGERING_EFFECT)
 	if effect then
     local c=effect:GetHandler() 
-    if c:IsCode(60202749) and c:IsControler(player_ai) then
+    if c:IsCode(60202749) and c:IsControler(player_ai) then -- Sphere
       return false
     end
   end
   if Duel.GetCurrentPhase()==PHASE_MAIN2 and Duel.CheckTiming(TIMING_MAIN_END) and Duel.GetTurnPlayer() == 1-player_ai 
-  and HasID(AIDeck(),23899727,true) and LindeCond(PRIO_TOFIELD) 
+  and HasID(AIDeck(),23899727,true) and LindeCond(PRIO_TOFIELD) -- Linde
   then
     GlobalSphere = 1
-    GlobalSphereID = 23899727
+    GlobalSphereID = 23899727 -- Linde
     return true
   end
-  if Duel.GetCurrentPhase() == PHASE_BATTLE and Duel.GetTurnPlayer() == 1-player_ai
+  if IsBattlePhase() and Duel.GetTurnPlayer() == 1-player_ai
   --and HasID(AIDeck(),23899727,true) and LindeCond(PRIO_TOFIELD) 
   then
     if Duel.GetAttacker() and #AIMon()==0 then
       GlobalSphere = 1
-      GlobalSphereID = 23899727
+      GlobalSphereID = 23899727 -- Linde
       return true
     end
   end
@@ -1098,7 +1111,7 @@ function ChainMechquipped(c)
     GlobalTargetSet(targets[1],AIMon())
     return true
   end
-  if Duel.GetCurrentPhase() == PHASE_BATTLE then
+  if IsBattlePhase() then
     local aimon,oppmon = GetBattlingMons()
     if WinsBattle(oppmon,aimon) 
     and aimon.id ~= 23899727 
@@ -1122,7 +1135,7 @@ function ChainMechquipped(c)
   return false
 end
 function ChainKappa()
-  if Duel.GetCurrentPhase() == PHASE_BATTLE then
+  if IsBattlePhase() then
 		local source = Duel.GetAttacker()
 		local target = Duel.GetAttackTarget()
     if source and target then
@@ -1152,7 +1165,7 @@ local effect = Duel.GetChainInfo(Duel.GetCurrentChain(), CHAININFO_TRIGGERING_EF
       return true
     end
   end
-  if Duel.GetCurrentPhase() == PHASE_BATTLE then
+  if IsBattlePhase() then
     if Duel.GetTurnPlayer()==player_ai then
       local cards=OppMon()
       for i=1,#cards do
@@ -1209,9 +1222,9 @@ function ChainDweller(c,mode)
     then
       cat={CATEGORY_TOGRAVE,CATEGORY_DESTROY}
       for j=1,2 do
-        local ex,cg=Duel.GetOperationInfo(i,car[j])
+        local ex,cg=Duel.GetOperationInfo(i,cat[j])
         if ex then
-          local c = CardFromScript(cg:GetFirst())
+          local c = GetCardFromScript(cg:GetFirst())
           if CurrentOwner(c)==2 then
             --print(removal by AI, chaining")
             return true
@@ -1220,7 +1233,7 @@ function ChainDweller(c,mode)
       end
     end
   end
-  if Duel.GetCurrentPhase() == PHASE_BATTLE then
+  if IsBattlePhase() then
     local aimon,oppmon = GetBattlingMons()
     if WinsBattle(aimon,oppmon) 
     or WinsBattle(oppmon,aimon) and CardsEqual(c,aimon)
@@ -1349,10 +1362,10 @@ function MermailOnSelectPosition(id, available)
     if MermailAtt[i]==id then result=POS_FACEUP_ATTACK end
   end
   for i=1,#MermailDef do
-    if MermailDef[i]==id and not (Duel.GetCurrentPhase()==PHASE_BATTLE 
+    if MermailDef[i]==id and not (IsBattlePhase() 
     and Duel.GetTurnPlayer()==player_ai) 
     then 
-      result=POS_FACEUP_DEFENCE 
+      result=POS_FACEUP_DEFENSE 
     end
   end
   if id == 22446869 then -- Teus
@@ -1363,7 +1376,7 @@ function MermailOnSelectPosition(id, available)
     then
       result=POS_FACEUP_ATTACK
     else
-      result=POS_FACEUP_DEFENCE
+      result=POS_FACEUP_DEFENSE
     end
   end
   if id == 23899727 then -- Linde
@@ -1373,7 +1386,7 @@ function MermailOnSelectPosition(id, available)
     then
       result=POS_FACEUP_ATTACK
     else
-      result=POS_FACEUP_DEFENCE
+      result=POS_FACEUP_DEFENSE
     end
   end
   return result

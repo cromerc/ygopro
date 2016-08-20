@@ -6,25 +6,29 @@ function c92377303.initial_effect(c)
 	e1:SetDescription(aux.Stringid(92377303,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e1:SetRange(LOCATION_HAND+LOCATION_DECK)
+	e1:SetRange(LOCATION_HAND)
 	e1:SetProperty(EFFECT_FLAG_CHAIN_UNIQUE)
-	e1:SetCode(71625222)
+	e1:SetCode(EVENT_CUSTOM+71625222)
 	e1:SetCondition(c92377303.spcon)
 	e1:SetCost(c92377303.cost)
 	e1:SetTarget(c92377303.sptg)
 	e1:SetOperation(c92377303.spop)
 	c:RegisterEffect(e1)
-	--to hand
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(92377303,1))
-	e2:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
-	e2:SetRange(LOCATION_MZONE)
-	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e2:SetCondition(c92377303.thcon)
-	e2:SetTarget(c92377303.thtg)
-	e2:SetOperation(c92377303.thop)
+	local e2=e1:Clone()
+	e2:SetRange(LOCATION_DECK)
+	e2:SetProperty(EFFECT_FLAG_CHAIN_UNIQUE,EFFECT_FLAG2_NAGA)
 	c:RegisterEffect(e2)
+	--to hand
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(92377303,1))
+	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e3:SetCondition(c92377303.thcon)
+	e3:SetTarget(c92377303.thtg)
+	e3:SetOperation(c92377303.thop)
+	c:RegisterEffect(e3)
 end
 function c92377303.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return ep==tp
@@ -43,8 +47,13 @@ function c92377303.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
 end
 function c92377303.spop(e,tp,eg,ep,ev,re,r,rp)
-	if e:GetHandler():IsRelateToEffect(e) and Duel.SpecialSummon(e:GetHandler(),0,tp,tp,true,false,POS_FACEUP)>0 then
-		e:GetHandler():CompleteProcedure()
+	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) then return end
+	if Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP)~=0 then
+		c:CompleteProcedure()
+	elseif Duel.GetLocationCount(tp,LOCATION_MZONE)<=0
+		and c:IsCanBeSpecialSummoned(e,0,tp,true,false) and c:IsLocation(LOCATION_HAND) then
+		Duel.SendtoGrave(c,REASON_RULE)
 	end
 end
 function c92377303.thcon(e,tp,eg,ep,ev,re,r,rp)

@@ -37,26 +37,29 @@ function c7093411.repop(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetReset(RESET_EVENT+0x1fc0000)
 	e1:SetValue(TYPE_SPELL+TYPE_CONTINUOUS)
 	c:RegisterEffect(e1)
-	Duel.RaiseEvent(c,47408488,e,0,tp,0,0)
+	Duel.RaiseEvent(c,EVENT_CUSTOM+47408488,e,0,tp,0,0)
+end
+function c7093411.filter(c)
+	return c:IsSetCard(0x1034) and not c:IsForbidden()
 end
 function c7093411.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND,0,1,nil,0x1034)
+	if chk==0 then return Duel.IsExistingMatchingCard(c7093411.filter,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND,0,1,nil)
 		and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 end
 end
-function c7093411.operation(e,tp,eg,ep,ev,re,r,rp,chk)
+function c7093411.operation(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-	local g=Duel.SelectMatchingCard(tp,Card.IsSetCard,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND,0,1,1,nil,0x1034)
-	if g:GetCount()>0 then
-		local tc=g:GetFirst()
+	local g=Duel.SelectMatchingCard(tp,c7093411.filter,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND,0,1,1,nil)
+	local tc=g:GetFirst()
+	if tc and not tc:IsHasEffect(EFFECT_NECRO_VALLEY) then
 		Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
-		local e1=Effect.CreateEffect(tc)
+		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetCode(EFFECT_CHANGE_TYPE)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetReset(RESET_EVENT+0x1fc0000)
 		e1:SetValue(TYPE_SPELL+TYPE_CONTINUOUS)
 		tc:RegisterEffect(e1)
-		Duel.RaiseEvent(tc,47408488,e,0,tp,0,0)
+		Duel.RaiseEvent(tc,EVENT_CUSTOM+47408488,e,0,tp,0,0)
 	end
 end

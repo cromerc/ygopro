@@ -116,7 +116,7 @@ function HonestCond(loc)
 end
 function NodenCond(loc,c)
   if loc == PRIO_TOFIELD then
-    return Duel.GetCurrentChain()==0 and CardsMatchingFilter(AIGrave(),NodenFilter)>0
+    return Duel.GetCurrentChain()==0 and CardsMatchingFilter(AIGrave(),NodenFilter,4)>0
   end
   return true
 end
@@ -389,7 +389,7 @@ if DeckCheck(DECK_TELLARKNIGHT) then
   if HasID(SpSummonable,94380860,SummonRagnaZero) then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
   end
-  if HasID(SpSummonable,46772449) and DeckCheck(DECK_TELLARKNIGHT) and SummonBelzebuth() then
+  if HasID(SpSummonable,46772449,SummonBelzebuth) and DeckCheck(DECK_TELLARKNIGHT) then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
   end
   if HasID(SpSummonable,48739166) and SummonSharkKnight1() then
@@ -415,9 +415,8 @@ if DeckCheck(DECK_TELLARKNIGHT) then
   if HasID(Activatable,54447022) and UseSoulCharge() then
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
-  if HasID(Activatable,01845204) 
+  if HasID(Activatable,01845204,UseInstantFusion,1) 
   and DeckCheck(DECK_TELLARKNIGHT)
-  and UseInstantFusion(1) 
   then
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
@@ -601,7 +600,7 @@ function SatellarknightOnSelectChain(cards,only_chains_by_player)
   if HasID(cards,97077563) and ChainCotH2() then
     return {1,CurrentIndex}
   end
-  if HasID(cards,82732705) and ChainSkillDrain(cards[CurrentIndex]) then
+  if HasID(cards,82732705,ChainSkillDrain) then
     return {1,CurrentIndex}
   end
   if HasID(cards,25789292) and ChainChaliceAtk() then
@@ -652,7 +651,7 @@ function SatellarknightOnSelectPosition(id, available)
     if SatellarknightAtt[i]==id then result=POS_FACEUP_ATTACK end
   end
   for i=1,#SatellarknightDef do
-    if SatellarknightDef[i]==id then result=POS_FACEUP_DEFENCE end
+    if SatellarknightDef[i]==id then result=POS_FACEUP_DEFENSE end
   end
   return result
 end

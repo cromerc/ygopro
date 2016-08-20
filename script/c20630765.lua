@@ -21,7 +21,7 @@ function c20630765.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE)
 	e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCode(EFFECT_UPDATE_DEFENCE)
+	e2:SetCode(EFFECT_UPDATE_DEFENSE)
 	e2:SetValue(c20630765.defup)
 	c:RegisterEffect(e2)
 	--destroy
@@ -40,7 +40,7 @@ end
 function c20630765.ctop(e,tp,eg,ep,ev,re,r,rp)
 	local c=re:GetHandler()
 	if re:IsActiveType(TYPE_MONSTER) and c~=e:GetHandler() and e:GetHandler():GetFlagEffect(1)>0 then
-		e:GetHandler():AddCounter(0x16+COUNTER_NEED_ENABLE,1)
+		e:GetHandler():AddCounter(0x16,1)
 	end
 end
 function c20630765.defup(e,c)

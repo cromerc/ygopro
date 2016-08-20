@@ -20,18 +20,23 @@ function c93775296.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 		and Duel.IsExistingTarget(c93775296.filter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
 	local ct=Duel.GetLocationCount(1-tp,LOCATION_MZONE)
 	if ct>2 then ct=2 end
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ct=1 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectTarget(tp,c93775296.filter,tp,LOCATION_GRAVE,0,1,ct,nil,e,tp)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,g:GetCount(),0,0)
 end
 function c93775296.activate(e,tp,eg,ep,ev,re,r,rp)
+	local ft=Duel.GetLocationCount(1-tp,LOCATION_MZONE)
+	if ft<=0 then return end
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
 	if g:GetCount()==0 then return end
+	if g:GetCount()>ft then return end
 	local tc=g:GetFirst()
 	while tc do
 		local spos=0
-		if tc:IsCanBeSpecialSummoned(e,0,tp,false,false) then spos=spos+POS_FACEUP_DEFENCE end
-		if tc:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN) then spos=spos+POS_FACEDOWN_DEFENCE end
+		if tc:IsCanBeSpecialSummoned(e,0,tp,false,false) then spos=spos+POS_FACEUP_DEFENSE end
+		if tc:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN) then spos=spos+POS_FACEDOWN_DEFENSE end
 		if spos~=0 then Duel.SpecialSummonStep(tc,0,tp,1-tp,false,false,spos) end
 		tc=g:GetNext()
 	end

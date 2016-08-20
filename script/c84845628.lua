@@ -9,7 +9,7 @@ function c84845628.initial_effect(c)
 	e1:SetValue(c84845628.adval)
 	c:RegisterEffect(e1)
 	local e2=e1:Clone()
-	e2:SetCode(EFFECT_UPDATE_DEFENCE)
+	e2:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e2)
 	--control
 	local e3=Effect.CreateEffect(c)
@@ -43,9 +43,7 @@ function c84845628.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 function c84845628.operation(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) and not Duel.GetControl(tc,tp,PHASE_END,1) then
-		if not tc:IsImmuneToEffect(e) and tc:IsAbleToChangeControler() then
-			Duel.Destroy(tc,REASON_EFFECT)
-		end
+	if tc:IsRelateToEffect(e) then
+		Duel.GetControl(tc,tp,PHASE_END,1)
 	end
 end

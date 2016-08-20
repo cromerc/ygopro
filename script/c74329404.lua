@@ -1,5 +1,6 @@
 --D－フォーメーション
 function c74329404.initial_effect(c)
+	c:EnableCounterPermit(0x1c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
@@ -36,7 +37,7 @@ function c74329404.ctcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(c74329404.ctfilter,1,nil,tp)
 end
 function c74329404.ctop(e,tp,eg,ep,ev,re,r,rp)
-	e:GetHandler():AddCounter(0x1c+COUNTER_NEED_ENABLE,1)
+	e:GetHandler():AddCounter(0x1c,1)
 end
 function c74329404.thcon(e,tp,eg,ep,ev,re,r,rp)
 	local ph=Duel.GetCurrentPhase()
@@ -51,7 +52,7 @@ function c74329404.filter1(c,e,tp)
 		and Duel.IsExistingMatchingCard(c74329404.filter2,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil,c:GetCode())
 end
 function c74329404.filter2(c,code)
-	return c:IsCode(code) and c:IsAbleToHand() and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
+	return c:IsCode(code) and c:IsAbleToHand()
 end
 function c74329404.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return eg:IsExists(c74329404.filter1,1,nil,nil,tp) end
@@ -68,6 +69,7 @@ function c74329404.thop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=g:GetFirst()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local ag=Duel.SelectMatchingCard(tp,c74329404.filter2,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,2,nil,tc:GetCode())
+	if ag:IsExists(Card.IsHasEffect,1,nil,EFFECT_NECRO_VALLEY) then return end
 	Duel.SendtoHand(ag,nil,REASON_EFFECT)
 	Duel.ConfirmCards(1-tp,ag)
 end

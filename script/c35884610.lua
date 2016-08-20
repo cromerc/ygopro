@@ -23,7 +23,7 @@ function c35884610.initial_effect(c)
 	e3:SetValue(1000)
 	c:RegisterEffect(e3)
 	local e4=e3:Clone()
-	e4:SetCode(EFFECT_UPDATE_DEFENCE)
+	e4:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e4)
 	--damage double
 	local e5=Effect.CreateEffect(c)
@@ -97,6 +97,7 @@ function c35884610.atcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function c35884610.atop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) then return end
 	local tc=e:GetHandler():GetEquipTarget()
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)

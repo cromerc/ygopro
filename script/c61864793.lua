@@ -15,7 +15,7 @@ function c61864793.poscon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local np=c:GetPosition()
 	local pp=c:GetPreviousPosition()
-	return not c:IsStatus(STATUS_CONTINUOUS_POS) and (Duel.GetCurrentPhase()~=PHASE_DAMAGE or c~=Duel.GetAttackTarget())
+	return not c:IsStatus(STATUS_CONTINUOUS_POS) and ((np<3 and pp>3) or (pp<3 and np>3))
 end
 function c61864793.postg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) end
@@ -26,6 +26,6 @@ end
 function c61864793.posop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
-		Duel.ChangePosition(tc,POS_FACEUP_DEFENCE,POS_FACEDOWN_DEFENCE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
+		Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
 	end
 end

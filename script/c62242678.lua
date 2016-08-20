@@ -42,12 +42,18 @@ function c62242678.initial_effect(c)
 	e4:SetTarget(c62242678.sptg)
 	e4:SetOperation(c62242678.spop)
 	c:RegisterEffect(e4)
+	--double tuner
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_SINGLE)
+	e5:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	e5:SetCode(21142671)
+	c:RegisterEffect(e5)
 end
 function c62242678.matfilter1(c,syncard)
 	return c:IsType(TYPE_TUNER) and (c:IsLocation(LOCATION_HAND) or c:IsFaceup()) and c:IsCanBeSynchroMaterial(syncard)
 end
 function c62242678.matfilter2(c,syncard)
-	return c:IsFaceup() and c:IsRace(RACE_DRAGON) and c:IsAttribute(ATTRIBUTE_DARK) and c:IsType(TYPE_SYNCHRO) and c:IsCanBeSynchroMaterial(syncard)
+	return c:IsNotTuner() and c:IsFaceup() and c:IsRace(RACE_DRAGON) and c:IsAttribute(ATTRIBUTE_DARK) and c:IsType(TYPE_SYNCHRO) and c:IsCanBeSynchroMaterial(syncard)
 end
 function c62242678.synfilter1(c,syncard,lv,g1,g2,g3)
 	local tlv=c:GetSynchroLevel(syncard)
@@ -194,7 +200,7 @@ function c62242678.limop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.RegisterEffect(e1,tp)
 end
 function c62242678.aclimit(e,re,tp)
-	return re:GetHandler():IsOnField()
+	return re:GetHandler():IsOnField() or re:IsHasType(EFFECT_TYPE_ACTIVATE)
 end
 function c62242678.damtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

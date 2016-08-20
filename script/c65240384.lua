@@ -7,7 +7,7 @@ function c65240384.initial_effect(c)
 	e1:SetOperation(c65240384.posop)
 	c:RegisterEffect(e1)
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_F)
+	e2:SetType(EFFECT_TYPE_QUICK_F)
 	e2:SetCode(EVENT_CHAINING)
 	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL+EFFECT_FLAG_SET_AVAILABLE)
 	e2:SetRange(LOCATION_MZONE)
@@ -17,7 +17,7 @@ function c65240384.initial_effect(c)
 end
 function c65240384.posop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c==Duel.GetAttackTarget() and c:IsDefencePos() and c:IsRelateToBattle() then
+	if c==Duel.GetAttackTarget() and c:IsDefensePos() and c:IsRelateToBattle() then
 		Duel.ChangePosition(c,POS_FACEUP_ATTACK)
 	end
 end
@@ -30,7 +30,10 @@ function c65240384.negcon(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c65240384.negop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.ChangePosition(e:GetHandler(),POS_FACEUP_DEFENCE) then
+	if Duel.ChangePosition(e:GetHandler(),POS_FACEUP_DEFENSE) then
 		Duel.NegateActivation(ev)
+		if re:IsHasType(EFFECT_TYPE_ACTIVATE) and re:GetHandler():IsRelateToEffect(re) then
+			Duel.SendtoGrave(eg,REASON_EFFECT)
+		end
 	end
 end

@@ -44,32 +44,59 @@ end
 function c23187256.xyzfilter2(c,rk)
 	return c:GetRank()==rk
 end
-function c23187256.xyzcon(e,c,og)
+function c23187256.xyzcon(e,c,og,min,max)
 	if c==nil then return true end
 	local tp=c:GetControler()
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	local ct=math.max(1,-ft)
-	local mg=Duel.GetMatchingGroup(c23187256.mfilter,tp,LOCATION_MZONE,0,nil,c)
-	return mg:IsExists(c23187256.xyzfilter1,1,nil,mg,ct)
+	local minc=2
+	local maxc=64
+	if min then
+		minc=math.max(minc,min)
+		maxc=max
+	end
+	local ct=math.max(minc-1,-ft)
+	local mg=nil
+	if og then
+		mg=og:Filter(c23187256.mfilter,nil,c)
+	else
+		mg=Duel.GetMatchingGroup(c23187256.mfilter,tp,LOCATION_MZONE,0,nil,c)
+	end
+	return maxc>=2 and mg:IsExists(c23187256.xyzfilter1,1,nil,mg,ct)
 end
-function c23187256.xyzop(e,tp,eg,ep,ev,re,r,rp,c,og)
-	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	local ct=math.max(1,-ft)
-	local mg=Duel.GetMatchingGroup(c23187256.mfilter,tp,LOCATION_MZONE,0,nil,c)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local g1=mg:FilterSelect(tp,c23187256.xyzfilter1,1,1,nil,mg,ct)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-	local g2=mg:FilterSelect(tp,c23187256.xyzfilter2,ct,63,g1:GetFirst(),g1:GetFirst():GetRank())
-	g1:Merge(g2)
+function c23187256.xyzop(e,tp,eg,ep,ev,re,r,rp,c,og,min,max)
+	local g=nil
+	if og and not min then
+		g=og
+	else
+		local mg=nil
+		if og then
+			mg=og:Filter(c23187256.mfilter,nil,c)
+		else
+			mg=Duel.GetMatchingGroup(c23187256.mfilter,tp,LOCATION_MZONE,0,nil,c)
+		end
+		local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+		local minc=2
+		local maxc=64
+		if min then
+			minc=math.max(minc,min)
+			maxc=max
+		end
+		local ct=math.max(minc-1,-ft)
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+		g=mg:FilterSelect(tp,c23187256.xyzfilter1,1,1,nil,mg,ct)
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+		local g2=mg:FilterSelect(tp,c23187256.xyzfilter2,ct,maxc-1,g:GetFirst(),g:GetFirst():GetRank())
+		g:Merge(g2)
+	end
 	local sg=Group.CreateGroup()
-	local tc=g1:GetFirst()
+	local tc=g:GetFirst()
 	while tc do
 		sg:Merge(tc:GetOverlayGroup())
-		tc=g1:GetNext()
+		tc=g:GetNext()
 	end
 	Duel.SendtoGrave(sg,REASON_RULE)
-	c:SetMaterial(g1)
-	Duel.Overlay(c,g1)
+	c:SetMaterial(g)
+	Duel.Overlay(c,g)
 end
 function c23187256.filter(c,e,tp)
 	return c:IsRankBelow(9) and c:IsAttackBelow(3000) and c:IsSetCard(0x48)
@@ -85,6 +112,9 @@ function c23187256.gfilter(c,rank)
 end
 function c23187256.operation(e,tp,eg,ep,ev,re,r,rp)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
+	local ect=c29724053 and Duel.IsPlayerAffectedByEffect(tp,29724053) and c29724053[tp]
+	if ect~=nil then ft=math.min(ft,ect) end
 	local c=e:GetHandler()
 	local g1=Duel.GetMatchingGroup(c23187256.filter,tp,LOCATION_EXTRA,0,nil,e,tp)
 	local ct=c:GetOverlayGroup():GetClassCount(Card.GetCode)

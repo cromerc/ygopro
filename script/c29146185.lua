@@ -17,7 +17,7 @@ function c29146185.initial_effect(c)
 	e2:SetDescription(aux.Stringid(29146185,1))
 	e2:SetCategory(CATEGORY_DESTROY)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(29146185)
+	e2:SetCode(EVENT_CUSTOM+29146185)
 	e2:SetCost(c29146185.descost)
 	e2:SetTarget(c29146185.destg)
 	e2:SetOperation(c29146185.desop)
@@ -54,7 +54,7 @@ function c29146185.retop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.SendtoHand(g,nil,REASON_EFFECT)>0 then
 		Duel.ConfirmCards(1-tp,g)
 		if c:IsFaceup() and c:IsRelateToEffect(e) then
-			Duel.RaiseSingleEvent(c,29146185,re,r,rp,0,0)
+			Duel.RaiseSingleEvent(c,EVENT_CUSTOM+29146185,re,r,rp,0,0)
 		end
 	end
 end
@@ -75,11 +75,11 @@ function c29146185.descost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.ShuffleHand(tp)
 end
 function c29146185.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsDestructable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,e:GetHandler()) end
-	local g=Duel.GetMatchingGroup(Card.IsDestructable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,e:GetHandler())
+	if chk==0 then return Duel.IsExistingMatchingCard(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,e:GetHandler()) end
+	local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,e:GetHandler())
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,g:GetCount(),0,0)
 end
 function c29146185.desop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(Card.IsDestructable,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,e:GetHandler())
+	local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,e:GetHandler())
 	Duel.Destroy(g,REASON_EFFECT)
 end

@@ -21,7 +21,7 @@ function c35035481.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c35035481.filter(c)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsDestructable()
+	return c:IsType(TYPE_SPELL+TYPE_TRAP)
 end
 function c35035481.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and c35035481.filter(chkc) and chkc~=e:GetHandler() end
@@ -49,17 +49,10 @@ end
 function c35035481.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e)
-		and Duel.IsPlayerCanSpecialSummonMonster(tp,35035481,0xd4,0x11,1200,0,2,RACE_AQUA,ATTRIBUTE_WATER) then
-		c:SetStatus(STATUS_NO_LEVEL,false)
-		local e1=Effect.CreateEffect(c)
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_CHANGE_TYPE)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetValue(TYPE_NORMAL+TYPE_MONSTER)
-		e1:SetReset(RESET_EVENT+0x47c0000)
-		c:RegisterEffect(e1,true)
-		Duel.SpecialSummon(c,0,tp,tp,true,false,POS_FACEUP)
+	if c:IsRelateToEffect(e) and Duel.IsPlayerCanSpecialSummonMonster(tp,35035481,0xd4,0x11,1200,0,2,RACE_AQUA,ATTRIBUTE_WATER) then
+		c:AddMonsterAttribute(TYPE_NORMAL)
+		Duel.SpecialSummonStep(c,0,tp,tp,true,false,POS_FACEUP)
+		c:AddMonsterAttributeComplete()
 		local e2=Effect.CreateEffect(c)
 		e2:SetType(EFFECT_TYPE_SINGLE)
 		e2:SetCode(EFFECT_IMMUNE_EFFECT)
@@ -75,6 +68,7 @@ function c35035481.spop(e,tp,eg,ep,ev,re,r,rp)
 		e3:SetReset(RESET_EVENT+0x47e0000)
 		e3:SetValue(LOCATION_REMOVED)
 		c:RegisterEffect(e3,true)
+		Duel.SpecialSummonComplete()
 	end
 end
 function c35035481.efilter(e,re)

@@ -148,10 +148,10 @@ function SpellbookOnSelectInit(cards,to_bp_allowed,to_ep_allowed)
 		JudgmentCount = JudgmentCount + 1
 		return {COMMAND_ACTIVATE,IndexByID(Activatable,40230018)}
 	end
-	if SpellbookSearchCheck() and HasID(Repositionable,14824019) and Repositionable[CurrentIndex].position == POS_FACEDOWN_DEFENCE then
+	if SpellbookSearchCheck() and HasID(Repositionable,14824019) and Repositionable[CurrentIndex].position == POS_FACEDOWN_DEFENSE then
 		return {COMMAND_CHANGE_POS,CurrentIndex}
 	end
-	if HasID(Repositionable,41855169) and Repositionable[CurrentIndex].position == POS_FACEDOWN_DEFENCE then
+	if HasID(Repositionable,41855169) and Repositionable[CurrentIndex].position == POS_FACEDOWN_DEFENSE then
 		return {COMMAND_CHANGE_POS,CurrentIndex}
 	end
 	if HasID(Summonable,41855169) and JudgmentSummonable() then
@@ -244,7 +244,7 @@ function SpellbookOnSelectInit(cards,to_bp_allowed,to_ep_allowed)
 	if HasID(Repositionable,41855169) and Repositionable[CurrentIndex].position == POS_FACEUP_ATTACK and Repositionable[CurrentIndex].attack<Repositionable[CurrentIndex].defense then
 		return {COMMAND_CHANGE_POS,CurrentIndex}
 	end
-	if HasID(Repositionable,41855169) and Repositionable[CurrentIndex].position == POS_FACEUP_DEFENCE and Repositionable[CurrentIndex].attack>Repositionable[CurrentIndex].defense then
+	if HasID(Repositionable,41855169) and Repositionable[CurrentIndex].position == POS_FACEUP_DEFENSE and Repositionable[CurrentIndex].attack>Repositionable[CurrentIndex].defense then
 		return {COMMAND_CHANGE_POS,CurrentIndex}
 	end
 	if HasID(SpSummonable,40908371) and (Duel.GetCurrentPhase()==PHASE_MAIN2 or not GlobalBPAllowed) then
@@ -744,7 +744,7 @@ function ChainFateSecond()
 			return true
 		end
 	end
-	if Duel.GetCurrentPhase() == PHASE_BATTLE then
+	if IsBattlePhase() then
 		local source = Duel.GetAttacker()
 		local target = Duel.GetAttackTarget()
 		if source and target and target:IsControler(player_ai) and target:IsFaceup() and target:IsCode(14824019) then
@@ -1146,10 +1146,10 @@ function SpellbookGetPos(id)
     if SpellbookAtt[i]==id then return POS_FACEUP_ATTACK end
   end
   for i=1,#SpellbookDef do
-    if SpellbookDef[i]==id then return POS_FACEUP_DEFENCE end
+    if SpellbookDef[i]==id then return POS_FACEUP_DEFENSE end
   end
 	if id == 14824019 then
-		return POS_FACEDOWN_DEFENCE
+		return POS_FACEDOWN_DEFENSE
 	end
   return result
 end

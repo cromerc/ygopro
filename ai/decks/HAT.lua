@@ -216,7 +216,7 @@ function SummonMonster(atk)
   return OppGetStrongestAttDef()<=atk and #AIMon()==0 and Duel.GetTurnCount()>1
 end
 function SetMonster()
-  return #AIMon()==0 and (Duel.GetCurrentPhase()==PHASE_MAIN2 or not GlobalBPAllowed)
+  return #AIMon()==0 and TurnEndCheck()
 end
 function SetDionaea()
   return #AIMon()==0 and (Duel.GetCurrentPhase()==PHASE_MAIN2 or not GlobalBPAllowed)
@@ -292,10 +292,10 @@ function HATInit(cards)
   if HasID(Summonable,91812341) and SummonMonster(Summonable[CurrentIndex].attack) then
     return {COMMAND_SUMMON,CurrentIndex}
   end
-  if HasID(Repositionable,68535320,false,nil,nil,POS_FACEDOWN_DEFENCE) and SummonFireHand() then
+  if HasID(Repositionable,68535320,false,nil,nil,POS_FACEDOWN_DEFENSE) and SummonFireHand() then
     return {COMMAND_CHANGE_POS,CurrentIndex}
   end
-  if HasID(Repositionable,95929069,false,nil,nil,POS_FACEDOWN_DEFENCE) and SummonIceHand() then
+  if HasID(Repositionable,95929069,false,nil,nil,POS_FACEDOWN_DEFENSE) and SummonIceHand() then
     return {COMMAND_CHANGE_POS,CurrentIndex}
   end
   if HasID(SetableMon,45803070) and SetDionaea() then
@@ -540,7 +540,7 @@ function ChainCotH(card)
       return true
     end
   end
-  if Duel.GetCurrentPhase()==PHASE_BATTLE then
+  if IsBattlePhase() then
     local source=Duel.GetAttacker()
     local target=Duel.GetAttackTarget()
     if source and source:IsControler(1-player_ai) then
@@ -582,19 +582,20 @@ function MoonWhitelist2(id) -- cards to chain Book of Moon to to save your monst
   or id == 70342110 -- DPrison
 end
 function MoonFilter(c)
-  return bit32.band(c.type,TYPE_MONSTER)>0 and bit32.band(c.position,POS_FACEUP)>0 
-  and c:is_affected_by(EFFECT_CANNOT_BE_EFFECT_TARGET)==0 and c:is_affected_by(EFFECT_IMMUNE_EFFECT)==0
+  return FilterType(c,TYPE_MONSTER)
+  and FilterPosition(c,POS_FACEUP)
+  and Affected(c,TYPE_SPELL)
+  and Targetable(c,TYPE_SPELL)
+  and not FilterType(c,TYPE_TOKEN)
 end
 function MoonFilter2(c,p)
-  return c:IsType(TYPE_MONSTER) and c:IsPosition(POS_FACEUP) and c:IsControler(p)
-  and not c:IsHasEffect(EFFECT_CANNOT_BE_EFFECT_TARGET) and not c:IsHasEffect(EFFECT_IMMUNE_EFFECT)
-  and not FilterType(c,TYPE_TOKEN)
+  return MoonFilter(c) and c:IsControler(p)
 end
 function MoonFilter3(c)
   return MoonFilter(c) and ShaddollFusionFilter(c)
 end
 function MoonOppFilter(c)
-  return MoonFilter(c) and bit32.band(c.type,TYPE_FLIP)==0
+  return MoonFilter(c) and FilterType(c,TYPE_FLIP)
 end
 function MoonPriorityFilter(c)
   return MoonFilter(c) and MoonWhitelist(c)
@@ -648,7 +649,7 @@ function ChainBoM(card)
       end
     end
   end
-  if Duel.GetCurrentPhase() == PHASE_BATTLE and Duel.GetTurnPlayer()==1-player_ai then
+  if IsBattlePhase() and Duel.GetTurnPlayer()==1-player_ai then
     local source = Duel.GetAttacker()
 		local target = Duel.GetAttackTarget()
     if WinsBattle(source,target) and MoonFilter2(source,1-player_ai) 
@@ -768,7 +769,7 @@ function ChainSanctum()
     return true
   end
   if Duel.GetTurnPlayer()==1-player_ai and targets2>0 and check then
-    if Duel.GetCurrentPhase()==PHASE_BATTLE then
+    if IsBattlePhase() then
       local source = Duel.GetAttacker()
       if source and source:IsControler(1-player_ai) then
         GlobalCardMode = 1
@@ -866,7 +867,7 @@ function ChainIgnition(c)
   if targets3 > 0 and ArtifactCheck(true) then
     return true
   end
-  if Duel.GetCurrentPhase()==PHASE_BATTLE then
+  if IsBattlePhase() then
     local source=Duel.GetAttacker()
     local target=Duel.GetAttackTarget()
     if source and source:IsControler(1-player_ai) then
@@ -1004,7 +1005,7 @@ function HATPosition(id,available)
     if HATAtt[i]==id then result=POS_FACEUP_ATTACK end
   end
   for i=1,#HATDef do
-    if HATDef[i]==id then result=POS_FACEUP_DEFENCE end
+    if HATDef[i]==id then result=POS_FACEUP_DEFENSE end
   end
   if id == 68535320 or id == 95929069 -- Fire Hand, Ice Hand 
   or id == 63746411 -- Giant Hand
@@ -1014,7 +1015,7 @@ function HATPosition(id,available)
     then
       result = POS_FACEUP_ATTACK 
     else
-      result = POS_FACEUP_DEFENCE
+      result = POS_FACEUP_DEFENSE
     end
   end
   return result

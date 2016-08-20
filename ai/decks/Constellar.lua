@@ -6,6 +6,7 @@ AddPriority({
 [41269771] = {6,2,7,1,6,1,1,1,8,1,AlgiediCond},       -- Algiedi
 [06353603] = {2,1,4,1,2,1,1,1,1,1,BearCond},          -- FF Bear
 [78358521] = {9,4,8,1,4,1,1,1,6,2,SombreCond},        -- Sombre
+[44635489] = {4,1,4,1,1,1,1,1,3,1,SiatCond},        -- Sombre
 
 [35544402] = {1,1,1,1,1,1,1,1,1,1,TwinkleCond},       -- Twinkle
 [57103969] = {1,1,1,1,1,1,1,1,1,1,TenkiCond},         -- Tenki
@@ -245,6 +246,53 @@ function SummonConstellar(c)
   end
   return false
 end
+function SiatFilter(c,level)
+  return ConstellarNonXYZFilter(c)
+  and FilterLevel(c,level)
+end
+GlobalSiatLevel = 4
+function UseSiat(c,mode)
+  if mode == 1 
+  and CardsMatchingFilter(UseLists(AIMon(),AIGrave()),SiatFilter,5)>0
+  and FieldCheck(5) == 1
+  then
+    GlobalSiatLevel = 5
+    return true
+  end
+  if mode == 2
+  and CardsMatchingFilter(UseLists(AIMon(),AIGrave()),SiatFilter,4)>0
+  and FieldCheck(4) == 1
+  then
+    GlobalSiatLevel = 4
+    return true
+  end
+end
+function SummonSiat(c,mode)
+  if mode == 1 
+  and HasIDNotNegated(AIHand(),70908596,true)
+  and not NormalSummonCheck()
+  then 
+    return true
+  end
+  if mode == 2
+  and CardsMatchingFilter(AIHand(),SiatFilter,4)>0
+  and not NormalSummonCheck()
+  then
+    return true
+  end
+  if mode == 3
+  and CardsMatchingFilter(AIMon(),SiatFilter,5)>0
+  and FieldCheck(5)==1
+  then
+    return true
+  end
+  if mode == 4
+  and CardsMatchingFilter(UseLists(AIMon(),AIGrave()),SiatFilter,4)>0
+  and FieldCheck(4)==1
+  then
+    return true
+  end
+end
 function ConstellarInit(cards)
   local Act = cards.activatable_cards
   local Sum = cards.summonable_cards
@@ -259,8 +307,14 @@ function ConstellarInit(cards)
     OPTSet(57103969)
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
+  if HasID(Act,44635489,UseSiat,1) then
+    return Activate()
+  end
   if HasIDNotNegated(Act,70908596) and UseKaus(Act[CurrentIndex]) then
     return {COMMAND_ACTIVATE,CurrentIndex}
+  end
+  if HasID(Act,44635489,UseSiat,2) then
+    return Activate()
   end
   if HasIDNotNegated(Act,34086406,false,545382497) and UseChainConstellar(1) then
     return {COMMAND_ACTIVATE,CurrentIndex}
@@ -275,6 +329,9 @@ function ConstellarInit(cards)
   end
   if HasIDNotNegated(SpSum,34086406) and SummonChainConstellar(1) then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
+  end
+  if HasID(SpSum,44635489,SummonSiat,1) then
+    return SpSummon()
   end
   if HasID(SpSum,65367484) and SummonThrasher(1) then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
@@ -293,6 +350,9 @@ function ConstellarInit(cards)
   end
   if HasID(SpSum,65367484) and SummonThrasher(2) then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
+  end
+  if HasID(SpSum,44635489,SummonSiat,2) then
+    return SpSummon()
   end
   if HasIDNotNegated(Sum,78364470) and SummonPollux(2) then
     return {COMMAND_SUMMON,CurrentIndex}
@@ -318,6 +378,12 @@ function ConstellarInit(cards)
   if HasID(SpSum,65367484) and SummonThrasher(3) then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
   end
+  if HasID(Sum,44635489,SummonSiat,3) then
+    return Summon()
+  end
+  if HasID(Sum,44635489,SummonSiat,4) then
+    return Summon()
+  end
   if HasID(Sum,41269771) and SummonConstellar(Sum[CurrentIndex]) then
     return {COMMAND_SUMMON,CurrentIndex}
   end
@@ -330,6 +396,7 @@ function ConstellarInit(cards)
   if HasID(Sum,78358521) and SummonConstellar(Sum[CurrentIndex]) then
     return {COMMAND_SUMMON,CurrentIndex}
   end
+
   if HasIDNotNegated(Act,34086406,false,545382498) and UseChainConstellar(3) then
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
@@ -354,6 +421,9 @@ end
 function AlgiediTarget(cards)
   return Add(cards,PRIO_TOFIELD)
 end
+function SiatTarget(cards)
+  return BestTargets(cards,1,TARGET_PROTECT,FilterLevel,GlobalSiatLevel)
+end
 function ConstellarCard(cards,min,max,id,c)
   if c then
     id = c.id
@@ -366,6 +436,9 @@ function ConstellarCard(cards,min,max,id,c)
   end
   if id == 41269771 then 
     return AlgiediTarget(cards)
+  end
+  if id == 44635489 then
+    return SiatTarget(cards)
   end
   return nil
 end
@@ -409,7 +482,7 @@ ConstellarAtt={
 26329679,31437713,
 }
 ConstellarDef={
-72959823,
+72959823,44635489,
 }
 function ConstellarPosition(id,available)
   result = nil
@@ -420,7 +493,7 @@ function ConstellarPosition(id,available)
     end
   end
   for i=1,#ConstellarDef do
-    if ConstellarDef[i]==id then result=POS_FACEUP_DEFENCE end
+    if ConstellarDef[i]==id then result=POS_FACEUP_DEFENSE end
   end
   return result
 end

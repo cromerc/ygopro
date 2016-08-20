@@ -54,7 +54,6 @@ function c98301564.regop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.ConfirmCards(1-tp,sg)
 		Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_ATOHAND)
 		local tg=sg:Select(1-tp,1,1,nil)
-		local tc=tg:GetFirst()
-		Duel.SendtoHand(tc,nil,REASON_EFFECT)
+		Duel.SendtoHand(tg,nil,REASON_EFFECT)
 	end
 end

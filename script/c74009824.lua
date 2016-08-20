@@ -40,7 +40,7 @@ function c74009824.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 function c74009824.ffilter1(c)
-	return c:IsSetCard(0x9d)
+	return c:IsFusionSetCard(0x9d)
 end
 function c74009824.ffilter2(c)
 	return c:IsAttribute(ATTRIBUTE_WIND) or c:IsHasEffect(4904633)
@@ -185,6 +185,5 @@ function c74009824.thop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
-		Duel.ConfirmCards(1-tp,tc)
 	end
 end

@@ -29,7 +29,7 @@ function OnDeclareCard()
     if OppHand[i] ~= false then
        GlobalActivatedCardID = nil
 	   Result = OppHand[math.random(#OppHand)].id		
-	   AI.Chat("Let's see what card should I chose...")
+	   AITrashTalk("Let's see what card should I chose...")
 		return Result
 		end
 	  end

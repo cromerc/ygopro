@@ -25,7 +25,7 @@ DECK_QLIPHORT     = NewDeck("Qliphort"        ,65518099) -- Qliphort Tool
 DECK_NOBLEKNIGHT  = NewDeck("Noble Knight"    ,59057152) -- Noble Knight Medraut
 DECK_NEKROZ       = NewDeck("Nekroz"          ,14735698) -- Nekroz Exomirror
 DECK_BA           = NewDeck("Burning Abyss"   ,36006208) -- Fire Lake of the Burning Abyss
-DECK_EXODIA       = NewDeck("Exodia"          ,33396948) -- Exodia the Forbidden One
+DECK_EXODIA       = NewDeck("Exodia"          ,{33396948,70791313}) -- Exodia the Forbidden One, Royal Magical Library
 DECK_DARKWORLD    = NewDeck("Dark World"      ,34230233) -- DW Grapha
 DECK_CONSTELLAR   = NewDeck("Constellar"      ,78358521) -- Constellar Sombre
 DECK_BLACKWING    = NewDeck("Blackwing"       ,91351370) -- Black Whirlwind
@@ -101,7 +101,7 @@ end
 PRIO_TOHAND = 1
 PRIO_TOFIELD = 3
 PRIO_TOGRAVE = 5
-PRIO_DISCARD,PRIO_TODECK,PRIO_EXTRA = 7,7,7
+PRIO_DISCARD,PRIO_TODECK,PRIO_EXTRA,PRIO_TRIBUTE = 7,7,7,7
 PRIO_BANISH = 9
 -- priority lists for decks:
 function PrioritySetup()
@@ -116,7 +116,7 @@ function PrioritySetup()
   SatellarknightPriority()
   --HEROPriority()
   BAPriority()
-  --NekrozPriority()
+  NekrozPriority()
 
 AddPriority({
 -- HERO
@@ -297,9 +297,8 @@ end
 function AssignPriority(cards,loc,filter,opt)
   local index = 0
   Multiple = nil
-  for i=1,#cards do
-    local c = cards[i]
-    c.index=i
+  for i,c in pairs(cards) do
+    if not c.index then c.index=i end
     c.prio=GetPriority(c,loc)
     if loc==PRIO_TOFIELD and c.location==LOCATION_DECK then
       c.prio=c.prio+2
@@ -323,7 +322,7 @@ function AssignPriority(cards,loc,filter,opt)
       if Negated(c) then 
         c.prio=c.prio+3
       end
-      if FilterPosition(c,POS_DEFENCE)
+      if FilterPosition(c,POS_DEFENSE)
       and c.turnid==Duel.GetTurnCount()
       and c.attack>c.defense
       then
@@ -336,7 +335,7 @@ function AssignPriority(cards,loc,filter,opt)
       end
     end
     if loc==PRIO_TOHAND and bit32.band(c.location,LOCATION_ONFIELD)>0 
-    and not DeckCheck(DECK_HARPIE) -- temp
+    and not DeckCheck(DECK_HARPIE) -- TODO: temp
     then
       c.prio=-1
     end
@@ -380,10 +379,6 @@ function Add(cards,loc,count,filter,opt)
   local compare = function(a,b) return a.prio>b.prio end
   AssignPriority(cards,loc,filter,opt)
   table.sort(cards,compare)
-  --print("priority list:")
-  for i=1,#cards do
-    --print(GetName(cards[i])..", prio:"..cards[i].prio)
-  end
   for i=1,count do
     result[i]=cards[i].index
   end
@@ -393,4 +388,7 @@ function Add(cards,loc,count,filter,opt)
     end
   end
   return result
+end
+function SortByPrio(cards)
+  table.sort(cards,function(a,b) return a.prio>b.prio end)
 end

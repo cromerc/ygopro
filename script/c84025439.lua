@@ -9,6 +9,7 @@ function c84025439.initial_effect(c)
 	e1:SetCategory(CATEGORY_TODECK)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetHintTiming(0,0x1e0)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCountLimit(1)
 	e1:SetCondition(c84025439.tdcon)
@@ -81,16 +82,18 @@ function c84025439.drcon(e)
 	return e:GetHandler():GetOverlayGroup():GetClassCount(Card.GetCode)>=6
 end
 function c84025439.spfilter(c,e,tp)
-	return c:IsSetCard(0x20dc) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
+	return c:IsSetCard(0x20dc) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c84025439.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		local g=Duel.GetMatchingGroup(c84025439.spfilter,tp,LOCATION_GRAVE,0,nil,e,tp)
-		return Duel.GetLocationCount(tp,LOCATION_MZONE)>2 and g:GetClassCount(Card.GetCode)>2
+		return not Duel.IsPlayerAffectedByEffect(tp,59822133)
+			and Duel.GetLocationCount(tp,LOCATION_MZONE)>2 and g:GetClassCount(Card.GetCode)>2
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,3,tp,LOCATION_GRAVE)
 end
 function c84025439.spop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then return end
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
 	local g=Duel.GetMatchingGroup(c84025439.spfilter,tp,LOCATION_GRAVE,0,nil,e,tp)
 	if ft>2 and g:GetClassCount(Card.GetCode)>2 then
@@ -104,6 +107,7 @@ function c84025439.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local g3=g:Select(tp,1,1,nil)
 		g1:Merge(g3)
+		if g1:IsExists(Card.IsHasEffect,1,nil,EFFECT_NECRO_VALLEY) then return end
 		Duel.SpecialSummon(g1,0,tp,tp,false,false,POS_FACEUP)
 	end
 end

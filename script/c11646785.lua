@@ -25,6 +25,7 @@ function c11646785.initial_effect(c)
 	local e3=e2:Clone()
 	e3:SetType(EFFECT_TYPE_QUICK_O)
 	e3:SetCode(EVENT_FREE_CHAIN)
+	e3:SetHintTiming(0,0x1e0)
 	e3:SetCondition(c11646785.setcon2)
 	c:RegisterEffect(e3)
 	--material
@@ -63,7 +64,7 @@ end
 function c11646785.setop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsFaceup() and tc:IsRelateToEffect(e) then
-		Duel.ChangePosition(tc,POS_FACEDOWN_DEFENCE)
+		Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE)
 	end
 end
 function c11646785.mtfilter(c,e)

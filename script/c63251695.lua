@@ -27,7 +27,7 @@ function c63251695.tfilter(c,tp)
 	return c:IsFaceup() and c:IsSetCard(0xd8) and c:IsControler(tp) and c:IsLocation(LOCATION_ONFIELD)
 end
 function c63251695.negcon(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS)	
+	local g=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS)
 	return e:GetHandler():GetFlagEffect(63251695)==0 and re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) 
 		and g and g:IsExists(c63251695.tfilter,1,e:GetHandler(),tp) and Duel.IsChainDisablable(ev)
 end
@@ -40,7 +40,7 @@ function c63251695.negop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c63251695.effcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler()==Duel.GetAttacker()
+	return e:GetHandler()==Duel.GetAttacker() and e:GetHandler():IsRelateToBattle()
 end
 function c63251695.effcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.CheckReleaseGroup(tp,Card.IsSetCard,1,e:GetHandler(),0xd8) end
@@ -48,7 +48,7 @@ function c63251695.effcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Release(g,REASON_COST)
 end
 function c63251695.efftg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local b1=e:GetHandler():IsChainAttackable(2,true)
+	local b1=e:GetHandler():IsChainAttackable(0,true)
 	local b2=Duel.IsExistingMatchingCard(Card.IsAbleToDeck,tp,0,LOCATION_ONFIELD+LOCATION_HAND,1,nil)
 	if chk==0 then return b1 or b2 end
 	local opt=0
@@ -73,12 +73,12 @@ function c63251695.effop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CANNOT_DIRECT_ATTACK)
 		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_DAMAGE_CAL)
+		e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_BATTLE+PHASE_DAMAGE_CAL)
 		c:RegisterEffect(e1)
 		local e2=Effect.CreateEffect(c)
 		e2:SetType(EFFECT_TYPE_SINGLE)
 		e2:SetCode(EFFECT_PIERCE)
-		e2:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_DAMAGE_CAL)
+		e2:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_BATTLE+PHASE_DAMAGE_CAL)
 		c:RegisterEffect(e2)
 	else
 		local g1=Duel.GetMatchingGroup(Card.IsAbleToDeck,tp,0,LOCATION_HAND,nil)

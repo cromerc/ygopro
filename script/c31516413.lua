@@ -47,10 +47,10 @@ function c31516413.descost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Release(g,REASON_COST)
 end
 function c31516413.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) and chkc:IsDestructable() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsDestructable,tp,0,LOCATION_MZONE,1,nil) end
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(1-tp) end
+	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,0,LOCATION_MZONE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectTarget(tp,Card.IsDestructable,tp,0,LOCATION_MZONE,1,1,nil)
+	local g=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_MZONE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function c31516413.desop(e,tp,eg,ep,ev,re,r,rp)
@@ -61,7 +61,6 @@ function c31516413.desop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c31516413.spfilter(c,e,tp)
 	return c:IsType(TYPE_NORMAL) and c:IsRace(RACE_DRAGON) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-		and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
 end
 function c31516413.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -72,6 +71,7 @@ function c31516413.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,c31516413.spfilter,tp,0x13,0,1,1,nil,e,tp)
 	local tc=g:GetFirst()
+	if tc and tc:IsHasEffect(EFFECT_NECRO_VALLEY) then return end
 	if tc and Duel.SpecialSummonStep(g:GetFirst(),0,tp,tp,false,false,POS_FACEUP) then
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
@@ -80,16 +80,8 @@ function c31516413.spop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetReset(RESET_EVENT+0x1fe0000)
 		tc:RegisterEffect(e1)
 		local e2=e1:Clone()
-		e2:SetCode(EFFECT_SET_DEFENCE)
+		e2:SetCode(EFFECT_SET_DEFENSE)
 		tc:RegisterEffect(e2)
 		Duel.SpecialSummonComplete()
-	elseif Duel.IsPlayerCanSpecialSummon(tp) then
-		local cg1=Duel.GetFieldGroup(tp,LOCATION_HAND,0)
-		local cg2=Duel.GetFieldGroup(tp,LOCATION_DECK,0)
-		Duel.ConfirmCards(1-tp,cg1)
-		Duel.ConfirmCards(1-tp,cg2)
-		Duel.ConfirmCards(tp,cg2)
-		Duel.ShuffleHand(tp)
-		Duel.ShuffleDeck(tp)
 	end
 end

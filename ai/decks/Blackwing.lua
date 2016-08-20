@@ -354,7 +354,8 @@ function SummonNothung(mode)
 end
 function HawkJoeFilter(c)
   return BlackwingSynchroFilter(c) 
-  and FilterStatus(c,STATUS_PROC_COMPLETE)
+  and FilterRace(c,RACE_WINDBEAST)
+  and FilterRevivable(c)
 end
 function SummonHawkJoe(mode)
   if mode == 1 and WindaCheck()
@@ -437,8 +438,7 @@ function SetVayu()
 end
 function RftDDFilter(c)
   return FilterType(c,TYPE_MONSTER)
-  and (not FilterStatus(c,STATUS_REVIVE_LIMIT)
-  or FilterStatus(c,STATUS_PROC_COMPLETE))
+  and FilterRevivable(c)
 end
 function UseRftDD()
   return CardsMatchingFilter(AIBanish(),RftDDFilter)>2 
@@ -466,7 +466,7 @@ function SummonBlackwing(c)
 end
 function ArmedWingFilter(c,source)
   return BattleTargetCheck(c,source)
-  and FilterPosition(c,POS_DEFENCE)
+  and FilterPosition(c,POS_DEFENSE)
   and (FilterPrivate(c) or c.defense<source.attack+500)
 end
 function ArmedWingCheck(c,targets)
@@ -719,7 +719,7 @@ function IcarusTarget(cards,min)
   elseif min==1 then
     return Add(cards,PRIO_TOGRAVE)
   else
-    return BestTargets(cards,2,TARGET_DESTROY)
+    return BestTargets(cards,2,TARGET_DESTROY,Affected,TYPE_TRAP)
   end
 end
 GlobalMKB={}
@@ -861,13 +861,13 @@ function ChainBlackSonic(c)
   end
 end
 function IcarusFilter(c)
-  return DestroyCheck(c)
+  return DestroyFilterIgnore(c)
   and Targetable(c,TYPE_TRAP)
   and Affected(c,TYPE_TRAP)
 end
 function ChainIcarus(card)
   local targets = SubGroup(OppField(),IcarusFilter)
-  local targets2 = SubGroup(targets,PriorityTarget)
+  local prio = HasPriorityTarget(targets)
   local removal = {}
   for i=1,#AIMon() do
     local c = AIMon()[i]
@@ -888,13 +888,13 @@ function ChainIcarus(card)
     end
     return true
   end
-  if #targets2>0 and #targets>1 
+  if prio and #targets>1 
   and Duel.GetTurnPlayer()==1-player_ai
   and UnchainableCheck(53567095) 
   then
     return true
   end
-  if Duel.GetCurrentPhase()==PHASE_BATTLE 
+  if IsBattlePhase() 
   and Duel.GetTurnPlayer()==1-player_ai
   then
     local aimon,oppmon = GetBattlingMons()
@@ -1087,7 +1087,7 @@ function BlackwingPosition(id,available)
   for i=1,#BlackwingDef do
     if BlackwingDef[i]==id 
     then 
-      result=POS_FACEUP_DEFENCE 
+      result=POS_FACEUP_DEFENSE 
     end
   end
   return result

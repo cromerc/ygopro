@@ -16,12 +16,12 @@ function c55461064.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c55461064.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	local phase=Duel.GetCurrentPhase()
-	return Duel.GetTurnPlayer()~=tp and (phase==PHASE_BATTLE or (phase==PHASE_DAMAGE and not Duel.IsDamageCalculated()))
+	local ph=Duel.GetCurrentPhase()
+	return Duel.GetTurnPlayer()~=tp and ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE and (ph~=PHASE_DAMAGE or not Duel.IsDamageCalculated())
 end
 function c55461064.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToGraveAsCost() end
-	Duel.SendtoGrave(e:GetHandler(),REASON_COST)
+	if chk==0 then return e:GetHandler():IsDiscardable() end
+	Duel.SendtoGrave(e:GetHandler(),REASON_COST+REASON_DISCARD)
 end
 function c55461064.filter(c)
 	return c:IsFaceup() and c:IsSetCard(0xc008)
@@ -29,7 +29,7 @@ end
 function c55461064.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c55461064.filter,tp,LOCATION_MZONE,0,1,nil) end
 end
-function c55461064.atkop(e,tp,eg,ep,ev,re,r,rp,chk)
+function c55461064.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(c55461064.filter,tp,LOCATION_MZONE,0,nil)
 	local tc=g:GetFirst()
 	while tc do

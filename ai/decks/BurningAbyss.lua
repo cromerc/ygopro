@@ -433,7 +433,7 @@ function SummonFortuneTune()
   return false -- temp
 end
 function RepoDante(c)
-  return FilterPosition(c,POS_DEFENCE)
+  return FilterPosition(c,POS_DEFENSE)
   and BattlePhaseCheck()
   and (#OppMon()==0 or OppGetStrongestAttDef()<=c.attack)
   and NotNegated(c)
@@ -497,7 +497,7 @@ function SummonF0(c,mode)
   return false
 end
 function RepoF0(c)
-  return FilterPosition(c,POS_DEFENCE)
+  return FilterPosition(c,POS_DEFENSE)
   and NotNegated(c)
   or FilterPosition(c,POS_FACEUP_ATTACK)
   and Negated(c)
@@ -1047,7 +1047,6 @@ function ChainPWWB()
   then
     return true
   end
-  return false
 end
 function ChainFarfa()
   return CardsMatchingFilter(OppMon(),FarfaFilter)>0
@@ -1356,6 +1355,9 @@ function BAChain(cards)
   if HasID(cards,71587526) and ChainKarmaCut() then
     return {1,CurrentIndex}
   end
+  if HasID(cards,63356631,ChainPWWB) then
+    return Chain()
+  end
   if HasID(cards,20513882,ChainPainfulEscape) then
     return Chain()
   end
@@ -1454,12 +1456,12 @@ function BAPosition(id,available)
       then 
         result=nil 
       else 
-        result=POS_FACEUP_DEFENCE 
+        result=POS_FACEUP_DEFENSE 
       end
     end
   end
   for i=1,#BADef do
-    if BADef[i]==id then result=POS_FACEUP_DEFENCE end
+    if BADef[i]==id then result=POS_FACEUP_DEFENSE end
   end
   return result
 end

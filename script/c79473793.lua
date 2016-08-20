@@ -4,7 +4,7 @@ function c79473793.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(79473793,0))
 	e1:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
-	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_F)
+	e1:SetType(EFFECT_TYPE_QUICK_F)
 	e1:SetCode(EVENT_CHAINING)
 	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e1:SetRange(LOCATION_MZONE)
@@ -20,6 +20,7 @@ function c79473793.initial_effect(c)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCondition(c79473793.cbcon)
 	e2:SetCost(c79473793.cbcost)
+	e2:SetTarget(c79473793.cbtg)
 	e2:SetOperation(c79473793.cbop)
 	c:RegisterEffect(e2)
 end
@@ -56,6 +57,12 @@ function c79473793.cbcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.SelectMatchingCard(tp,c79473793.cfilter,tp,LOCATION_ONFIELD,0,1,1,nil)
 	Duel.SendtoGrave(g,REASON_COST)
 end
+function c79473793.cbtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetAttacker():GetAttackableTarget():IsContains(e:GetHandler()) end
+end
 function c79473793.cbop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.ChangeAttackTarget(e:GetHandler())
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) and not Duel.GetAttacker():IsImmuneToEffect(e) then
+		Duel.ChangeAttackTarget(c)
+	end
 end

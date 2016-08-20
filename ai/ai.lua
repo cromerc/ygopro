@@ -1,4 +1,4 @@
-Version = "0.33"
+Version = "0.34"
 Experimental = false
 
 --[[
@@ -15,7 +15,7 @@ Experimental = false
   http://www.ygopro.co/Forum/tabid/95/g/posts/t/7877/AI-Updates
   
   Contributors: ytterbite, Sebrian, Skaviory, francot514
-  Optional decks: Yeon, Satone, rothayz, Ildana, Iroha, Postar, Nachk
+  Optional decks: Yeon, Satone, rothayz, Ildana, Iroha, Postar, Nachk, Xaddgx
   You can find and download optional decks here:
   http://www.ygopro.co/Forum/tabid/95/g/posts/t/7877/AI-Updates
   
@@ -47,7 +47,8 @@ Experimental = false
 
 ]]
 
-GlobalCheating = 0
+GlobalCheating = false
+TRASHTALK = true -- some decks might comment their actions. Set to false, if you don't like that
 EXTRA_DRAW = 0
 EXTRA_SUMMON = 0
 LP_RECOVER = 0
@@ -103,6 +104,10 @@ require("ai.decks.Boxer")
 require("ai.decks.Monarch")
 require("ai.decks.MegaMonarch")
 require("ai.decks.Kozmo")
+require("ai.decks.Lightsworn")
+require("ai.decks.DDD")
+require("ai.decks.GladBeast")
+requireoptional("ai.decks.Majespecter")
 requireoptional("ai.decks.Spellbook")
 requireoptional("ai.decks.X-Saber")
 requireoptional("ai.decks.Cth")

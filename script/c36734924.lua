@@ -31,7 +31,7 @@ function c36734924.tgfilter(c)
 	return c:IsFaceup() and c:IsType(TYPE_EFFECT) and c:IsAbleToGrave()
 end
 function c36734924.thfilter(c)
-	return c:IsSetCard(0xdd) and c:IsAbleToHand()
+	return c:IsSetCard(0xdd) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
 end
 function c36734924.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c36734924.tgfilter,tp,LOCATION_MZONE,0,1,nil)
@@ -49,7 +49,7 @@ function c36734924.thop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local sg1=g:Select(tp,1,1,nil)
 		g:Remove(Card.IsCode,nil,sg1:GetFirst():GetCode())
-		if g:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(36734924,2)) then
+		if g:GetCount()>0 and Duel.SelectYesNo(tp,210) then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 			local sg2=g:Select(tp,1,1,nil)
 			sg1:Merge(sg2)
