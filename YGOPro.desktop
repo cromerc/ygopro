@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=YGOPro
+Path=/opt/ygopro
 Exec=/opt/ygopro/ygopro
 Icon=YGOPro
 Type=Application
