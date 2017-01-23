@@ -35,7 +35,7 @@ function c68191243.op(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummonStep(sg:GetFirst(),0,tp,tp,false,false,POS_FACEUP)
 		ft=ft-1
 		g:Remove(Card.IsCode,nil,sg:GetFirst():GetCode())
-		if g:GetCount()>0 and ft>0 and not Duel.SelectYesNo(tp,aux.Stringid(68191243,0)) then ft=0 end
+		if g:GetCount()>0 and ft>0 and (Duel.IsPlayerAffectedByEffect(tp,59822133) or not Duel.SelectYesNo(tp,aux.Stringid(68191243,0))) then ft=0 end
 	end
 	Duel.SpecialSummonComplete()
 end

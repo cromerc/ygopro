@@ -7,6 +7,7 @@ function c16691074.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(16691074,0))
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetProperty(EFFECT_FLAG2_XMDETACH)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCode(EVENT_ATTACK_ANNOUNCE)
@@ -36,12 +37,12 @@ function c16691074.spfilter1(c,e,tp)
 end
 function c16691074.atkop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.NegateAttack() then
-		local g1=Duel.GetMatchingGroup(c16691074.spfilter1,tp,LOCATION_HAND+LOCATION_GRAVE,0,nil,e,tp)
-		if g1:GetCount()>0 and Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.SelectYesNo(tp,aux.Stringid(16691074,2)) then
+		if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+		local g1=Duel.GetMatchingGroup(aux.NecroValleyFilter(c16691074.spfilter1),tp,LOCATION_HAND+LOCATION_GRAVE,0,nil,e,tp)
+		if g1:GetCount()>0 and Duel.SelectYesNo(tp,aux.Stringid(16691074,2)) then
 			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 			local g2=g1:Select(tp,1,1,nil)
-			if g2:GetFirst():IsHasEffect(EFFECT_NECRO_VALLEY) then return end
 			Duel.SpecialSummon(g2,0,tp,tp,false,false,POS_FACEUP)
 		end
 	end

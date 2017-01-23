@@ -21,6 +21,7 @@ function c6165656.initial_effect(c)
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(6165656,0))
 	e3:SetCategory(CATEGORY_DAMAGE)
+	e3:SetProperty(EFFECT_FLAG2_XMDETACH)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCountLimit(1)
@@ -41,6 +42,7 @@ function c6165656.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 c6165656.xyz_number=88
+c6165656.rum_limit_code=48995978
 --target check is in RUM magic cards
 function c6165656.splimit(e,se,sp,st)
 	return se:GetHandler():IsSetCard(0x95) and se:GetHandler():IsType(TYPE_SPELL)

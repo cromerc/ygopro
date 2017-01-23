@@ -24,7 +24,7 @@ AddPriority(
 [47106439] = {1,1,1,1,1,1,1,1,1,1,VisionCond},        -- Gishki Vision
 --[78868119] = {1,1,1,1,1,1,1,1,1,1,DivaCond},      -- Deep Sea Diva
 [08903700] = {3,1,1,1,9,2,1,1,1,1,ReleaserCond},      -- Djinn Releaser of Rituals
-[95492061] = {10,1,1,1,5,1,5,1,1,1,ManjuCond},        -- Manju of the Ten Thousand Hands
+[95492061] = {10,1,1,1,5,1,5,1,5,1,ManjuCond},        -- Manju of the Ten Thousand Hands
 [23401839] = {9,1,1,1,6,1,6,1,1,1,SenjuCond},         -- Senju of the Thousand Hands
 [13974207] = {3,1,1,1,6,1,1,1,1,1,SekkaCond},         -- Denkou Sekka
 [30312361] = {2,1,1,1,7,1,1,1,1,1,nil},               -- Phantom of Chaos
@@ -408,6 +408,9 @@ function ManjuCond(loc,c)
   end
   if loc == PRIO_TRIBUTE then
     return FilterLocation(c,LOCATION_MZONE)
+  end
+  if loc == PRIO_BANISH then
+    return FilterLocation(c,LOCATION_GRAVE)
   end
   return true
 end

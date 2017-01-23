@@ -29,6 +29,7 @@ function c33396948.check(g)
 	return a1 and a2 and a3 and a4 and a5
 end
 function c33396948.operation(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetTurnCount()==0 and Duel.GetFieldGroupCount(1-e:GetHandlerPlayer(),LOCATION_HAND,0)==0 then return end
 	local WIN_REASON_EXODIA = 0x10
 	local g1=Duel.GetFieldGroup(tp,LOCATION_HAND,0)
 	local g2=Duel.GetFieldGroup(tp,0,LOCATION_HAND)

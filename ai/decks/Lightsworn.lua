@@ -172,7 +172,7 @@ function MinervaCond(loc,c)
     return HasIDNotNegated(AICards(),00691925,true,UseRecharge)
   end
   return true
-end
+end                     
 LightswornPriorityList={                      
 --[12345678] = {1,1,1,1,1,1,1,1,1,1,XXXCond},  -- Format
 
@@ -207,8 +207,8 @@ LightswornPriorityList={
 [80696379] = {1,1,1,1,1,1,1,1,1,1,MeteorburstCond},  -- Meteorburst
 [82044279] = {1,1,1,1,1,1,1,1,1,1,ClearWingCond},  -- Clear Wing
 [73580471] = {1,1,1,1,1,1,1,1,1,1,BlackroseCond},  -- Black Rose
-[56832966] = {1,1,1,1,1,1,1,1,1,1,UtopiaLightningCOnd},  -- Utopia Lightning
-[84013237] = {1,1,1,1,1,1,1,1,1,1,UtopiaCond},  -- Utopia
+[56832966] = {1,1,1,1,1,1,1,1,1,1},  -- Utopia Lightning
+[84013237] = {1,1,1,1,1,1,1,1,1,1},  -- Utopia
 [21501505] = {1,1,1,1,1,1,1,1,1,1,CairngorgonCond},  -- Cairngorgon
 [82633039] = {1,1,1,1,1,1,1,1,1,1,CastelCond},  -- Castel
 [30100551] = {1,1,1,1,1,1,4,1,1,1},  -- Minerva
@@ -765,8 +765,20 @@ end
 function FelisTarget(cards)
   return BestTargets(cards,1,TARGET_DESTROY)
 end
+function FilterPero(card)
+  local result = true
+  for i,c in pairs(GlobalPeroTargets) do
+    if CardsEqual(c,card) then
+      result = false
+    end
+  end
+  return result
+end
+GlobalPeroTargets={}
 function PeroperoTarget(cards)
-  return BestTargets(cards,1,TARGET_DESTROY)
+  BestTargets(cards,1,TARGET_DESTROY,FilterPero)
+  table.insert(GlobalPeroTargets,1,cards[1])
+  return {cards[1].index}
 end
 function MichaelTarget(cards,c)
   local result = {}
@@ -825,13 +837,18 @@ function ChainLSJudgment(c)
   end
   return false
 end
+GlobalPero=0
 function ChainPero(c)
   if not UnchainableCheck(c.id) then
     --return false
   end
-  if DestroyCheck(OppField())>0
+  if DestroyCheck(OppField())>GlobalPero
   then
+    GlobalPero=GlobalPero+1
     return true
+  else  
+    GlobalPero=0
+    return false
   end
 end
 function ChainRainboh(c)
@@ -884,6 +901,10 @@ function ChainOmega(c)
   end
 end
 function LightswornChain(cards)
+  if Duel.GetCurrentChain()<=GlobalChain then
+    GlobalPero=0
+    GlobalPeroTargets={}
+  end
   if HasID(cards,69764158,ChainPero) then
     return Chain()
   end
@@ -931,7 +952,9 @@ function LightswornTribute(cards,min, max)
 end
 function LightswornBattleCommand(cards,targets,act)
   SortByATK(cards)
-  if HasIDNotNegated(cards,44178886) and CardsMatchingFilter(OppMon(),EhrenFilter)>0 then
+  if HasIDNotNegated(cards,44178886) 
+  and CardsMatchingFilter(OppMon(),EhrenFilter)>0 
+  then
     return Attack(CurrentIndex)
   end
 end
@@ -941,12 +964,12 @@ function LightswornAttackTarget(cards,attacker)
   end
 end
 function JainBoost(c)
-  return Duel.GetTurnPlayer()==GetScriptFromCard(c):GetControler()
+  return FilterID(c,96235275)
+  and FilterController(c,1)
   and NotNegated(c)
 end
 function LightswornAttackBoost(cards)
-  for i=1,#cards do
-    local c = cards[i]
+  for i,c in pairs(cards) do
     if JainBoost(c) then 
       c.attack=c.attack+300
     end
@@ -1002,7 +1025,7 @@ function LightswornPosition(id,available)
   for i=1,#LightswornVary do
     if LightswornVary[i]==id 
     then 
-      if (BattlePhaseCheck() or Duel.GetCurrentPhase()==PHASE_BATTLE)
+      if (BattlePhaseCheck() or IsBattlePhase())
       and Duel.GetTurnPlayer()==player_ai 
       then 
         result=POS_FACEUP_ATTACK

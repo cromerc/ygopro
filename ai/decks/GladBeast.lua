@@ -339,7 +339,7 @@ function UsePrisma(c,mode)
   and HasIDNotNegated(AIExtra(),27346636,true) -- Heraklinos
   then
     GlobalCardMode = 1
-    GlobalTargetSet(FindID(AIExtra(),27346636))
+    GlobalTargetSet(FindID(27346636,AIExtra()))
     return true
   end
 end
@@ -1061,6 +1061,7 @@ function ChainCothGlad(c)
     end
     local aimon,oppmon=GetBattlingMons()
     if IsBattlePhase()
+    and aimon and oppmon
     and WinsBattle(oppmon,aimon)
     and GyzarusFilter(oppmon)
     and Duel.GetCurrentChain()==0
@@ -1070,6 +1071,7 @@ function ChainCothGlad(c)
       return true
     end
     if IsBattlePhase()
+    and oppmon
     and GyzarusFilter(oppmon)
     and #AIMon()==0
     and Duel.GetCurrentChain()==0
@@ -1263,7 +1265,7 @@ function GladBeastPosition(id,available)
   for i=1,#GladBeastVary do
     if GladBeastVary[i]==id 
     then 
-      if (BattlePhaseCheck() or Duel.GetCurrentPhase()==PHASE_BATTLE)
+      if (BattlePhaseCheck() or IsBattlePhase())
       and Duel.GetTurnPlayer()==player_ai 
       then 
         result=POS_FACEUP_ATTACK

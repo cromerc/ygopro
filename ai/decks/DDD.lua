@@ -236,6 +236,7 @@ end
 function SummonVoidOgre(c,mode)
 end
 function SummonCrystalWing(c,mode)
+  return true
 end
 function SummonSiegfried(c,mode)
 end
@@ -538,19 +539,19 @@ function DDDPosition(id,available)
   for i=1,#DDDVary do
     if DDDVary[i]==id 
     then 
-      if (BattlePhaseCheck() or Duel.GetCurrentPhase()==PHASE_BATTLE)
+      if (BattlePhaseCheck() or IsBattlePhase())
       and Duel.GetTurnPlayer()==player_ai 
       then 
         result=POS_FACEUP_ATTACK
       else 
-        result=POS_FACEUP_DEFENCE 
+        result=POS_FACEUP_DEFENSE 
       end
     end
   end
   for i=1,#DDDDef do
     if DDDDef[i]==id 
     then 
-      result=POS_FACEUP_DEFENCE 
+      result=POS_FACEUP_DEFENSE 
     end
   end
   return result

@@ -41,6 +41,7 @@ function c97997309.initial_effect(c)
 	e3:SetLabel(3)
 	c:RegisterEffect(e3)
 end
+c97997309.check=false
 function c97997309.cfilter(c)
 	return c:IsFaceup() and c:IsRace(RACE_SPELLCASTER)
 end
@@ -51,18 +52,23 @@ function c97997309.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(c97997309.cfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 function c97997309.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local ct=e:GetLabel()
-	if chk==0 then return Duel.IsExistingMatchingCard(c97997309.rfilter,tp,LOCATION_GRAVE,0,ct,nil) end
-	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c97997309.rfilter,tp,LOCATION_GRAVE,0,ct,ct,nil)
-	Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
+	c97997309.check=true
+	if chk==0 then return true end
 end
 function c97997309.filter1(c)
 	return c:IsFacedown() and c:IsAbleToHand()
 end
 function c97997309.target1(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c97997309.filter1,tp,LOCATION_SZONE,LOCATION_SZONE,1,e:GetHandler()) end
+	local ct=e:GetLabel()
+	if chk==0 then
+		if not c97997309.check then return false end
+		c97997309.check=false
+		return Duel.IsExistingMatchingCard(c97997309.rfilter,tp,LOCATION_GRAVE,0,ct,nil) 
+			and Duel.IsExistingMatchingCard(c97997309.filter1,tp,LOCATION_SZONE,LOCATION_SZONE,1,e:GetHandler()) end
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp,c97997309.rfilter,tp,LOCATION_GRAVE,0,ct,ct,nil)
+	Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
 	local g=Duel.GetMatchingGroup(c97997309.filter1,tp,LOCATION_SZONE,LOCATION_SZONE,e:GetHandler())
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
@@ -78,7 +84,16 @@ function c97997309.filter2(c)
 	return not c:IsPosition(POS_FACEUP_ATTACK) or c:IsCanTurnSet()
 end
 function c97997309.target2(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c97997309.filter2,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+	local ct=e:GetLabel()
+	if chk==0 then
+		if not c97997309.check then return false end
+		c97997309.check=false
+		return Duel.IsExistingMatchingCard(c97997309.rfilter,tp,LOCATION_GRAVE,0,ct,nil) 
+			and Duel.IsExistingMatchingCard(c97997309.filter2,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp,c97997309.rfilter,tp,LOCATION_GRAVE,0,ct,ct,nil)
+	Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
 	local g=Duel.GetMatchingGroup(c97997309.filter2,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
 	Duel.SetOperationInfo(0,CATEGORY_POSITION,g,1,0,0)
 end
@@ -96,17 +111,23 @@ function c97997309.activate2(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
-function c97997309.filter3(c)
-	return c:IsAbleToRemove()
-end
 function c97997309.target3(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c97997309.filter3,tp,0,LOCATION_ONFIELD,1,nil) end
-	local g=Duel.GetMatchingGroup(c97997309.filter3,tp,0,LOCATION_ONFIELD,nil)
+	local ct=e:GetLabel()
+	if chk==0 then
+		if not c97997309.check then return false end
+		c97997309.check=false
+		return Duel.IsExistingMatchingCard(c97997309.rfilter,tp,LOCATION_GRAVE,0,ct,nil) 
+			and Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,0,LOCATION_ONFIELD,1,nil) end
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp,c97997309.rfilter,tp,LOCATION_GRAVE,0,ct,ct,nil)
+	Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
+	local g=Duel.GetMatchingGroup(Card.IsAbleToRemove,tp,0,LOCATION_ONFIELD,nil)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
 end
 function c97997309.activate3(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,c97997309.filter3,tp,0,LOCATION_ONFIELD,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,Card.IsAbleToRemove,tp,0,LOCATION_ONFIELD,1,1,nil)
 	if g:GetCount()>0 then
 		Duel.HintSelection(g)
 		Duel.Remove(g,POS_FACEUP,REASON_EFFECT)

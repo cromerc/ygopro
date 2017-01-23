@@ -92,16 +92,34 @@ function SiriusCond(loc)
 end
 function ScepterCond(loc)
   if loc == PRIO_TOHAND then
-    return HasID(AIHand(),91110378,true) and HasID(AIDeck(),91110378,true) and not HasID(AIHand(),38331564,true)
+    if HasID(AIHand(),91110378,true)
+    and HasID(AIDeck(),91110378,true) 
+    and not HasID(AIHand(),38331564,true)
+    then
+      return true
+    end
+    return false
   end
   if loc == PRIO_TOFIELD then
-    return HasID(AIHand(),91110378,true) and HasID(AIDeck(),91110378,true) and Duel.GetCurrentChain()==0
+    if HasID(AIHand(),91110378,true) 
+    and HasID(AIDeck(),91110378,true) 
+    and Duel.GetCurrentChain()==0
+    then
+      return true
+    end
+    return false
   end
   return true
 end
 function SovereignCond(loc)
   if loc == PRIO_TOHAND then
-    return HasID(AIHand(),38331564,true) and HasID(AIDeck(),91110378,true) and not HasID(AIHand(),91110378,true)
+    if HasID(AIHand(),38331564,true) 
+    and HasID(AIDeck(),91110378,true) 
+    and not HasID(AIHand(),91110378,true)
+    then
+      return true
+    end
+    return false
   end
   if loc == PRIO_TOFIELD then
     return FieldCheck(4)==2 or FieldCheck(4)==1 and CardsMatchingFilter(AIHand(),function(c) return c.id==91110378 end)>1
@@ -110,7 +128,10 @@ function SovereignCond(loc)
 end
 function HonestCond(loc)
   if loc == PRIO_TOFIELD then
-    return HasID(AIGrave(),37742478,true)
+    if HasID(AIGrave(),37742478,true) then
+      return true
+    end
+    return false
   end
   return true
 end
@@ -404,7 +425,10 @@ if DeckCheck(DECK_TELLARKNIGHT) then
   if HasID(SpSummonable,34086406) and SummonLavalvalChain1() then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
   end
-  if HasID(SpSummonable,21501505) and SummonCairngorgon(SpSummonable[CurrentIndex]) then
+  if HasID(SpSummonable,21501505) 
+  and SummonCairngorgon(SpSummonable[CurrentIndex])
+  and DeckCheck(DECK_TELLARKNIGHT)
+  then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
   end
   SatellarknightAssignPriority(Summonable,PRIO_TOFIELD)

@@ -30,6 +30,7 @@ function c39890958.initial_effect(c)
 	local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_EQUIP)
 	e4:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
+	e4:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
 	e4:SetValue(aux.tgoval)
 	c:RegisterEffect(e4)
 	--spsummon
@@ -51,7 +52,8 @@ function c39890958.initial_effect(c)
 	c:RegisterEffect(e6)
 end
 function c39890958.filter(c)
-	return c:IsFaceup() and c:IsRace(RACE_MACHINE)
+	local ct1,ct2=c:GetUnionCount()
+	return c:IsFaceup() and c:IsRace(RACE_MACHINE) and ct2==0
 end
 function c39890958.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local c=e:GetHandler()
@@ -72,7 +74,7 @@ function c39890958.eqop(e,tp,eg,ep,ev,re,r,rp)
 		return
 	end
 	if not Duel.Equip(tp,c,tc,false) then return end
-	c:SetStatus(STATUS_UNION,true)
+	aux.SetUnionState(c)
 end
 function c39890958.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

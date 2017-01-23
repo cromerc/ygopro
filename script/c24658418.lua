@@ -61,6 +61,8 @@ function c24658418.spop(e,tp,eg,ep,ev,re,r,rp)
 	if xyzg:GetCount()>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local xyz=xyzg:Select(tp,1,1,nil):GetFirst()
-		Duel.XyzSummon(tp,xyz,g,1,5)
+		g:KeepAlive()
+		xyz:RegisterFlagEffect(999,RESET_CHAIN,0,0)
+		Duel.XyzSummon(tp,xyz,g,1,63)
 	end
 end

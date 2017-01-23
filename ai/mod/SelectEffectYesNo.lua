@@ -12,6 +12,9 @@
 function OnSelectEffectYesNo(id,triggeringCard)
   if not player_ai then player_ai = 1 end -- probably puzzle mode, so player goes first
   local result = nil
+  if not InfiniteLoopCheck(triggeringCard) then
+    return 0
+  end
   local d = DeckCheck()
   if d and d.EffectYesNo then
     result = d.EffectYesNo(id,triggeringCard)
@@ -37,9 +40,11 @@ function OnSelectEffectYesNo(id,triggeringCard)
     end
   end
   if result then 
-    if result == true then result = 1 end
+    if result == true then 
+      result = 1 
+    end
     if result == false then result = 0 end
-    return result 
+    return result
   end
   if CardIsScripted(id)>0 then
     result = 0
@@ -92,6 +97,5 @@ function OnSelectEffectYesNo(id,triggeringCard)
     GlobalActivatedEffectID = id
   end
   return result
-
 end
 

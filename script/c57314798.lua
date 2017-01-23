@@ -6,7 +6,7 @@ function c57314798.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetRange(LOCATION_EXTRA)
-	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e1:SetCondition(c57314798.xyzcon)
 	e1:SetOperation(c57314798.xyzop)
 	e1:SetValue(SUMMON_TYPE_XYZ)
@@ -45,58 +45,187 @@ function c57314798.initial_effect(c)
 	c:RegisterEffect(e4)
 end
 c57314798.xyz_number=100
-function c57314798.mfilter(c,xyzc)
-	return c:IsFaceup() and c:IsType(TYPE_XYZ) and c:IsSetCard(0x48) and c:IsCanBeXyzMaterial(xyzc)
+function c57314798.xyzm12(c,xyz,tp)
+	return c57314798.mfilter1(c,xyz,tp) or c57314798.mfilter2(c,xyz,tp)
 end
-function c57314798.xyzfilter1(c,g)
-	return g:IsExists(c57314798.xyzfilter2,1,c,c:GetRank(),c:GetCode())
+function c57314798.mfilter1(c,xyzc,tp)
+	return c:IsFaceup() and c:IsType(TYPE_XYZ) and c:IsSetCard(0x48) and c:IsCanBeXyzMaterial(xyzc) 
+		and (c:IsControler(tp) or c:IsHasEffect(EFFECT_XYZ_MATERIAL))
 end
-function c57314798.xyzfilter2(c,rk,code)
-	return c:GetRank()==rk and c:IsCode(code)
+function c57314798.mfilter2(c,xyzc,tp)
+	if c:IsLocation(LOCATION_GRAVE) then
+		return c:IsHasEffect(511002793) and c:IsType(TYPE_XYZ) and not c:IsSetCard(0x48) and c:IsCanBeXyzMaterial(xyzc)
+	else
+		return c:IsHasEffect(511002116)
+	end
+end
+function c57314798.xyzfilter1(c,tp,mg,xyz,matg,ct,sg,min,matct,nodoub)
+	local tg
+	local g=mg:Clone()
+	if matg==nil or matg:GetCount()==0 then tg=Group.CreateGroup() else tg=matg:Clone() end
+	g:RemoveCard(c)
+	tg:AddCard(c)
+	local tsg=false
+	if sg then
+		tsg=sg:Clone()
+		tsg:RemoveCard(c)
+	end
+	local gg=tg:Filter(aux.ValidXyzMaterial,nil)
+	if gg:IsExists(aux.TuneMagXyzFilter,1,nil,gg,tp) then return false end
+	local ctc=ct+1
+	local matct2=matct
+	if not c:IsHasEffect(511002116) and min then
+		matct2=matct+1
+	end
+	if min and matct2>min then return false end
+	if (not min or matct2==min) and ctc>=2 and ctc<=2 then return tg:IsExists(aux.XyzFCheck,1,nil,tp) end
+	if c:IsType(TYPE_XYZ) then g=g:Filter(c57314798.xyzfilter2,nil,c:GetCode(),c:GetRank()) end
+	if ctc>2 then return false end
+	local res2=false
+	local eqg=c:GetEquipGroup():Filter(Card.IsHasEffect,nil,511001175)
+	if not sg then
+		g:Merge(eqg)
+	end
+	local isDouble=false
+	if not nodoub and c:IsHasEffect(511001225) and (not c.xyzlimit2 or c.xyzlimit2(xyz)) then
+		if ctc+1<=2 then
+			isDouble=true
+			res2=true
+		end
+		if (not min or matct2==min) and ctc+1>=2 and ctc+1<=2 then return tg:IsExists(aux.XyzFCheck,1,nil,tp) end
+	end
+	return g:IsExists(c57314798.xyzfilter1,1,nil,tp,g,xyz,tg,ctc,tsg,min,matct2,false) 
+		or (res2 and g:IsExists(c57314798.xyzfilter1,1,nil,tp,g,xyz,tg,ctc+1,tsg,min,matct2,false))
+end
+function c57314798.xyzfilter2(c,code,rk)
+	return (c:IsCode(code) and c:GetRank()==rk) or c:IsHasEffect(511002116) or c:IsHasEffect(511001175)
 end
 function c57314798.xyzcon(e,c,og,min,max)
 	if c==nil then return true end
 	local tp=c:GetControler()
 	local mg=nil
+	local sg=false
 	if og then
-		mg=og:Filter(c57314798.mfilter,nil,c)
+		mg=og:Filter(c57314798.xyzm12,nil,c,tp)
+		sg=mg:Clone()
+		local mg2=Duel.GetMatchingGroup(Card.IsHasEffect,tp,LOCATION_ONFIELD,0,nil,511002116)
+		mg:Merge(mg2)
 	else
-		mg=Duel.GetMatchingGroup(c57314798.mfilter,tp,LOCATION_MZONE,0,nil,c)
+		mg=Duel.GetMatchingGroup(c57314798.mfilter1,tp,LOCATION_MZONE,LOCATION_MZONE,nil,c,tp)
+		local mg2=Duel.GetMatchingGroup(c57314798.mfilter2,tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,nil,c,tp)
+		mg:Merge(mg2)
 	end
-	return Duel.GetLocationCount(tp,LOCATION_MZONE)>-1
-		and (not min or min<=2 and max>=2)
-		and mg:IsExists(c57314798.xyzfilter1,1,nil,mg)
+	local minchk=min
+	if c:GetFlagEffect(999)~=0 then minchk=nil end
+	return mg:IsExists(c57314798.xyzfilter1,1,nil,tp,mg,c,nil,0,sg,minchk,0,false)
 end
 function c57314798.xyzop(e,tp,eg,ep,ev,re,r,rp,c,og,min,max)
-	local g=nil
-	local sg=Group.CreateGroup()
 	if og and not min then
-		g=og
-		local tc=og:GetFirst()
-		while tc do
-			sg:Merge(tc:GetOverlayGroup())
-			tc=og:GetNext()
+		if not og:IsExists(c57314798.xyzfilter1,1,nil,tp,og,c,nil,0,og,og:GetCount(),0,false) then
+			local matg=Group.CreateGroup()
+			local mg=og:Clone()
+			local mg2=Duel.GetMatchingGroup(Card.IsHasEffect,tp,LOCATION_ONFIELD,0,nil,511002116)
+			mg:Merge(mg2)
+			local ct=og:GetCount()
+			tog=og:Clone()
+			local tc=tog:GetFirst()
+			local matct=0
+			local ct=0
+			while tc do
+				local isDouble=false
+				if tc:IsHasEffect(511001225) and (not tc.xyzlimit2 or tc.xyzlimit2(c)) and ct+1<2 
+					and (not c57314798.xyzfilter1(tc,tp,mg,c,matg,ct,og,og:GetCount(),matct,true) or Duel.SelectYesNo(tp,65)) then
+					isDouble=true
+				end
+				ct=ct+1
+				if isDouble then ct=ct+1 end
+				matct=matct+1
+				mg:RemoveCard(tc)
+				matg:AddCard(tc)
+				tc=tog:GetNext()
+			end
+			while ct<2 do
+				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+				local sg=mg:Select(tp,1,1,nil)
+				sg:GetFirst():RegisterFlagEffect(511002115,RESET_EVENT+0x1fe0000,0,0)
+				ct=ct+1
+				mg:Sub(sg)
+				matg:Merge(sg)
+			end
+			matg:Remove(Card.IsHasEffect,nil,511002116)
+			matg:Remove(Card.IsHasEffect,nil,511002115)
+			local sg=Group.CreateGroup()
+			local tc=matg:GetFirst()
+			while tc do
+				local sg1=tc:GetOverlayGroup()
+				sg:Merge(sg1)
+				tc=g:GetNext()
+			end
+			Duel.SendtoGrave(sg,REASON_RULE)
+			c:SetMaterial(g)
+			Duel.Overlay(c,g)
+		else
+			local sg=Group.CreateGroup()
+			local tc=og:GetFirst()
+			while tc do
+				local sg1=tc:GetOverlayGroup()
+				sg:Merge(sg1)
+				tc=og:GetNext()
+			end
+			Duel.SendtoGrave(sg,REASON_RULE)
+			c:SetMaterial(og)
+			Duel.Overlay(c,og)
 		end
 	else
-		local mg=nil
+		local mg
+		local sg=false
 		if og then
-			mg=og:Filter(c57314798.mfilter,nil,c)
+			mg=og:Filter(c57314798.xyzm12,nil,c,tp)
+			sg=mg:Clone()
+			local mg2=Duel.GetMatchingGroup(Card.IsHasEffect,tp,LOCATION_ONFIELD,0,nil,511002116)
+			mg:Merge(mg2)
 		else
-			mg=Duel.GetMatchingGroup(c57314798.mfilter,tp,LOCATION_MZONE,0,nil,c)
+			mg=Duel.GetMatchingGroup(c57314798.xyzm12,tp,LOCATION_MZONE,LOCATION_MZONE,nil,c,tp)
+			local mg2=Duel.GetMatchingGroup(c57314798.mfilter2,tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,nil,c,tp)
+			mg:Merge(mg2)
 		end
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-		g=mg:FilterSelect(tp,c57314798.xyzfilter1,1,1,nil,mg)
-		local tc1=g:GetFirst()
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
-		local g2=mg:FilterSelect(tp,c57314798.xyzfilter2,1,1,tc1,tc1:GetRank(),tc1:GetCode())
-		local tc2=g2:GetFirst()
-		g:Merge(g2)
-		sg:Merge(tc1:GetOverlayGroup())
-		sg:Merge(tc2:GetOverlayGroup())
+		local ct=0
+		local matg=Group.CreateGroup()
+		while ct<2 do
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
+			local g=mg:FilterSelect(tp,c57314798.xyzfilter1,1,1,nil,tp,mg,c,matg,ct,sg,nil,nil,false)
+			local tc=g:GetFirst()
+			local isDouble=false
+			if tc:IsHasEffect(511001225) and (not tc.xyzlimit2 or tc.xyzlimit2(c)) and ct+1<2
+				and (not c57314798.xyzfilter1(tc,tp,mg,c,matg,ct,sg,nil,nil,true) or Duel.SelectYesNo(tp,65)) then
+				isDouble=true
+			end
+			if isDouble then ct=ct+1 end
+			if not sg then
+				local eqg=tc:GetEquipGroup():Filter(Card.IsHasEffect,nil,511001175)
+				mg:Merge(eqg)
+			end
+			mg:RemoveCard(tc)
+			matg:AddCard(tc)
+			if tc:IsHasEffect(511002116) then
+				tc:RegisterFlagEffect(511002115,RESET_EVENT+0x1fe0000,0,0)
+			end
+			if tc:IsType(TYPE_XYZ) then mg=mg:Filter(c57314798.xyzfilter2,nil,tc:GetCode(),tc:GetRank()) end
+			ct=ct+1
+		end
+		matg:Remove(Card.IsHasEffect,nil,511002116)
+		matg:Remove(Card.IsHasEffect,nil,511002115)
+		local sg2=Group.CreateGroup()
+		local tc=matg:GetFirst()
+		while tc do
+			local sg1=tc:GetOverlayGroup()
+			sg2:Merge(sg1)
+			tc=matg:GetNext()
+		end
+		Duel.SendtoGrave(sg2,REASON_RULE)
+		c:SetMaterial(matg)
+		Duel.Overlay(c,matg)
 	end
-	Duel.SendtoGrave(sg,REASON_RULE)
-	c:SetMaterial(g)
-	Duel.Overlay(c,g)
 end
 function c57314798.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end

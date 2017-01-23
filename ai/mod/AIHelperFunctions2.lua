@@ -7,9 +7,10 @@ function OnAIGoingFirstSecond(name)
   if name=="AI_Harpie"
   or name=="AI_Blackwing"
   or name=="AI_Shaddoll"
-  or name=="AI_Kozmo"
+  --or name=="AI_Kozmo"
   or name=="AI_Lightsworn"
   or name=="AI_GladiatorBeast"
+  or name=="AI_Fluffal"
   then
     player_ai = 1
     result = 0
@@ -33,6 +34,7 @@ function OnPlayerGoingFirstSecond(decision)
   return
 end
 function Startup()
+  DeckCheck()
   if PRINT_DRAW and PRINT_DRAW == 1 then
     -- display draws in debug console
     local e4=Effect.GlobalEffect()
@@ -300,8 +302,11 @@ function OppGetWeakestAttDef()
   return result
 end
 function OppHasStrongestMonster(skipbonus)
-  return #OppMon()>0 and ((AIGetStrongestAttack(skipbonus) <= OppGetStrongestAttDef()) 
-  or HasID(AIMon(),68535320,true) and FireHandCheck() or HasID(AIMon(),95929069,true) and IceHandCheck())
+  return #OppMon()>0 
+  and ((AIGetStrongestAttack(skipbonus) <= OppGetStrongestAttDef()) 
+  or HasID(AIMon(),68535320,true) and FireHandCheck() 
+  or HasID(AIMon(),95929069,true) and IceHandCheck())
+  and not HasIDNotNegated(AIMon(),65305468,true)
 end
 function OppHasFacedownMonster()
   local cards=OppMon()
@@ -485,10 +490,6 @@ function RemovalCheckCard(target,category,cardtype,targeted,chainlink,filter,opt
   CATEGORY_TOGRAVE,CATEGORY_TOHAND,
   CATEGORY_TODECK,CATEGORY_CONTROL,
   CATEGORY_CUSTOM_FACEDOWN,CATEGORY_CUSTOM_ATTACH}
-  if target and not FilterCheck(target,filter,opt)
-  then
-    return false
-  end
   if category then 
     if type(category)=="table" then
       cat=category
@@ -514,7 +515,8 @@ function RemovalCheckCard(target,category,cardtype,targeted,chainlink,filter,opt
           return false
         end
         if e and e:GetHandler()
-        and Negated(e:GetHandler())
+        and (Negated(e:GetHandler())
+        or not FilterCheck(e:GetHandler(),filter,opt))
         then
           return false
         end
@@ -524,7 +526,7 @@ function RemovalCheckCard(target,category,cardtype,targeted,chainlink,filter,opt
         if cg and target then
           local card=false
           cg:ForEach(function(c) 
-            local c=GetCardFromScript(c,Field())
+            local c=GetCardFromScript(c)
             if CardsEqual(c,target) then
               card=c
             end  end) 
@@ -583,11 +585,6 @@ function RemovalCheckList(cards,category,type,targeted,chainlink,filter,opt)
 end
 function NegateCheckCard(target,type,chainlink,filter,opt)
   if Duel.GetCurrentChain() == 0 then return false end
-  if card and filter and (opt and not filter(card,opt)
-  or opt==nil and not filter(card))
-  then
-    return false
-  end
   local a=1
   local b=Duel.GetCurrentChain()
   if chainlink then
@@ -601,6 +598,12 @@ function NegateCheckCard(target,type,chainlink,filter,opt)
     and CheckNegated(i) and (type==nil
     or e:GetHandler():IsType(type))
     then
+      if e and e:GetHandler()
+      and (Negated(e:GetHandler())
+      or not FilterCheck(e:GetHandler(),filter,opt))
+      then
+        return false
+      end
       if target==nil then 
         return g
       else
@@ -619,7 +622,7 @@ function NegateCheckCard(target,type,chainlink,filter,opt)
       if g and target then
         local card=false
         g:ForEach(function(c) 
-          local c=GetCardFromScript(c,Field())
+          local c=GetCardFromScript(c)
           if CardsEqual(c,target) then
             card=c
           end 
@@ -649,7 +652,9 @@ function NegateCheck(id)
     if id==nil then 
       return cg 
     end
-    if cg and id~=nil and cg:IsExists(function(c) return c:IsControler(player_ai) and c:IsCode(id) end, 1, nil) then
+    if cg and id~=nil 
+    and cg:IsExists(function(c) return c:IsControler(player_ai) and c:IsCode(id) end, 1, nil)
+    then
       return true
     end
   end
@@ -700,10 +705,12 @@ function BestTargets(cards,count,target,filter,opt,immuneCheck,source)
           c.prio = 2
         end
       else  
-        if FilterPosition(c,POS_FACEUP) then
-          c.prio = 4
-        else
+        if FilterPosition(c,POS_FACEUP)
+        and not FilterType(c,TYPE_PENDULUM)
+        then
           c.prio = 3
+        else
+          c.prio = 4
         end
       end
       if c.prio>0 then
@@ -749,6 +756,9 @@ function BestTargets(cards,count,target,filter,opt,immuneCheck,source)
     if CurrentOwner(c) == 1 then 
       c.prio = -1 * c.prio
     end
+    if not ShouldRemove(c) then
+      c.prio = -1
+    end
     if target == TARGET_PROTECT then 
       c.prio = -1 * c.prio
     end
@@ -778,7 +788,8 @@ function BestTargets(cards,count,target,filter,opt,immuneCheck,source)
   return result
 end
 function RandomTargets(cards,count,filter,opt)
-  result={}
+  local count = count or 1
+  local result={}
   for i=1,#cards do
     local c = cards[i]
     c.index = i
@@ -947,7 +958,7 @@ function Shuffle(t)
   return t
 end
 -- returns true, if the source is expected to win a battle against the target
-function WinsBattle(source,target)
+--[[function WinsBattle(source,target)
   if not (source and target) then return false end
   source=GetScriptFromCard(source)
   target=GetScriptFromCard(target)
@@ -960,8 +971,24 @@ function WinsBattle(source,target)
   and source:IsPosition(POS_FACEUP_ATTACK)
   and not target:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE)
   and not source:IsHasEffect(EFFECT_CANNOT_ATTACK)
+end]]
+function WinsBattle(source,target)
+  if not (source and target) then return false end
+  source=GetCardFromScript(source)
+  target=GetCardFromScript(target)
+  ApplyATKBoosts({source,target})
+  return FilterLocation(source,LOCATION_MZONE)
+  and FilterLocation(target,LOCATION_MZONE)
+  and (FilterPosition(target,POS_FACEUP_ATTACK)
+  and source.attack>=target.attack
+  or FilterPosition(target,POS_FACEUP_DEFENSE)
+  and source.attack>target.defense)
+  and FilterPosition(source,POS_FACEUP_ATTACK)
+  and not FilterAffected(target,EFFECT_INDESTRUCTABLE_BATTLE)
+  and not FilterAffected(source,EFFECT_CANNOT_ATTACK)
 end
-function NotNegated(c)
+function NotNegated(c,onfieldonly)
+  onfieldonly = onfieldonly or false
   local disabled = false
   local id
   local type
@@ -984,51 +1011,67 @@ function NotNegated(c)
     id = c.id
     player = CurrentMonOwner(c.cardid)
   end
+  local check = nil 
   if not GlobalNegatedLoop then
     GlobalNegatedLoop = true
-    if FilterType(c,TYPE_SPELL) and id~=61740673
-    and (HasIDNotNegated(Field(),84636823,true,nil,nil,POS_FACEUP) -- Spell Canceller
-    or HasIDNotNegated(Field(),61740673,true,nil,nil,POS_FACEUP)   -- Imperial Order
-    or HasIDNotNegated(OppMon(),33198837,true,nil,nil,POS_FACEUP)  -- Naturia Beast
-    or HasIDNotNegated(OppMon(),99916754,true,nil,nil,POS_FACEUP)) -- Naturia Exterio
-    then
+    check = NotNegated
+  end
+  if FilterType(c,TYPE_SPELL) and id~=61740673
+  and (HasID(Field(),84636823,true,nil,nil,POS_FACEUP,check) -- Spell Canceller
+  or HasID(Field(),61740673,true,nil,nil,POS_FACEUP,check)   -- Imperial Order
+  or HasID(OppMon(),33198837,true,nil,nil,POS_FACEUP,check)  -- Naturia Beast
+  or HasID(OppMon(),99916754,true,nil,nil,POS_FACEUP,check)) -- Naturia Exterio
+  then
+    return false
+  end
+  if FilterType(c,TYPE_TRAP) and id~=51452091
+  and (HasID(Field(),77585513,true,nil,nil,POS_FACEUP,check) -- Jinzo
+  or HasID(Field(),51452091,true,nil,nil,POS_FACEUP,check)  -- Royal Decree
+  or HasID(OppMon(),02956282,true,nil,nil,POS_FACEUP,check) and #OppGrave()>1 -- Naturia Barkion
+  or HasID(OppMon(),99916754,true,nil,nil,POS_FACEUP,check)) -- Naturia Exterio
+  or GlobalTrapStun == Duel.GetTurnCount()
+  then
+    return false
+  end
+  if FilterType(c,TYPE_MONSTER) 
+  then
+    if Duel.GetTurnCount()==GlobalFeatherStorm then
       return false
     end
-    if FilterType(c,TYPE_TRAP) and id~=51452091
-    and (HasIDNotNegated(Field(),77585513,true,nil,nil,POS_FACEUP) -- Jinzo
-    or HasIDNotNegated(Field(),51452091,true,nil,nil,POS_FACEUP)  -- Royal Decree
-    or HasIDNotNegated(OppMon(),02956282,true,nil,nil,POS_FACEUP) and #OppGrave()>1 -- Naturia Barkion
-    or HasIDNotNegated(OppMon(),99916754,true,nil,nil,POS_FACEUP)) -- Naturia Exterio
-    or GlobalTrapStun == Duel.GetTurnCount()
-    then
+    if SkillDrainCheck() then
+      return onfieldonly
+    end
+    if HasID(Field(),33746252,true,nil,nil,POS_FACEUP,check) then -- Majesty's Fiend
       return false
     end
-    if FilterType(c,TYPE_MONSTER) 
+    if HasID(Field(),56784842,true,nil,nil,POS_FACEUP,check) then -- Angel 07
+      return false
+    end
+    if HasID(Field(),53341729,true,nil,nil,POS_FACEUP,check) then -- Light-Imprisoning Mirror
+      return onfieldonly and not FilterAttribute(c,ATTRIBUTE_LIGHT) 
+    end
+    if HasID(Field(),99735427,true,nil,nil,POS_FACEUP,check) then -- Shadow-Imprisoning Mirror
+      return onfieldonly and not FilterAttribute(c,ATTRIBUTE_DARK)
+    end
+    if (FilterLocation(c,LOCATION_EXTRA) or FilterPreviousLocation(c,LOCATION_EXTRA))
+    and HasID(Field(),89463537,true,nil,nil,POS_FACEUP,check) -- Necroz Unicore
+    then 
+      return onfieldonly and false
+    end
+    if disabled and onfieldonly then
+      if HasID(OppST(),50078509,true,CardTargetCheck,c) then -- Fiendish Chain
+        return true
+      end
+      if HasID(OppST(),25542642,true,CardTargetCheck,c) then -- Fog Blade
+        return true
+      end
+      if HasID(OppMon(),63746411,true,CardTargetCheck,c) then -- Giant Hand
+        return true
+      end
+    end
+    if GlobalCoinormaTurn == Duel.GetTurnCount()
     then
-      if SkillDrainCheck() then
-        return false
-      end
-      if HasIDNotNegated(Field(),33746252,true,nil,nil,POS_FACEUP) then -- Majesty's Fiend
-        return false
-      end
-      if HasIDNotNegated(Field(),56784842,true,nil,nil,POS_FACEUP) then -- Angel 07
-        return false
-      end
-      if HasIDNotNegated(Field(),53341729,true,nil,nil,POS_FACEUP) then -- Light-Imprisoning Mirror
-        return not FilterAttribute(c,ATTRIBUTE_LIGHT)
-      end
-      if HasIDNotNegated(Field(),99735427,true,nil,nil,POS_FACEUP) then -- Shadow-Imprisoning Mirror
-        return not FilterAttribute(c,ATTRIBUTE_DARK)
-      end
-      if FilterLocation(c,LOCATION_EXTRA) 
-      and HasIDNotNegated(Field(),89463537,true,nil,nil,POS_FACEUP) -- Necroz Unicore
-      then 
-        return false
-      end
-      if GlobalCoinormaTurn == Duel.GetTurnCount()
-      then
-        return PredictionPrincessFilter(c)
-      end
+      return PredictionPrincessFilter(c)
     end
   end
   GlobalNegatedLoop=false
@@ -1044,6 +1087,7 @@ function DestroyFilter(c,nontarget,skipblacklist,skipignore)
   and (skipblacklist or not (DestroyBlacklist(c)
   and FilterPublic(c)))
   and (nontarget or not RemovalCheckCard(c))
+  and ShouldRemove(c)
 end
 function DestroyFilterIgnore(c,nontarget,skipblacklist,skipignore)
   return DestroyFilter(c,skipblacklist)
@@ -1073,13 +1117,19 @@ function FilterRace(c,race)
   end
 end
 function FilterLevel(c,level)
-  return FilterType(c,TYPE_MONSTER) and c.level==level
+  return FilterType(c,TYPE_MONSTER) 
+  and not FilterType(c,TYPE_XYZ)
+  and c.level==level
 end
 function FilterLevelMin(c,level)
-  return FilterType(c,TYPE_MONSTER) and c.level>=level
+  return FilterType(c,TYPE_MONSTER) 
+  and not FilterType(c,TYPE_XYZ)
+  and c.level>=level
 end
 function FilterLevelMax(c,level)
-  return FilterType(c,TYPE_MONSTER) and c.level<=level
+  return FilterType(c,TYPE_MONSTER) 
+  and not FilterType(c,TYPE_XYZ)
+  and c.level<=level
 end
 function FilterRank(c,rank)
   if c.GetCode then
@@ -1149,7 +1199,7 @@ function FilterDefenseMin(c,defense)
   else
     def = c.defense
   end
-  return FilterType(c,TYPE_MONSTER) and def<=defense
+  return FilterType(c,TYPE_MONSTER) and def>=defense
 end
 function FilterDefenseMax(c,defense)
   local def = 0
@@ -1161,9 +1211,11 @@ function FilterDefenseMax(c,defense)
   return FilterType(c,TYPE_MONSTER) and def<=defense
 end
 function FilterID(c,id)
+  c=GetCardFromScript(c)
   return c.id==id
 end
 function ExcludeID(c,id)
+  c=GetCardFromScript(c)
   return c.id~=id
 end
 function FilterCard(c1,c2)
@@ -1173,12 +1225,22 @@ function ExcludeCard(c1,c2)
   return not CardsEqual(c1,c2)
 end
 function FilterOriginalID(c,id)
+  c=GetCardFromScript(c)
   return c.original_id==id
 end
 function ExcludeOriginalID(c,id)
+  c=GetCardFromScript(c)
   return c.original_id~=id
 end
 function FilterPosition(c,pos)
+  if c == nil then
+    print("Warning: FilterPosition null card")
+    PrintCallingFunction()
+  end
+  if pos == nil then
+    print("Warning: FilterPosition null pos")
+    PrintCallingFunction()
+  end
   if c.GetCode then
     return c:IsPosition(pos)
   else
@@ -1197,6 +1259,7 @@ function FilterLocation(c,loc)
   end
 end
 function FilterPreviousLocation(c,loc)
+  c=GetCardFromScript(c)
   return bit32.band(c.previous_location,loc)>0
 end
 function FilterStatus(c,status)
@@ -1232,7 +1295,7 @@ function FilterPublic(c)
   return STATUS_IS_PUBLIC and FilterStatus(c,STATUS_IS_PUBLIC)
   or c.is_public and c:is_public()
   or FilterPosition(c,POS_FACEUP)
-  or FilterSummon(c,SUMMON_TYPE_SPECIAL) -- TODO: find better check
+  or FilterSummon(c,SUMMON_TYPE_SPECIAL)
 end
 function FilterPrivate(c)
   return not FilterPublic(c)
@@ -1300,15 +1363,25 @@ function FilterTuner(c,level)
   and FilterType(c,TYPE_TUNER)
   and (not level or FilterLevel(c,level))
 end
+function FilterNonTuner(c,level)
+  return FilterType(c,TYPE_MONSTER)
+  and not FilterType(c,TYPE_TUNER)
+  and (not level or FilterLevel(c,level))
+end
+function FilterBackrow(c)
+  return FilterType(c,TYPE_SPELL+TYPE_TRAP)
+  and FilterPosition(c,POS_FACEDOWN)
+  and FilterLocation(c,LOCATION_SZONE)
+end
 function Scale(c) -- backwards compatibility
   return c.lscale
 end
 function ScaleCheck(p)
-  local cards=AIST()
+  local cards=AIPendulum()
   local result = 0
   local count = 0
   if p == 2 then
-    cards=OppST()
+    cards=OppPendulum()
   end
   for i=1,#cards do
     if bit32.band(cards[i].type,TYPE_PENDULUM)>0 then
@@ -1324,6 +1397,25 @@ function ScaleCheck(p)
     return true
   end
   return nil
+end
+function GetScales(p)
+  p=p or 1
+  local result={}
+  for i,c in pairs(AllPendulum()) do
+    if FilterType(c,TYPE_PENDULUM) 
+    and FilterController(c,p)
+    then
+      result[#result+1]=c
+    end
+  end
+  if #result==0 then
+    return false
+  end
+  return result[1],result[2]
+end
+function CanPendulumSummon(p)
+  local l,r = GetScales(p)
+  return l and r and math.abs(Scale(l)-Scale(r))>1 
 end
 function FilterController(c,player)
   if not player then player = 1 end
@@ -1362,6 +1454,59 @@ function FilterFlipFaceup(c,checkopt)
   and FilterType(c,TYPE_FLIP)
   and FilterPosition(c,POS_FACEUP)
   and (not checkopt or OPTCheck(c.id))
+end
+function FilterInvert(c,args)
+  -- invert another filter, pass either the filter,
+  -- or a list containing filter + arguments
+  local filter = args
+  local opt = nil
+  if type(filter) == "table" then
+    filter = args[1]
+    opt = args[2]
+  end
+  return not FilterCheck(c,filter,opt)
+end
+GlobalSummonRestriction = nil
+function FilterSummonRestriction(c)
+  local filter = GlobalSummonRestriction
+  if not filter then
+    return true
+  end
+  if type(filter) == "number" then
+    return FilterSet(c,filter)
+  end
+  return filter(c)
+end
+function FilterCrippled(c)
+  -- check, if a targed is crippled in any way
+  -- negated, cannot attack, face-down and cannot change position, stuff like that
+  if not FilterLocation(c,LOCATION_ONFIELD) then
+    return false
+  end
+  if Negated(c) 
+  and not SkillDrainCheck()
+  and c.attack<2200 -- negated beatstick still useful
+  then
+    return true
+  end
+  if c.base_attack>=1500 -- don't consider crippled, if the ATK is low to begin with
+  and (c.attack<=0.5*c.base_attack 
+  or FilterAffected(c,EFFECT_CANNOT_ATTACK))
+  then
+    return true
+  end
+  if FilterPosition(c,POS_FACEDOWN)
+  and FilterAffected(c,EFFECT_CANNOT_CHANGE_POSITION)
+  then
+    return true
+  end
+  return false
+end
+function FilterNotCrippled(c)
+  return not FilterCrippled(c)
+end
+function FilterEquipped(c,id)
+  return CardsMatchingFilter(c:get_equipped_cards(),FilterID,id)>0
 end
 GlobalTargetList = {}
 -- function to prevent multiple cards to target the same card in the same chain
@@ -1509,6 +1654,20 @@ function NormalSummonCount(player)
   if player == nil then player = player_ai end
   return Duel.GetActivityCount(player,ACTIVITY_NORMALSUMMON)
 end
+GlobalExtraSummons={}
+function NormalSummonsAvailable(player)
+  player = player or player_ai
+  local summons = NormalSummonCount(player)
+  local available = (GlobalExtraSummons[Duel.GetTurnCount] or 0) + 1
+  if HasIDNotNegated(AIMon(),03113836,true) then -- Seraphinite
+    available = 2
+  end
+  return available-summons
+end
+function NormalSummonAdd(amount)
+  amount=amount or 1
+  GlobalExtraSummons[Duel.GetTurnCount()]=(GlobalExtraSummons[Duel.GetTurnCount()] or 0)+1
+end
 function SpecialSummonCheck(player)
   if player == nil then player = player_ai end
   -- wrapper for changed card script function
@@ -1655,10 +1814,12 @@ function PriorityTarget(c,destroycheck,loc,filter,opt) -- preferred target for r
   if loc == nil then loc = LOCATION_ONFIELD end
   if loc == LOCATION_ONFIELD then
     if FilterType(c,TYPE_MONSTER) 
-    and (bit32.band(c.type,TYPE_FUSION+TYPE_RITUAL+TYPE_XYZ+TYPE_SYNCHRO)>0 
+    and (bit32.band(c.type,TYPE_FUSION+TYPE_RITUAL+TYPE_SYNCHRO)>0 
     or c.level>4 and c.attack>2000
-    or c.attack>=2500)
+    or c.attack>=2500
+    or FilterType(c,TYPE_XYZ) and c.xyz_material_count>0)
     and not (FiendishCheck(c) and AIGetStrongestAttack()>c.attack)
+    and not FilterCrippled(c)
     then
       result = true
     end
@@ -1679,6 +1840,7 @@ function PriorityTarget(c,destroycheck,loc,filter,opt) -- preferred target for r
   end
   if result and (not destroycheck or DestroyFilter(c)) 
   and FilterPublic(c) and (filter == nil or (opt==nil and filter(c) or filter(c,opt)))
+  and ShouldRemove(c)
   then
     return true
   end
@@ -1707,7 +1869,7 @@ end
 -- Function to determine, if a player can special summon
 -- true = player can special summon
 GlobalDuality = 0
-function DualityCheck(player)
+function DualityCheck(player,skipmaxx)
   local cards = UseLists(AIField(),OppField())
   if player == nil then player = 1 end
   if player == 1 and Duel.GetTurnCount()==GlobalDuality then
@@ -1734,7 +1896,14 @@ function DualityCheck(player)
   if player == 2 and HasIDNotNegated(AIMon(),72634965,true,nil,nil,POS_FACEUP) then 
     return false -- Vanity's Ruler
   end
+  if player == 1 and not skipmaxx and not MaxxCheck() then -- Maxx "C"
+    return false 
+  end
   return true
+end
+
+function CanSpecialSummon(player,skipmaxx) -- better name? 
+  return DualityCheck(player,skipmaxx)     -- keep old name for backwards compatibility
 end
 
 -- Function to determine, if a player's cards are being banished 
@@ -1872,6 +2041,7 @@ end
 function BattleTargetCheck(c,source)
   return c:is_affected_by(EFFECT_INDESTRUCTABLE_BATTLE)==0
   and c:is_affected_by(EFFECT_CANNOT_BE_BATTLE_TARGET)==0
+  and c:is_affected_by(EFFECT_CANNOT_SELECT_BATTLE_TARGET)==0
   and DestroyCountCheck(c,TYPE_MONSTER,true)
   and AttackBlacklistCheck(c,source)
 end
@@ -2022,6 +2192,9 @@ function CrashCheck(c)
   if c.id == 29357956 and not FilterLocation(c,LOCATION_MZONE) then
     return true -- Nerokius
   end
+  if FilterSet(c,0xd3) then -- Kaiju
+    return true
+  end
   if CurrentMonOwner(c.cardid) ~= c.owner 
   and StrongerAttackerCheck(c,AIMon())
   then
@@ -2153,7 +2326,7 @@ function CanChangePos(c)
 end
 function CanAttack(c,direct,filter,opt)
   return (FilterPosition(c,POS_FACEUP_ATTACK)
-  or FilterPosition(c,POS_DEFENSE) and CanChangePos(c))
+  or (FilterPosition(c,POS_DEFENSE) and CanChangePos(c) and not IsBattlePhase()))
   and AvailableAttacks(c)>0
   and not FilterAffected(c,EFFECT_CANNOT_ATTACK)
   and (not direct or not FilterAffected(c,EFFECT_CANNOT_DIRECT_ATTACK))
@@ -2213,6 +2386,9 @@ end
 -- function to determine, if a card can attack for game 
 -- on an opponent's monster, or directly
 function CanFinishGame(c,target,atk,bonus,malus)
+  if FilterPosition(c,POS_DEFENSE) then
+    return false
+  end
   if not bonus then
     bonus = 0
   end
@@ -2452,13 +2628,7 @@ function CardTargetCheck(c,target)
     target=GetScriptFromCard(target)
     return c:IsHasCardTarget(target)
   end
-  for i=1,#Field() do
-    local tc=GetScriptFromCard(Field()[i])
-    if tc and c:IsHasCardTarget(tc) then
-      result = result +1
-    end
-  end
-  return result
+  return GetScriptFromCard(c):GetCardTargetCount()>0
 end
 function FiendishCheck(target)
   for i=1,#Field() do
@@ -2511,7 +2681,7 @@ function ChainCheck(id,player,link,filter,opt)
     if e and e:GetHandler() then
       c = e:GetHandler()
       if c:GetCode() == id
-      and not player or c:GetControler() == player
+      and (not player or c:GetControler() == player)
       and FilterCheck(c,filter,opt)
       then
         result = result+1
@@ -2788,8 +2958,27 @@ function NegateDragonRuler(c,e,source,link)
   return nil
 end
 
+function NegateUpstart(c,e,source,link)
+  if GetBurnDamage(nil,link) then
+    return nil
+  end
+  return 0
+end
+
+function NegateOTKStopper(c,e,source,link)
+  if (BattlePhaseCheck()
+  or IsBattlePhase())
+  and Duel.GetTurnPlayer()==player_ai
+  and #OppMon()==0
+  and ExpectedDamage(2)>=AI.GetPlayerLP(2)
+  then
+    return 4
+  end
+  return nil
+end
+
 NegatePriority={
-[70368879] = 0, -- Upstart
+[70368879] = NegateUpstart, -- Upstart
 [32807846] = 0, -- RotA
 [12538374] = 0, -- Treeborn
 [19748583] = 0, -- Gwen
@@ -2808,6 +2997,18 @@ NegatePriority={
 [26400609] = NegateDragonRuler,
 [89399912] = NegateDragonRuler,
 [90411554] = NegateDragonRuler,
+
+[65367484] = 3, -- Thrasher
+
+[16947147] = NegateOTKStopper, -- Menko
+[61318483] = NegateOTKStopper, -- Ghostrick Jackfrost
+[54512827] = NegateOTKStopper, -- Ghostrick Lantern
+[02830693] = NegateOTKStopper, -- Rainbow Kuriboh
+[18964575] = NegateOTKStopper, -- Swift Scarecrow
+[19665973] = NegateOTKStopper, -- Battle Fader
+[44330098] = NegateOTKStopper, -- Gorz
+[13313278] = NegateOTKStopper, -- BB Veil
+[25857246] = NegateOTKStopper, -- Nekroz Valkyrus
 }
 function AdjustMonsterPrio(target,prio)
   if not FilterType(target,TYPE_MONSTER) then
@@ -2822,6 +3023,12 @@ function AdjustMonsterPrio(target,prio)
   then
     prio=prio+1
   end
+  if FilterType(target,TYPE_XYZ) then
+    if target.xyz_material_count>0
+    then
+      prio=prio+1
+    end
+  end
   if target.attack>=2000 then
     prio=prio+1
   end
@@ -2831,7 +3038,7 @@ function AdjustMonsterPrio(target,prio)
   if target.attack<500 then
     prio=prio-1
   end
-  if atk>0 and target.attack>=atk then
+  if atk>=1200 and target.attack>=atk then
     prio=prio+1
   end
   return prio
@@ -2871,6 +3078,9 @@ function GetNegatePriority(source,link,targeted)
     if not CheckNegated(link) then
       return -1
     end
+    if Negated(c) then
+      return -1
+    end
     if FilterLocation(c,LOCATION_ONFIELD) 
     and FilterType(c,TYPE_SPELL+TYPE_TRAP)
     and FilterType(c,TYPE_CONTINUOUS+TYPE_FIELD+TYPE_EQUIP+TYPE_PENDULUM)
@@ -2900,6 +3110,9 @@ function GetNegatePriority(source,link,targeted)
         and FilterLocation(source,LOCATION_ONFIELD)
         then
           prio=prio+3
+          if FilterType(targets[1],TYPE_CONTINUOUS) then
+            prio=prio+1
+          end
         end 
         prio=AdjustMonsterPrio(target,prio)
       end
@@ -2950,6 +3163,25 @@ function GetNegatePriority(source,link,targeted)
         end
       end
     end
+    local burn = GetBurnDamage(nil,link)
+    if burn then
+      if burn >= 2000 then
+        prio=prio+2
+      end
+      if AI.GetPlayerLP(1)-burn<=800 then
+        prio=prio+4
+      end
+      if burn>AI.GetPlayerLP(1) then
+        prio=prio+100
+      end
+    end
+    local aimon,oppmon = GetBattlingMons()
+    if Duel.GetTurnPlayer()==player_ai
+    and IsBattlePhase()
+    and aimon and CanFinishGame(aimon,oppmon)
+    then
+      prio=prio+4
+    end
   else
     local targets = SubGroup(OppMon(),FilterStatus,STATUS_SUMMONING)
     if targets and #targets>0 then 
@@ -2963,16 +3195,30 @@ function GetNegatePriority(source,link,targeted)
         target=targets[1]
         prio = prio + 3
         prio=AdjustMonsterPrio(target,prio)
+        local check = NegatePriority[target.id]
+        if prio>-1 and check then
+          if type(check) == "function" then
+            if check(c,e,source,link) then
+              prio=check(c,e,source,link)
+            else
+              --prio=-1
+            end
+          else
+            prio=check
+          end
+        end
       end
+    else
+      prio = -1
     end
   end
   local check = NegatePriority[id]
   if prio>-1 and check then
     if type(check) == "function" then
-      if check(c,e,source) then
-        prio=check(c,e,source)
+      if check(c,e,source,link) then
+        prio=check(c,e,source,link)
       else
-        prio=-1
+        --prio=-1
       end
     else
       prio=check
@@ -3124,17 +3370,126 @@ function IsBattlePhase()
   return result
 end
 
+function IsMainPhase()
+  local current=Duel.GetCurrentPhase()
+  local phases =
+  {
+    PHASE_MAIN1,
+    PHASE_MAIN2,
+  }
+  local result = false
+  for i,p in pairs(phases) do
+    if p and current == p then 
+      result = true
+    end
+  end
+  return result
+end
+
 function AITrashTalk(s) -- to make the AI comment its plays. Can be disabled in ai.lua
   if TRASHTALK then
     AI.Chat(s)
   end
 end
 
+function CanXYZSummon(rank,materialcount,filter,opt) 
+  -- checks for space on field and rank in extra
+  -- does not actually check, if you have a way t put materials on board
+  rank = rank or 4
+  materialcount = materialcount or 2 
+  local targets = SubGroup(AIExtra(),FilterRank,rank)
+  local materials = SubGroup(AIMon(),FilterLevel,rank)
+  return CardsMatchingFilter(AIExtra(),filter,opt)>0
+  and SpaceCheck()+#materials>=materialcount
+  and DualityCheck()
+end
 
+function DiscardCheck()
+  -- checks, if the AI needs to keep a card to discard during the opponent's turn
+  if HasIDNotNegated(AIMon(),01561110,true) -- ABC Dragon Buster 
+  or HasID(AIST(),04178474,true) -- Raigeki Break
+  or HasID(AIST(),63356631,true) -- PWWB
+  then
+    return #AIHand()>1
+  end
+  return true
+end
 
+function ShouldRemove(c)
+  -- checks for cards, that should probably not be targeted with removal effects
+  -- like spells currently activating on the field etc
+  if FilterType(c,TYPE_SPELL+TYPE_TRAP)
+  and not FilterType(c,TYPE_CONTINUOUS+TYPE_EQUIP+TYPE_FIELD+TYPE_PENDULUM)
+  and FilterPosition(c,POS_FACEUP)
+  then 
+    return false
+  end
+  if FilterType(c,TYPE_TOKEN)
+  and c.attack<1000
+  then
+    return false
+  end
+  return true
+end
 
+function GetBurnDamage(player,start,stop)
+  -- returns the total burn damage expected to be dealt to the player 
+  -- in the current chain
+  player=player or player_ai
+  start = start or 1
+  stop = stop or start or Duel.GetCurrentChain()
+  local result = 0
 
-
-
-
+  for i=start,stop do
+    local e1=Duel.IsPlayerAffectedByEffect(player,EFFECT_REVERSE_DAMAGE)
+    local e2=Duel.IsPlayerAffectedByEffect(player,EFFECT_REVERSE_RECOVER)
+    local rd=e1 and not e2
+    local rr=not e1 and e2
+    local ex,cg,ct,cp,cv=Duel.GetOperationInfo(i,CATEGORY_DAMAGE)
+    if ex and (cp==player or cp==PLAYER_ALL) and not rd 
+    and not Duel.IsPlayerAffectedByEffect(player,EFFECT_NO_EFFECT_DAMAGE) 
+    then
+      result = result + cv
+    end
+    ex,cg,ct,cp,cv=Duel.GetOperationInfo(i,CATEGORY_RECOVER)
+    if ex and (cp==player or cp==PLAYER_ALL) and rr 
+    and not Duel.IsPlayerAffectedByEffect(player,EFFECT_NO_EFFECT_DAMAGE)
+    then
+      result = result + cv
+    end
+  end
+  if result>0 then
+    return result
+  end
+  return false
+end
+GlobalInfiniteLoopCheck={}
+function InfiniteLoopCheck(c,threshold)
+  threshold = threshold or 5
+  local id = c.description
+  if not id or id == 0 then
+    id = c.id
+  end
+  GlobalInfiniteLoopCheck[id]=GlobalInfiniteLoopCheck[id] or 0
+  GlobalInfiniteLoopCheck[id]=GlobalInfiniteLoopCheck[id]+1
+  return GlobalInfiniteLoopCheck[id]<=threshold
+end
+function MaxxCheck()
+  return GlobalMaxxC~=Duel.GetTurnCount()
+end
+GlobalSummonLimit = {}
+function SetSummonLimit(filter)
+  GlobalSummonLimit[Duel.GetTurnCount()]=GlobalSummonLimit[Duel.GetTurnCount()] or {}
+  GlobalSummonLimit[Duel.GetTurnCount()][#GlobalSummonLimit[Duel.GetTurnCount()]+1]=filter
+end
+function CheckSummonLimit(c)
+  if GlobalSummonLimit[Duel.GetTurnCount()] then
+    for i,filter in pairs(GlobalSummonLimit[Duel.GetTurnCount()]) do
+      if not filter(c) then
+        return false
+      end
+    end
+  end
+  return true
+end
 

@@ -1,7 +1,7 @@
 function SpecterStartup(deck)
   -- function called at the start of the duel, if the AI was detected playing your deck.
   --AI.Chat("Startup functions loaded.")
-  AI.Chat("You are now playing against AI_Majespecter version 1.4 by Xaddgx.")
+  AI.Chat("You are now playing against AI_Majespecter version 1.5 by Xaddgx.")
   AI.Chat("Good luck!")
   -- Your links to the important AI functions. If you don't specify a function,
   -- or your function returns nil, the default logic will be used as a fallback.
@@ -18,23 +18,20 @@ function SpecterStartup(deck)
   deck.PriorityList         = SpecterPriorityList
   deck.BattleCommand        = SpecterBattleCommand
   deck.AttackTarget         = SpecterAttackTarget
+  deck.YesNo                = SpecterYesNo
 
   --[[
   Other, more obscure functions, in case you need them. Same as before,
   not defining a function or returning nil causes default logic to take over
-
-  deck.YesNo
   deck.Option
   deck.Sum
   deck.Tribute
-  deck.BattleCommand
-  deck.AttackTarget
   deck.DeclareCard
   deck.Number
   deck.Attribute
   deck.MonsterType
   ]]
-  local e0=Effect.GlobalEffect()
+--[[  local e0=Effect.GlobalEffect()
 	e0:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e0:SetCode(EVENT_CHAIN_SOLVED)
 	e0:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
@@ -44,15 +41,15 @@ function SpecterStartup(deck)
 	Duel.RegisterEffect(e0,0)
 	local e1=e0:Clone()
 	e1:SetCode(EVENT_TO_HAND)
-	--Duel.RegisterEffect(e1,0)
+	Duel.RegisterEffect(e1,0)
 	local e2=e0:Clone()
 	e2:SetCode(EVENT_PHASE_START+PHASE_MAIN1)
-	--Duel.RegisterEffect(e2,0)
+	Duel.RegisterEffect(e2,0)
   local e3=Effect.GlobalEffect()
   e3:SetType(EFFECT_TYPE_FIELD)
   e3:SetCode(EFFECT_PUBLIC)
   e3:SetTargetRange(LOCATION_HAND,0)
-  --Duel.RegisterEffect(e3,player_ai)
+  Duel.RegisterEffect(e3,player_ai)]]
 end
 
 -- Your deck. The startup function must be on top of this line.
@@ -105,6 +102,7 @@ SpecterActivateBlacklist={
 12014404, -- Cowboy
 82697249, -- Dane Cook
 22653490, -- Lightning Chidori
+79816536, -- Summoner's Art
 }
 SpecterSummonBlacklist={
 -- Blacklist of cards to never be normal summoned or set by the default AI logic (apparently this includes special summoning?)
@@ -183,7 +181,8 @@ end
 
 function FoxCond(loc)
   if loc == PRIO_TOHAND then
-    return (CardsMatchingFilter(UseLists({AIST(),AIHand()}),SpecterBackrowFilter)<2 and not Duel.GetCurrentPhase()==PHASE_END
+    return (OPTCheck(94784213)
+	and CardsMatchingFilter(UseLists({AIST(),AIHand()}),SpecterBackrowFilter)<2 and not Duel.GetCurrentPhase()==PHASE_END
 	and CardsMatchingFilter(AIDeck(),SpecterTrapFilter)>0
 	and not HasID(UseLists({AIExtra(),AIHand()}),94784213,true))
 	or (HasScales() and CardsMatchingFilter(UseLists({AIExtra(),AIMon(),AIHand()}),function(c) return c.id==94784213 end)==0)
@@ -217,15 +216,19 @@ end
 
 function CrowCond(loc) --Code a to field/hand if Majespecter Cyclone would be useful for removing an opponent's monster.
   if loc == PRIO_TOHAND then
-    return OPTCheck(68395509)
+    return (OPTCheck(68395509)
 	and CardsMatchingFilter(AIDeck(),SpecterSpellFilter)>0
 	and CardsMatchingFilter(UseLists({AIST(),AIHand()}),SpecterBackrowFilter)<2
+	and not HasID(UseLists({AIExtra(),AIHand()}),68395509,true))
+    or (HasScales() and CardsMatchingFilter(UseLists({AIExtra(),AIMon(),AIHand()}),function(c) return c.id==68395509 end)==0)
   end
   if loc == PRIO_TOFIELD then
     return OPTCheck(68395509)
 	and CardsMatchingFilter(AIDeck(),SpecterSpellFilter)>0
-	and ((not HasID(AIHand(),68395509,true)
-	or HasID(AIHand(),68395509,true) and NormalSummonCheck(player_ai)))
+	and (not HasID(AIHand(),68395509,true)
+	or (HasID(AIHand(),68395509,true) and NormalSummonCheck(player_ai))
+	and Duel.GetTurnCount() == SpecterGlobalPendulum)
+	and not (HasScales() and HasID(AIExtra(),68395509,true))
   end
   if loc == PRIO_BANISH then
     return NeedsSStormOverSCyclone()
@@ -847,6 +850,10 @@ function SpecterMP2Check()
   return AI.GetCurrentPhase() == PHASE_MAIN2 or not GlobalBPAllowed
 end
 
+function SpecterSetSummoners()
+  return Duel.GetTurnCount() == 1 or (Duel.GetCurrentPhase()==PHASE_MAIN2 or (Duel.GetCurrentPhase()==PHASE_MAIN1 and not GlobalBPAllowed))
+end
+
 function SetSTempest()
   return Duel.GetTurnCount() == 1 or (Duel.GetCurrentPhase()==PHASE_MAIN2 or (Duel.GetCurrentPhase()==PHASE_MAIN1 and not GlobalBPAllowed))
 end
@@ -998,7 +1005,8 @@ end
 function SpecterSummonGranpulse2()
   return ((CardsMatchingFilter(OppST(),SpecterGranpulseFilter)>0 and OppHasScales()
   and (AI.GetCurrentPhase() == PHASE_MAIN2 or not GlobalBPAllowed)
-  and #OppHand()<2)
+  and #OppHand()<2
+  and XYZSummonOkay())
   or (CardsMatchingFilter(OppST(),OppDownBackrowFilter)>0 and Duel.GetTurnCount() ~= SpecterGlobalPendulum and HasScales()
   and CardsMatchingFilter(UseLists({AIHand(),AIExtra()}),SpecterMonsterFilter)>0))
   and HasID(AIExtra(),85252081,true)
@@ -1036,7 +1044,8 @@ function OppDownBackrowFilter(c)
   and SpecterDestroyFilter(c)
   and not (DestroyBlacklist(c)
   and (bit32.band(c.position, POS_FACEUP)>0 
-  or bit32.band(c.status,STATUS_IS_PUBLIC)>0))
+  or FilterPublic(c))
+  and not FilterPublic(c))
 --  and not FilterType(c,TYPE_FIELD)
 end
 
@@ -1320,7 +1329,7 @@ end
 function SpecterTornadoFilter4(c)
   if (EnemyHasFireflux() or EnemyHasPPalOrOddEyes()
   or EnemyHasStargazer() or EnemyHasTimegazer())
-  and Duel.GetCurrentPhase() == PHASE_BATTLE then
+  and IsBattlePhase() then
     return c.attack > SpecterAIGetWeakestAttDef()
     and FilterPosition(c,POS_FACEUP_ATTACK)
 	and SpecterTornadoFilter(c)
@@ -1351,7 +1360,7 @@ function SpecterTornadoFilter7(c)
   and (FilterAffected(c,EFFECT_CANNOT_BE_BATTLE_TARGET)
   or FilterAffected(c,EFFECT_INDESTRUCTABLE_BATTLE))
   and (FilterPosition(c,POS_FACEUP)
-  or FilterStatus(c,STATUS_IS_PUBLIC))
+  or FilterPublic(c))
 end
 
 function ChainSpecterTornado()
@@ -1382,7 +1391,7 @@ function ChainSpecterTornado3()
 end
 
 function ChainSpecterTornado4()
-  if Duel.GetCurrentPhase() == PHASE_BATTLE and Duel.GetTurnPlayer()==1-player_ai then
+  if IsBattlePhase() and Duel.GetTurnPlayer()==1-player_ai then
 		local source = Duel.GetAttacker()
 		local target = Duel.GetAttackTarget()
     if source and target then
@@ -1417,14 +1426,14 @@ end
 function ChainSpecterTornado6()
   return CardsMatchingFilter(OppMon(),SpecterTornadoFilter4)>0
   and Duel.GetTurnPlayer()==1-player_ai
-  and Duel.GetCurrentPhase() == PHASE_BATTLE
+  and IsBattlePhase()
   and UnchainableCheck(36183881)
 end
 
 function ChainSpecterTornado7()
   return CardsMatchingFilter(OppMon(),SpecterTornadoFilter5)>0
   and Duel.GetTurnPlayer()==1-player_ai
-  and Duel.GetCurrentPhase() == PHASE_BATTLE
+  and IsBattlePhase()
   and UnchainableCheck(36183881)
 end
 
@@ -1444,7 +1453,7 @@ function ChainSpecterTornado8()
   and CardsMatchingFilter(AIMon(),MajespecterAttack)>4
   and CardsMatchingFilter(UseLists({AIHand(),AIST()}),UsableFreelyBackrowFilter)>2
   and CardsMatchingFilter(AIMon(),SpecterMonsterFilter)>3))
-  and Duel.GetCurrentPhase() == PHASE_BATTLE
+  and IsBattlePhase()
   and Duel.GetTurnPlayer()==player_ai
   and UnchainableCheck(36183881)
 end
@@ -1539,7 +1548,7 @@ end
 function SpecterCycloneFilter4(c)
   if (EnemyHasFireflux() or EnemyHasPPalOrOddEyes()
   or EnemyHasStargazer() or EnemyHasTimegazer())
-  and Duel.GetCurrentPhase() == PHASE_BATTLE then
+  and IsBattlePhase() then
     return c.attack > SpecterAIGetWeakestAttDef()
     and FilterPosition(c,POS_FACEUP_ATTACK)
 	and SpecterCycloneFilter(c)
@@ -1571,7 +1580,7 @@ function SpecterCycloneFilter7(c)
   and (FilterAffected(c,EFFECT_CANNOT_BE_BATTLE_TARGET)
   or FilterAffected(c,EFFECT_INDESTRUCTABLE_BATTLE))
   and (FilterPosition(c,POS_FACEUP)
-  or FilterStatus(c,STATUS_IS_PUBLIC))
+  or FilterPublic(c))
 end
 
 function ChainSpecterCyclone()
@@ -1602,7 +1611,7 @@ function ChainSpecterCyclone3()
 end
 
 function ChainSpecterCyclone4()
-  if Duel.GetCurrentPhase() == PHASE_BATTLE and Duel.GetTurnPlayer()==1-player_ai then
+  if IsBattlePhase() and Duel.GetTurnPlayer()==1-player_ai then
 		local source = Duel.GetAttacker()
 		local target = Duel.GetAttackTarget()
     if source and target then
@@ -1638,14 +1647,14 @@ end
 function ChainSpecterCyclone6()
   return CardsMatchingFilter(OppMon(),SpecterCycloneFilter4)>0
   and Duel.GetTurnPlayer()==1-player_ai
-  and Duel.GetCurrentPhase() == PHASE_BATTLE
+  and IsBattlePhase()
   and UnchainableCheck(49366157)
 end
 
 function ChainSpecterCyclone7()
   return CardsMatchingFilter(OppMon(),SpecterCycloneFilter5)>0
   and Duel.GetTurnPlayer()==1-player_ai
-  and Duel.GetCurrentPhase() == PHASE_BATTLE
+  and IsBattlePhase()
   and UnchainableCheck(49366157)
 end
 
@@ -1665,7 +1674,7 @@ function ChainSpecterCyclone8()
   and CardsMatchingFilter(AIMon(),MajespecterAttack)>4
   and CardsMatchingFilter(UseLists({AIHand(),AIST()}),UsableFreelyBackrowFilter)>2
   and CardsMatchingFilter(AIMon(),SpecterMonsterFilter)>3))
-  and Duel.GetCurrentPhase() == PHASE_BATTLE
+  and IsBattlePhase()
   and Duel.GetTurnPlayer()==player_ai
   and UnchainableCheck(49366157)
 end
@@ -1750,7 +1759,7 @@ function SpecterEffectNegateFilter(c,card)
   if id == 09411399 and HasID(OppGrave(),09411399,true) then -- Don't negate Malicious if there is already a second in the graveyard.
     return false
   end
-  if id == 37445295 and #OppHand()>2 and not Duel.GetCurrentPhase() == PHASE_BATTLE then -- Falco
+  if id == 37445295 and #OppHand()>2 and not IsBattlePhase() then -- Falco
     return false
   end
   if id == 33420078 and #OppHand()>0 then --Plaguespreader
@@ -1871,7 +1880,8 @@ function SpecterEffectNegateFilter(c,card)
   if id == 20563387 then
     return true
   end
-  if EnableShadollFunctions() or EnableBAFunctions() then
+  if (EnableShadollFunctions() or EnableBAFunctions() 
+  or EnableLightswornFunctions() or EnableZombieFunctions()) then
     for i=1,Duel.GetCurrentChain() do
     e = Duel.GetChainInfo(i, CHAININFO_TRIGGERING_EFFECT)
       if e and (Duel.GetOperationInfo(i,CATEGORY_TOGRAVE)
@@ -2708,7 +2718,7 @@ end
 
 function UseSStorm4()
   return CardsMatchingFilter(OppMon(),SStormFilter4)>0
-  and (not MajestyCheck() or not WindaCheck())
+  and not MajestyCheck()
 end
 
 function UseSStorm5()
@@ -2784,7 +2794,7 @@ function SpecterCastelFilter(c)
   and Targetable(c,TYPE_MONSTER)
   and Affected(c,TYPE_MONSTER,4)
   and not SpecterCodedTargets2(c)
---  and c.attack > AIGetStrongestAttack()
+  and c.attack == OppGetStrongestAttDef()
 end
 
 function SpecterUseCastel()
@@ -2813,6 +2823,17 @@ function SpecterSummonUtopiaLightningRoom()
   and not EnemyHasBattleStallLightning()
 end
 
+function SpecterSummonUtopiaLightningSmart()
+  return CardsMatchingFilter(OppMon(),SpecterGraveyardEffectBattleFilter)>0
+  and XYZSummonOkay()
+  and AI.GetCurrentPhase() == PHASE_MAIN1
+  and GlobalBPAllowed
+  and HasID(AIExtra(),56832966,true)
+  and not HasID(AIMon(),56832966,true)
+  and not EnemyHasStall()
+  and not EnemyHasBattleStallLightning()
+end
+
 function SpecterLightningFilter(c)
   return not FilterAffected(c,EFFECT_CANNOT_BE_BATTLE_TARGET)
   and not FilterAffected(c,EFFECT_INDESTRUCTABLE_BATTLE)
@@ -2834,6 +2855,7 @@ end
 function SpecterSummonHeartlandFinish()
   return AI.GetCurrentPhase() == PHASE_MAIN1 and GlobalBPAllowed
   and AI.GetPlayerLP(2)<=2000
+  and #OppMon()>0
   and HasID(AIExtra(),31437713,true)
 end
 
@@ -2995,10 +3017,15 @@ function SpecterShadollFusionGrave()
 end
 
 function ChainSpecterAbyss()
-  if (EnableBlueEyesFunctions() and Duel.GetTurnPlayer()==1-player_ai) then return true end
-  if (EnableShadollFunctions() and Duel.GetTurnPlayer()==1-player_ai) then return true end
-  if (EnableRaidraptorFunctions() and Duel.GetTurnPlayer()==1-player_ai) then return true end
-  if (EnableBAFunctions() and Duel.GetTurnPlayer()==1-player_ai) then return true end
+--  if (EnableBlueEyesFunctions()
+  if (EnableShadollFunctions()
+  or EnableRaidraptorFunctions()
+  or EnableBAFunctions()
+  or EnableHieraticFunctions()
+  or EnableLightswornFunctions()
+  or EnableZombieFunctions()
+  or EnableBlueEyesAbyssFunctions())
+  and Duel.GetTurnPlayer()==1-player_ai then return true end
   if EnableShadollFunctions() then
   local e
     for i=1,Duel.GetCurrentChain() do
@@ -3017,6 +3044,30 @@ function ChainSpecterAbyss()
 	  return true
 	end
   end
+  if EnableShadollFunctions() then
+    if IsBattlePhase() then
+    local source = Duel.GetAttacker()
+	local target = Duel.GetAttackTarget()
+      if source and target then
+        if source:IsControler(player_ai) then
+        target = Duel.GetAttacker()
+        source = Duel.GetAttackTarget()
+        end
+        if target:IsControler(player_ai)
+		and source:IsPosition(POS_FACEUP)
+		and target:IsPosition(POS_FACEUP_ATTACK)
+		and WinsBattle(target,source)
+		and not source:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE)
+		and ((source:IsCode(94977269) or source:IsCode(74822425) 
+		or source:IsCode(48424886) or source:IsCode(20366274) 
+		or source:IsCode(19261966) or source:IsCode(74009824) 
+		or source:IsCode(04904633)) and SpecterShadollFusionGrave())
+		then
+		  return true
+		end
+	  end
+	end
+  end 
   if EnableBAFunctions() then
   local e
     for i=1,Duel.GetCurrentChain() do
@@ -3028,7 +3079,7 @@ function ChainSpecterAbyss()
 	end
   end
   if EnableBAFunctions() then
-    if Duel.GetCurrentPhase() == PHASE_BATTLE then
+    if IsBattlePhase() then
     local source = Duel.GetAttacker()
 	local target = Duel.GetAttackTarget()
       if source and target then
@@ -3039,7 +3090,7 @@ function ChainSpecterAbyss()
         if target:IsControler(player_ai)
 		and source:IsPosition(POS_FACEUP)
 		and target:IsPosition(POS_FACEUP_ATTACK)
-		and Winsbattle(target,source)
+		and WinsBattle(target,source)
 		and not source:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE)
 		and (source:IsCode(20758643) or source:IsCode(57143342) or source:IsCode(09342162) or source:IsCode(36553319) or source:IsCode(84764038) 
 		or source:IsCode(27552504) or (source:IsCode(62957424) and #OppHand()>0) or source:IsCode(00601193) or source:IsCode(18386170) 
@@ -3060,6 +3111,9 @@ function ChainSpecterAbyss()
   if EnableBAFunctions() and SpecterRemovalCheckOpp(83531441) and EnemyHasDante() then
     return true
   end
+  if EnableArtifactFunctions() and SpecterArtifactDestroyCheckOpp(OppST()) and Duel.GetTurnPlayer()==player_ai then
+    return true
+  end
   if RemovalCheck(21044178) then
     return true
   end
@@ -3074,6 +3128,26 @@ function ChainSpecterAbyss()
   end
   if SpecterStardustCheck() or SpecterStarAssaultModeCheck() then
     return true
+  end
+  if CardsMatchingFilter(OppMon(),SpecterGraveyardEffectBattleFilter)>0 then
+    if IsBattlePhase() then
+    local source = Duel.GetAttacker()
+	local target = Duel.GetAttackTarget()
+      if source and target then
+        if source:IsControler(player_ai) then
+        target = Duel.GetAttacker()
+        source = Duel.GetAttackTarget()
+        end
+        if target:IsControler(player_ai)
+		and source:IsPosition(POS_FACEUP)
+		and target:IsPosition(POS_FACEUP_ATTACK)
+		and WinsBattle(target,source)
+		and not source:IsHasEffect(EFFECT_INDESTRUCTABLE_BATTLE) 
+		and not target:IsCode(56832966) then
+		  return true
+		end
+	  end
+	end
   end
   local e
   for i=1,Duel.GetCurrentChain() do
@@ -3377,7 +3451,7 @@ function CrowChangeToAttack()
   and (FaceupEnemies() or #OppMon()==0)
 end
 
-function CrowChangeToDefense()
+function CrowChangeToDefence()
   return AI.GetCurrentPhase() == PHASE_MAIN2 
   or not GlobalBPAllowed
 end
@@ -3390,12 +3464,12 @@ function MajesterChangeToAttack()
   and (FaceupEnemies() or #OppMon()==0)
 end
 
-function MajesterChangeToDefense()
+function MajesterChangeToDefence()
   return AI.GetCurrentPhase() == PHASE_MAIN2
   or not GlobalBPAllowed
 end
 
-function CatChangeToDefense()
+function CatChangeToDefence()
   return true
 end
 
@@ -3462,7 +3536,7 @@ end
 
 function UsedUtopiaLightning()
   return CardsMatchingFilter(AIMon(),UsedUtopiaLightningFilter)>0
-  and Duel.GetCurrentPhase() == PHASE_BATTLE
+  and IsBattlePhase()
 end
 
 function UsedUtopiaLightning2()
@@ -3546,6 +3620,14 @@ end
 
 function EnableBAFunctions()
   return CardsMatchingFilter(UseLists({OppMon(),OppDeck(),OppGrave(),OppBanish()}),EnableBAFunctionsFilter)>=10
+end
+
+function EnableHieraticFunctionsFilter(c)
+  return IsSetCode(c.setcode,0x69)
+end
+
+function EnableHieraticFunctions()
+  return CardsMatchingFilter(UseLists({OppMon(),OppDeck(),OppGrave(),OppBanish()}),EnableHieraticFunctionsFilter)>=10
 end
 
 function EnemyBATempest(c)
@@ -3928,6 +4010,28 @@ function SpecterRemovalCheckOpp(id,category)
           return cg
         end
         if cg and id~=nil and cg:IsExists(function(c) return c:IsControler(1-player_ai) and c:IsCode(id) end, 1, nil) then
+          return true
+        end
+      end
+    end
+  end
+  return false
+end
+
+function SpecterArtifactDestroyCheckOpp(id,category)
+  if Duel.GetCurrentChain() == 0 then return false end
+  if not EnableArtifactFunctions() then return false end
+  local cat={CATEGORY_DESTROY}
+  if category then cat={category} end
+  for i=1,#cat do
+    for j=1,Duel.GetCurrentChain() do
+      local ex,cg = Duel.GetOperationInfo(j,cat[i])
+      if ex and CheckNegated(j) then
+        if id==nil then 
+          return cg
+        end
+        if cg and id~=nil and cg:IsExists(function(c) return c:IsControler(1-player_ai) and c:IsType(TYPE_SPELL+TYPE_TRAP) 
+		and c:IsPosition(POS_FACEDOWN) end, 1, nil) then
           return true
         end
       end
@@ -5719,7 +5823,7 @@ function SpecterAIGetWeakestAttDef()
       if bit32.band(cards[i].position,POS_ATTACK)>0 and cards[i].attack<result then
         result=cards[i].attack-cards[i].bonus
       elseif bit32.band(cards[i].position,POS_DEFENSE)>0 and cards[i].defense<result 
-      and (bit32.band(cards[i].position,POS_FACEUP)>0 or bit32.band(cards[i].status,STATUS_IS_PUBLIC)>0)
+      and (bit32.band(cards[i].position,POS_FACEUP)>0 or FilterPublic(cards[i]))
       then
         result=cards[i].defense
       end
@@ -5778,7 +5882,7 @@ end
 function SpecterSummonDane()
   return CardsMatchingFilter(AIMon(),SpecterDaneFilter)>3
   and ((CardsMatchingFilter(AIST(),MagicianPendulumFilter)>1
-  and OPTCheck(53208660))
+  and not OPTCheck(53208660))
   or (CardsMatchingFilter(AIHand(),ScaleHighFilter)>0
   and CardsMatchingFilter(AIHand(),ScaleLowFilter)>0))
   and Duel.GetTurnCount() ~= SpecterGlobalPendulum
@@ -5786,6 +5890,7 @@ function SpecterSummonDane()
   and CardsMatchingFilter(AIST(),SpecterBackrowFilter)<4
   and XYZSummonOkay()
   and HasID(AIExtra(),82697249,true)
+  and OPTCheck(31437713)
   and not HasID(AIST(),78949372,true)
   and not HasID(AIST(),05851097,true)
 end
@@ -5793,11 +5898,12 @@ end
 function SpecterUseDane()
   return CardsMatchingFilter(AIMon(),SpecterDaneFilter)>1
   and ((CardsMatchingFilter(AIST(),MagicianPendulumFilter)>1
-  and OPTCheck(53208660))
+  and not OPTCheck(53208660))
   or (CardsMatchingFilter(AIHand(),ScaleHighFilter)>0
   and CardsMatchingFilter(AIHand(),ScaleLowFilter)>0))
   and Duel.GetTurnCount() ~= SpecterGlobalPendulum
   and CardsMatchingFilter(AIST(),SpecterBackrowFilter)<4
+  and OPTCheck(31437713)
   and not HasID(AIST(),78949372,true)
   and not HasID(AIST(),05851097,true)
 end
@@ -5957,6 +6063,555 @@ function SpecterUseChidori()
   return CardsMatchingFilter(OppField(),SpecterChidoriFilter2)>0
 end
 
+function SpecterSummonAbyssArchetypesMP1()
+  return (AIGetStrongestAttack() > OppGetStrongestAttack() or OppGetStrongestAttack() < 1700)
+  and XYZSummonOkay()
+  and Duel.GetCurrentPhase() == PHASE_MAIN1
+  and ((EnableArtifactFunctions() and OppDownBackrow())
+  or (CardsMatchingFilter(OppMon(),SpecterGraveyardEffectBattleFilter)>1 and GlobalBPAllowed))
+end
+
+function SpecterSummonAbyssArchetypesMP2()
+  return (AIGetStrongestAttack() > OppGetStrongestAttack() or OppGetStrongestAttack() < 1700)
+  and XYZSummonOkay()
+  and (Duel.GetCurrentPhase() == PHASE_MAIN2 or (Duel.GetCurrentPhase() == PHASE_MAIN1 and not GlobalBPAllowed))
+  and (EnableHieraticFunctions()
+  or EnableLightswornFunctions()
+  or EnableZombieFunctions()
+  or EnableBlueEyesAbyssFunctions())
+end
+
+function EnableLightswornFunctionsFilter(c)
+  return IsSetCode(c.setcode,0x38)
+end
+
+function EnableLightswornFunctions()
+  return CardsMatchingFilter(UseLists({OppMon(),OppDeck(),OppGrave(),OppBanish()}),EnableLightswornFunctionsFilter)>=10
+end
+
+function EnableZombieFunctionsFilter(c)
+  return FilterRace(c,RACE_ZOMBIE)
+end
+
+function EnableZombieFunctions()
+  return CardsMatchingFilter(UseLists({OppMon(),OppDeck(),OppGrave(),OppBanish()}),EnableZombieFunctionsFilter)>=10
+end
+
+function EnableBlueEyesAbyssFunctionsFilter(c)
+  return c.id==36734924
+  or c.id==71039903
+  or c.id==45644898
+  or c.id==56532353
+end
+
+function EnableBlueEyesAbyssFunctions()
+  return CardsMatchingFilter(OppGrave(),EnableBlueEyesAbyssFunctionsFilter)>0
+end
+
+function EnableArtifactFunctionsFilter(c) --Can't read setcode?
+  return c.id==20292186
+  or c.id==85103922
+  or c.id==12697630
+  or c.id==12444060
+  or c.id==29223325
+  or c.id==69840739
+  or c.id==69304426
+  or c.id==84268896
+  or c.id==85080444
+  or c.id==56611470
+  or c.id==11475049
+  or c.id==34267821
+  or c.id==08873112
+  or c.id==48086335
+  or c.id==47863787
+end
+
+function EnableArtifactFunctions()
+  return CardsMatchingFilter(UseLists({OppMon(),OppDeck(),OppGrave(),OppBanish()}),EnableArtifactFunctionsFilter)>=5
+end
+
+--Verserion when it gets an id.
+--ABC unions when they get ids.
+--Silent Swordsman when it gets an id.
+--Starve Venom Fusion Dragon when it gets an id.
+
+function SpecterGraveyardEffectBattleFilter(c) --Anything always above 2000, assume Utopia Lightning will be on the field.
+  return SpecterLightningFilter(c)
+  and (FilterPosition(c,POS_FACEUP)
+  or FilterPublic(c))
+  and (c.id==58604027
+  or c.id==72677437
+  or c.id==17286057
+  or c.id==85991529
+  or c.id==08062132
+  or c.id==64063868
+  or c.id==85771019
+  or c.id==55885348
+  or c.id==23015896
+  or c.id==18175965
+  or c.id==27103517
+  or c.id==31829185
+  or c.id==20849090
+  or c.id==71703785
+  or c.id==05556499
+  or c.id==68299524
+  or c.id==12624008
+  or c.id==13846680
+  or c.id==50957346
+  or c.id==59235795
+  or c.id==86229493
+  or c.id==86442081
+  or c.id==31986288
+  or c.id==52824910
+  or c.id==59496924
+  or c.id==29491334
+  or c.id==34294855
+  or c.id==07602840
+  or c.id==58990362
+  or c.id==69838592
+  or c.id==80887952
+  or c.id==94454495
+  or c.id==99946920
+  or c.id==37679169
+  or c.id==93927067
+  or c.id==97904474
+  or c.id==32146097
+  or c.id==33656832
+  or c.id==47606319
+  or c.id==99348756
+  or c.id==30106950
+  or c.id==51987571
+  or c.id==75252099
+  or c.id==85399281
+  or c.id==98719226
+  or c.id==86062400
+  or c.id==70074904
+  or c.id==39091951
+  or c.id==29687169
+  or c.id==67922702
+  or c.id==59312550
+  or c.id==91438994
+  or c.id==55010259
+  or c.id==98301564
+  or c.id==81354330
+  or c.id==11439455
+  or c.id==14763299
+  or c.id==02584136
+  or c.id==67483216
+  or c.id==76066541
+  or c.id==29654737
+  or c.id==02671330
+  or c.id==29021114
+  or c.id==40320754
+  or c.id==27655513
+  or c.id==40894584
+  or c.id==14541657
+  or c.id==97017120
+  or c.id==60806437
+  or c.id==83011277
+  or (c.id==02250266 and FilterPosition(c,POS_FACEUP_ATTACK))
+  or c.id==57839750
+  or c.id==03070049
+  or c.id==84834865
+  or c.id==48783998
+  or c.id==95956346
+  or c.id==03846170
+  or c.id==03370104
+  or c.id==70089580
+  or c.id==77044671
+  or c.id==06320631
+  or c.id==75733063
+  or c.id==86174055
+  or c.id==04335645
+  or c.id==72714226
+  or c.id==16480084
+  or c.id==69572169
+  or c.id==66762372
+  or c.id==05438492
+  or c.id==62379337
+  or c.id==44364207
+  or c.id==07563579
+  or c.id==34680482
+  or c.id==60508057
+  or c.id==94667532
+  or c.id==44481227
+  or c.id==24025620
+  or (c.id==70271583 and FilterPosition(c,POS_FACEUP_DEFENSE))
+  or c.id==66500065
+  or c.id==45045866
+  or c.id==29834183
+  or c.id==41386308
+  or c.id==63223467
+  or c.id==24218047
+  or c.id==39191307
+  or c.id==81035362
+  or c.id==71519605
+  or c.id==42737833
+  or c.id==89731911
+  or c.id==93107608
+  or c.id==15394083
+  or c.id==56132807
+  or c.id==83190280
+  or c.id==37984162
+  or c.id==76321376
+  or c.id==17559367
+  or c.id==85646474
+  or c.id==93445074
+  or c.id==20586572
+  or c.id==66540884
+  or c.id==06480253
+  or c.id==02377034
+  or c.id==78275321
+  or c.id==24103628
+  or c.id==66451379
+  or c.id==56675280
+  or c.id==36625827
+  or c.id==89893715
+  or c.id==20797524
+  or c.id==07914843
+  or c.id==83982270
+  or c.id==83135907
+  or c.id==43332022
+  or c.id==51925772
+  or c.id==68226653
+  or c.id==54490275
+  or c.id==54455435
+  or c.id==02843014
+  or c.id==22567609
+  or c.id==95178994
+  or c.id==14472500
+  or (c.id==28124263 and FilterPosition(c,POS_FACEUP_ATTACK))
+  or c.id==10110717
+  or c.id==57844634
+  or c.id==32271987
+  or c.id==00525110
+  or c.id==03030892
+  or c.id==99675356
+  or c.id==72291078
+  or c.id==48588176
+  or c.id==05498296
+  or c.id==48411996
+  or c.id==68366996
+  or c.id==88845345
+  or c.id==09156135
+  or c.id==82994509
+  or c.id==59482302
+  or c.id==62437709
+  or c.id==00131182
+  or c.id==83392426
+  or (c.id==56840658 and FilterPosition(c,POS_FACEUP))
+  or c.id==02095764
+  or c.id==25935625
+  or c.id==64627453
+  or c.id==73702909
+  or c.id==35050257
+  or c.id==60161788
+  or c.id==55488859
+  or c.id==91662792
+  or c.id==18489208
+  or c.id==28332833
+  or (c.id==76865611 and FilterPosition(c,POS_FACEUP_DEFENSE))
+  or c.id==93749093
+  or c.id==50732780
+  or c.id==93451636
+  or c.id==00135598
+  or c.id==22171591
+  or c.id==56839613
+  or c.id==81752019
+  or c.id==94878265
+  or c.id==35089369
+  or c.id==10456559
+  or c.id==31034919
+  or c.id==48343627
+  or c.id==56597272
+  or c.id==61488417
+  or (c.id==70546737 and FilterPosition(c,POS_FACEUP_ATTACK))
+  or c.id==80244114
+  or c.id==83604828
+  or c.id==36021814
+  or c.id==53315891
+  or c.id==18386170
+  or c.id==74583607
+  or (c.id==57477163 and c.attack<2500)
+  or c.id==74009824
+  or c.id==54484652
+  or c.id==74892653
+  or c.id==19048328
+  or c.id==26949946
+  or c.id==39823987
+  or c.id==52145422
+  or c.id==83283063
+  or c.id==44852429
+  or c.id==23693634
+  or c.id==43202238
+  or c.id==53451824
+  or (c.id==25958491 and c.attack<5000)
+  or c.id==00601193
+  or c.id==25373678
+  or c.id==29143726
+  or c.id==85551711
+  or c.id==37279508
+  or c.id==17016362
+  or c.id==30100551
+  or c.id==93730230
+  or c.id==50789693
+  or (c.id==54366836 and FilterPosition(c,POS_FACEUP_ATTACK))
+  or c.id==31766317
+  or c.id==85066822
+  or c.id==34004470
+  or c.id==38525760
+  or c.id==46037213
+  or c.id==47754278
+  or c.id==06903857
+  or c.id==66413481
+  or c.id==12694768
+  or c.id==73001017
+  or c.id==97396380
+  or c.id==98884569
+  or c.id==16135253
+  or c.id==36569343
+  or c.id==36733451
+  or c.id==80441106
+  or c.id==50916353
+  or c.id==78243409
+  or c.id==39892082
+  or c.id==59965151
+  or c.id==64379430
+  or c.id==81020140
+  or c.id==96594609
+  or c.id==51534754
+  or c.id==89113320
+  or c.id==16751086
+  or c.id==98263709
+  or c.id==07736719
+  or c.id==97885363
+  or c.id==45801022
+  or c.id==46897277
+  or c.id==55013285
+  or c.id==81587028
+  or c.id==12652643
+  or c.id==95486586
+  or c.id==75380687
+  or c.id==13722870
+  or c.id==04796100
+  or c.id==41517968
+  or c.id==72959823
+  or c.id==92361635
+  or c.id==50278554
+  or c.id==96029574
+  or c.id==95453143
+  or c.id==49389523
+  or c.id==76774528
+  or c.id==67904682
+  or c.id==04779823
+  or c.id==23338098
+  or c.id==13995824
+  or c.id==77799846
+  or c.id==20785975
+  or c.id==12744567
+  or c.id==71921856
+  or c.id==59170782
+  or c.id==79852326
+  or c.id==37169670
+  or c.id==69831560
+  or c.id==77336644
+  or c.id==38898779
+  or c.id==61257789
+  or (c.id==57793869 and c.attack<=5000)
+  or c.id==14553285
+  or c.id==34079868
+  or c.id==14462257
+  or c.id==01764972
+  or c.id==23558733
+  or c.id==17189532
+  or c.id==00123709
+  or c.id==42280216
+  or c.id==74641045
+  or c.id==59911557
+  or c.id==09418365
+  or c.id==18426196
+  or c.id==50903514
+  or c.id==46572756
+  or c.id==41158734
+  or c.id==75363626
+  or c.id==52404456
+  or c.id==68535320
+  or c.id==65472618
+  or c.id==48252330
+  or c.id==94283662
+  or c.id==95929069
+  or c.id==11868731
+  or c.id==26016357
+  or c.id==43002864
+  or c.id==23899727
+  or c.id==89521713
+  or c.id==91350799
+  or c.id==98358303
+  or c.id==71341529
+  or c.id==26570480
+  or c.id==54149433
+  or c.id==12980373
+  or c.id==47077318
+  or c.id==85087012
+  or c.id==17475251
+  or c.id==49374988
+  or c.id==27971137
+  or c.id==41952656
+  or c.id==09861795
+  or c.id==28139785
+  or c.id==78349103
+  or c.id==87535691
+  or c.id==57116033
+  or c.id==20855340
+  or c.id==87340664
+  or c.id==40343749
+  or c.id==70054514
+  or c.id==62242678
+  or c.id==89474727
+  or c.id==39477584
+  or c.id==37910722
+  or c.id==66818682
+  or c.id==32995007
+  or c.id==24943456
+  or c.id==98558751
+  or c.id==27552504
+  or c.id==66970002
+  or c.id==58712976
+  or c.id==61344030
+  or c.id==62709239
+  or c.id==82962242
+  or c.id==50287060
+  or c.id==59975920
+  or c.id==82293134
+  or c.id==05361647
+  or c.id==89609515
+  or c.id==45547649
+  or c.id==85374678
+  or c.id==21593977
+  or c.id==67696066
+  or c.id==51858306
+  or c.id==12467005
+  or c.id==31709826
+  or c.id==82642348
+  or c.id==50720316
+  or c.id==26185991
+  or c.id==24701235
+  or c.id==05929801
+  or c.id==64306248
+  or c.id==95401059
+  or c.id==81992475
+  or c.id==57143342
+  or c.id==45010690
+  or c.id==09342162
+  or c.id==56223084
+  or c.id==73213494
+  or c.id==62957424
+  or c.id==96682430
+  or c.id==12369277
+  or c.id==47728740
+  or c.id==45593826
+  or c.id==36553319
+  or c.id==20758643
+  or c.id==01102515
+  or c.id==52823314
+  or c.id==22873798
+  or c.id==66540884
+  or c.id==09418534
+  or c.id==15341821
+  or c.id==35629124
+  or c.id==35429292
+  or c.id==76614003
+  or c.id==17932494
+  or c.id==58016954
+  or c.id==58551308
+  or c.id==69750546
+  or c.id==73146473
+  or c.id==75673220
+  or c.id==95457011
+  or c.id==09742784
+  or c.id==79814787
+  or c.id==54359696
+  or c.id==13455953
+  or c.id==02407147
+  or c.id==51275027
+  or c.id==57473560
+  or c.id==60990740
+  or c.id==80532587
+  or c.id==42566602
+  or c.id==42110604
+  or c.id==79606837
+  or c.id==84025439
+  or c.id==16691074
+  or c.id==10613952
+  or c.id==23649496
+  or (c.id==42589641 and c.xyz_material_count>0)
+  or c.id==75367227
+  or c.id==83531441
+  or c.id==46895036
+  or c.id==04904633
+  or c.id==63804806
+  or c.id==48948935
+  or c.id==94689206
+  or c.id==99365553
+  or c.id==31038159
+  or c.id==91250514
+  or c.id==36352429
+  or c.id==93298460
+  or c.id==62950604
+  or c.id==61901281
+  or c.id==58324930
+  or c.id==99234526
+  or c.id==86559484
+  or c.id==22134079
+  or c.id==75043725
+  or c.id==54629413
+  or c.id==33866130
+  or c.id==55969226
+  or c.id==06351548
+  or c.id==47030842
+  or c.id==25280974
+  or c.id==76543119
+  or c.id==16366944
+  or c.id==90361010
+  or c.id==78010363
+  or c.id==63665875
+  or c.id==96938986
+  or c.id==97064649
+  or c.id==84824601
+  or c.id==26202165
+  or c.id==58616392
+  or c.id==65277087
+  or c.id==25343017
+  or c.id==37349495
+  or c.id==99070951
+  or c.id==15169262
+  or c.id==46239604
+  or c.id==93969023
+  or c.id==13314457
+  or c.id==76442347
+  or c.id==60668166
+  or c.id==77360173
+  or c.id==28016193
+  or c.id==22061412
+  or c.id==71616908
+  or c.id==13108445
+  or c.id==35330871
+  or c.id==97836203
+  or c.id==24221808
+  or c.id==37993923
+  or c.id==37038993
+  or c.id==23454876
+  or c.id==71612253
+  or c.id==56638325
+  or c.id==03758046
+  or c.id==96381979
+  or c.id==16259549)
+end
+
+function SpecterUseSummoners()
+  return true
+end
+
 function SpecterInit(cards)
   local Act = cards.activatable_cards
   local Sum = cards.summonable_cards
@@ -5964,6 +6619,9 @@ function SpecterInit(cards)
   local Rep = cards.repositionable_cards
   local SetMon = cards.monster_setable_cards
   local SetST = cards.st_setable_cards
+  
+  GlobalMaterial = false
+  SpecterGlobalMaterial = false
   
   if HasIDNotNegated(Act,22653490,SpecterUseChidori) then
     GlobalCardMode = 1
@@ -5973,6 +6631,9 @@ function SpecterInit(cards)
     return COMMAND_ACTIVATE,CurrentIndex
   end
   if HasIDNotNegated(Act,85252081,SpecterUseGranpulse) then
+    return COMMAND_ACTIVATE,CurrentIndex
+  end
+  if HasIDNotNegated(Act,79816536,SpecterUseSummoners) then
     return COMMAND_ACTIVATE,CurrentIndex
   end
   if HasIDNotNegated(Act,70368879,SpecterUpstart) then
@@ -6092,6 +6753,7 @@ function SpecterInit(cards)
     return SpecterXYZSummon()
   end
   if HasIDNotNegated(Act,31437713,SpecterActivateHeartlandFinish) then
+    OPTSet(31437713)
     return COMMAND_ACTIVATE,CurrentIndex
   end
   if HasIDNotNegated(Act,76473843,PlayMajesty,nil,LOCATION_HAND) then
@@ -6294,6 +6956,7 @@ function SpecterInit(cards)
   if HasIDNotNegated(SpSum,88722973,SpecterSummonMajesterRoom) then
     return SpecterXYZSummon()
   end
+  
   for i=1,#SpSum do
     if PendulumCheck(SpSum[i]) and SpecterPendulumSummon() and WorthPendulumSummoning() then
       GlobalPendulumSummoningSpecter = true
@@ -6433,6 +7096,12 @@ function SpecterInit(cards)
   if HasIDNotNegated(SpSum,85252081,SpecterSummonGranpulseSmart) then
     return SpecterXYZSummon()
   end
+  if HasIDNotNegated(SpSum,21044178,SpecterSummonAbyssArchetypesMP2) then
+    return SpecterXYZSummon()
+  end
+  if HasIDNotNegated(SpSum,21044178,SpecterSummonAbyssArchetypesMP1) then
+    return SpecterXYZSummon()
+  end
   if HasIDNotNegated(SpSum,71068247,SummonTotemBird) then
     return SpecterXYZSummon()
   end
@@ -6462,6 +7131,12 @@ function SpecterInit(cards)
   if HasIDNotNegated(SpSum,84013237,SpecterSummonUtopiaLightning) then
     return SpecterXYZSummon()
   end
+  if HasIDNotNegated(SpSum,56832966,SpecterSummonUtopiaLightningSmart) then
+    return SpecterXYZSummon()
+  end
+  if HasIDNotNegated(SpSum,84013237,SpecterSummonUtopiaLightningSmart) then
+    return SpecterXYZSummon()
+  end
   if HasIDNotNegated(SpSum,62709239,SpecterSummonPhantom) then
     return SpecterXYZSummon()
   end
@@ -6471,11 +7146,11 @@ function SpecterInit(cards)
   if HasIDNotNegated(SpSum,62709239,SpecterSummonPhantom3) then
     return SpecterXYZSummon()
   end
-  if HasIDNotNegated(SpSum,21044178,SpecterBlueSummonAbyss) then
---    AITrashTalk("You're looking a little Blue-Eyes there. Want to talk about it?")
---    AITrashTalk("Well, too bad. I'm the equivalent of talking to a Wall-E.")
+--[[  if HasIDNotNegated(SpSum,21044178,SpecterBlueSummonAbyss) then
+    AITrashTalk("You're looking a little Blue-Eyes there. Want to talk about it?")
+    AITrashTalk("Well, too bad. I'm the equivalent of talking to a Wall-E.")
     return SpecterXYZSummon()
-  end
+  end]]
   if HasIDNotNegated(SpSum,21044178,SpecterShadollSummonAbyss) then
     AITrashTalk("I will send you to The Shadoll Realm.")
 	return SpecterXYZSummon()
@@ -6501,23 +7176,26 @@ function SpecterInit(cards)
     return SpecterXYZSummon()
   end
   
-  if HasIDNotNegated(Rep,68395509,CrowChangeToDefense,nil,LOCATION_MZONE,POS_FACEUP_ATTACK) then
+  if HasIDNotNegated(Rep,68395509,CrowChangeToDefence,nil,LOCATION_MZONE,POS_FACEUP_ATTACK) then
     return COMMAND_CHANGE_POS,CurrentIndex
   end
   if HasIDNotNegated(Rep,68395509,CrowChangeToAttack,nil,LOCATION_MZONE,POS_FACEUP_DEFENSE) then
     return COMMAND_CHANGE_POS,CurrentIndex
   end
-  if HasIDNotNegated(Rep,88722973,MajesterChangeToDefense,nil,LOCATION_MZONE,POS_FACEUP_ATTACK) then
+  if HasIDNotNegated(Rep,88722973,MajesterChangeToDefence,nil,LOCATION_MZONE,POS_FACEUP_ATTACK) then
     return COMMAND_CHANGE_POS,CurrentIndex
   end
   if HasIDNotNegated(Rep,88722973,MajesterChangeToAttack,nil,LOCATION_MZONE,POS_FACEUP_DEFENSE) then
     return COMMAND_CHANGE_POS,CurrentIndex
   end
-  if HasIDNotNegated(Rep,05506791,CatChangeToDefense,nil,LOCATION_MZONE,POS_FACEUP_ATTACK) then
+  if HasIDNotNegated(Rep,05506791,CatChangeToDefence,nil,LOCATION_MZONE,POS_FACEUP_ATTACK) then
     return COMMAND_CHANGE_POS,CurrentIndex
   end
   
   if HasID(SetST,53208660,SetPendulumCall) then
+    return COMMAND_SET_ST,CurrentIndex
+  end
+  if HasID(SetST,79816536,SpecterSetSummoners) then
     return COMMAND_SET_ST,CurrentIndex
   end
   if HasID(SetST,43898403,SetTwinTwister) then
@@ -6547,17 +7225,20 @@ function SpecterInit(cards)
   
   if HasIDNotNegated(Act,31437713,SpecterRaidraptorActivateHeartland) and HeartlandTalk and not HeartlandTalk2 then
     HeartlandTalk2 = true
+	OPTSet(31437713)
 	AITrashTalk("Hey buddy, did you let this live just so you could hear another pun?")
 	AITrashTalk("Alright, here's my last one: that card is Falcondescending.")
 	return COMMAND_ACTIVATE,CurrentIndex
   end
   if HasIDNotNegated(Act,31437713,SpecterRaidraptorActivateHeartland) and not HeartlandTalk then
     HeartlandTalk = true
+	OPTSet(31437713)
     AITrashTalk("If you keep this up, I will eventually run out of puns.")
 	AITrashTalk("That wouldn't be good for the Falconomy, would it?")
 	return COMMAND_ACTIVATE,CurrentIndex
   end
   if HasIDNotNegated(Act,31437713,SpecterActivateHeartland) then
+    OPTSet(31437713)
     return COMMAND_ACTIVATE,CurrentIndex
   end
 end
@@ -7058,6 +7739,13 @@ function SpecterChidoriTarget(cards)
  return BestTargets(cards,1,TARGET_TODECK,SpecterChidoriFilter1)
 end
 
+function SpecterCastelTarget(cards,min,max)
+  if LocCheck(cards,LOCATION_OVERLAY) then
+    return Add(cards,PRIO_TOGRAVE,math.max(min,math.min(2,max)))
+  end
+ return BestTargets(cards,1,TARGET_TODECK,SpecterCastelFilter)
+end
+
 function SpecterCallToGravePriority(card) --Choose which card is best for Pendulum Call's discard effect.
   local id=card.id
   if id==53208660 then --Pendulum Call duplicate
@@ -7295,12 +7983,138 @@ function SpecterJokerTarget(cards) --Choose which target is best for Joker's eff
  return Add(cards,PRIO_TOHAND)
 end
 
+function SpecterMiscToGravePriority(card) --Choose which card is best for Pendulum Call's discard effect.
+  local id=card.id
+  if id==53208660 then --Pendulum Call
+    if CardsMatchingFilter(UseLists({AIHand(),AIExtra()}),function(c) return c.id==53208660 end)>1 then
+	  return 13
+	elseif HasScales() then
+	  return 8
+	else
+	  return 0
+	end
+  end
+  if id==76473843 then 
+    if MajestyDiscardAvailable() then
+      return 14
+	else
+	  return 3
+	end
+  end
+  if id==51531505 then --Dragonpit 8
+    return 12
+  end
+  if id==15146890 then --Dragonpulse 1
+    return 8
+  end
+  if id==14920218 then --Peasant 2
+    return 6
+  end
+  if id==13972452 then --Specter Storm
+    return 10
+  end
+  if id==19665973 then --Fader
+    return 7
+  end
+  if id==02572890 then --Tempest
+    return 5
+  end
+  if id==36183881 then --Tornado
+    return 9
+  end
+  if id==49366157 then --SCyclone
+    return 11
+  end
+  if id==72714461 then --Insight
+    return 8
+  end
+  if id==40318957 then --Joker
+    return 4
+  end
+  if id==05650082 then --Storming Mirror
+    return 3
+  end
+  if id==05851097 then --Vanity's
+    return 1
+  end
+  if id==68395509 then --Crow
+    if CardsMatchingFilter(UseLists({AIHand(),AIExtra()}),function(c) return c.id==68395509 end)>1 then
+	  return 4
+	else
+	  return 3
+	end
+  end
+  if id==00645794 then --Toad
+    if CardsMatchingFilter(UseLists({AIHand(),AIExtra()}),function(c) return c.id==00645794 end)>1 then
+	  return 4
+	else
+	  return 2
+	end
+  end
+  if id==05506791 then --Cat
+    if CardsMatchingFilter(UseLists({AIHand(),AIExtra()}),function(c) return c.id==05506791 end)>1 then
+	  return 4
+	else
+	  return 1
+	end
+  end
+  if id==94784213 then --Fox
+    if CardsMatchingFilter(UseLists({AIHand(),AIExtra()}),function(c) return c.id==94784213 end)>1 then
+	  return 4
+	else
+	  return 1
+	end
+  end
+  if id==05506791 then --Raccoon
+    if CardsMatchingFilter(UseLists({AIHand(),AIExtra()}),function(c) return c.id==31991800 end)>1 then
+	  return 4
+	else
+	  return 0
+	end
+  end
+ return GetPriority(card,PRIO_TOGRAVE)
+end
+  
+function SpecterMiscDiscardAssignPriority(cards,toLocation)
+  local func = SpecterMiscToGravePriority
+--[[  if toLocation==LOCATION_HAND then
+    func = SpecterMiscToGravePriority
+  end]]
+  for i=1,#cards do
+    cards[i].priority=func(cards[i])
+  end
+end
+
+function SpecterMiscDiscardToGrave(cards,amount)
+  local result = {}
+  for i=1,#cards do
+    cards[i].index=i
+  end
+  SpecterMiscDiscardAssignPriority(cards,LOCATION_HAND)
+  table.sort(cards,function(a,b) return a.priority>b.priority end)
+  for i=1,amount do
+    result[i]=cards[i].index
+  end
+  if result == nil then result = Add(cards,PRIO_TOGRAVE) end
+  return result
+end
+
+function SpecterMiscDiscardTarget(cards)
+  for i=1,Duel.GetCurrentChain() do
+    e = Duel.GetChainInfo(i, CHAININFO_TRIGGERING_EFFECT)
+    if e and (e:GetHandler():GetCode()==74519184 or e:GetHandler():GetCode()==69402394) then
+      return SpecterMiscDiscardToGrave(cards,2)
+	end
+  end
+ return SpecterMiscDiscardToGrave(cards,1)
+end
+
 function SpecterCard(cards,min,max,id,c,minTargets,maxTargets,triggeringID,triggeringCard)
   if GlobalPendulumSummoningSpecter and Duel.GetCurrentChain()==0 then
 	GlobalPendulumSummoningSpecter = nil
 	local x = CardsMatchingFilter(cards,NotJokerMonsterFilter)
 	if (CardsMatchingFilter(OppMon(),EnemySummonNegatorMonFilter)>0 and not UsableSTempest()) or EnemyHasTimeRafflesia() then
-  AITrashTalk("Hmm...")
+	AITrashTalk("Hmm...")
 	x = math.min(x,1)
 	  if PendulumRaccoon() then
 	    return FindID(31991800,cards,true)
@@ -7308,7 +8122,7 @@ function SpecterCard(cards,min,max,id,c,minTargets,maxTargets,triggeringID,trigg
 	    return FindID(68395509,cards,true)
 	  elseif PendulumFox() then
 	    return FindID(94784213,cards,true)
-	  elseif PendulumToad() then
+	  elseif PendulumToad() then 
 	    return FindID(00645794,cards,true)
 	  elseif PendulumCat() then
 	    return FindID(05506791,cards,true)
@@ -7318,7 +8132,7 @@ function SpecterCard(cards,min,max,id,c,minTargets,maxTargets,triggeringID,trigg
 	    return Add(cards,PRIO_TOFIELD,x)
 	  end
 	end
-	if HasID(AIExtra(),40318957,true) then
+	if not HasID(AIHand(),40318957,true) then
 	  local x = CardsMatchingFilter(cards,AllMonsterFilter)
 	end
 	x = math.min(x,max)
@@ -7395,6 +8209,9 @@ function SpecterCard(cards,min,max,id,c,minTargets,maxTargets,triggeringID,trigg
   if id == 22653490 then --Chidori
     return SpecterChidoriTarget(cards)
   end
+  if id == 82633039 then --Castel
+    return SpecterCastelTarget(cards,min,max)
+  end
   if SpecterGlobalMaterial then
      SpecterGlobalMaterial = nil
     return SpecterOnSelectMaterial(cards,min,max)
@@ -7411,6 +8228,15 @@ function SpecterCard(cards,min,max,id,c,minTargets,maxTargets,triggeringID,trigg
 	  end
 	end
   end]]
+  for i=1,Duel.GetCurrentChain() do
+    e = Duel.GetChainInfo(i, CHAININFO_TRIGGERING_EFFECT)
+    if (Duel.GetOperationInfo(i,CATEGORY_TOGRAVE)
+    or Duel.GetOperationInfo(i,CATEGORY_HANDES)
+	or Duel.GetOperationInfo(i,CATEGORY_DRAW)) 
+	and e:GetHandlerPlayer()==1-player_ai then
+	  return SpecterMiscDiscardTarget(cards)
+	end
+  end
   return nil
 end
 
@@ -7916,6 +8742,43 @@ function SpecterBattleCommand(cards,activatable)
     return Attack(IndexByID(cards,56832966))
   end
  return nil
+end
+
+function SpecterYesNo(description_id)
+  local result = nil
+  if description_id == 30 then
+    local cards = nil
+    local attacker = GetAttacker()
+    local attack = 0
+    if attacker then
+      cards = {attacker}
+      ApplyATKBoosts(cards)
+      attacker = cards[1]
+      attack = attacker.attack
+    end
+    cards=OppMon()
+    if #cards == 0 then
+      --return 1
+    end
+    if FilterAffected(attacker,EFFECT_DIRECT_ATTACK) then
+      return 1
+    end
+    ApplyATKBoosts(cards)
+    if CanWinBattle(attacker,cards) then 
+      GlobalCurrentAttacker = attacker.cardid
+      GlobalAIIsAttacking = true
+      return 1
+    else
+      return 0
+    end
+  end
+  for i=1,Duel.GetCurrentChain() do
+    e = Duel.GetChainInfo(i, CHAININFO_TRIGGERING_EFFECT)
+    if e and e:GetHandler():GetCode()==69402394 then
+      return 0
+	end
+  end
+  return nil
 end
 
 SpecterPriorityList={

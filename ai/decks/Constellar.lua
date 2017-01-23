@@ -70,7 +70,10 @@ function SombreCond(loc,c)
     if (FilterLocation(c,LOCATION_GRAVE) and not OPTCheck(783585211) 
     and OPTCheck(783585212) and HasIDNotNegated(AIMon(),78358521,true))
     then
-      return HasID(AICards(),70908596,true)
+      if HasID(AICards(),70908596,true) then
+        return true
+      end
+      return false
     end
     return CardsMatchingFilter(cards,ConstellarNonXYZFilter)>1 and HasAccess(70908596) 
   end

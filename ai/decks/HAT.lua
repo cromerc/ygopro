@@ -1,6 +1,8 @@
 function TrapHoleFilter(c)
-  return bit32.band(c.type,TYPE_TRAP)>0 
-  and (IsSetCode(c.setcode,0x4c) or IsSetCode(c.setcode,0x89))
+  return FilterType(c,TYPE_TRAP)
+  --and FilterType(c,TYPE_NORMAL)
+  and(FilterSet(c,0x4c)
+  or FilterSet(c,0x89))
 end
 function TraptrixFilter(c)
   return bit32.band(c.type,TYPE_MONSTER)>0 and IsSetCode(c.setcode,0x108a)
@@ -53,10 +55,10 @@ function IceHandCond(loc,c)
   return true
 end
 function MoralltachFilter(c)
-  return bit32.band(c.position,POS_FACEUP)>0 
-  and c:is_affected_by(EFFECT_INDESTRUCTABLE_EFFECT)==0
-  and bit32.band(c.status,STATUS_LEAVE_CONFIRMED)==0
-  and not DestroyBlacklist(c)
+  c=GetCardFromScript(c)
+  return FilterPosition(c,POS_FACEUP)
+  and Affected(c,TYPE_MONSTER,5)
+  and DestroyCheck(c,true)
 end
 function MoralltachCond(loc)
   if loc == PRIO_TOHAND then
@@ -227,6 +229,8 @@ function ScytheCheck()
   local nontuners = 0
   local level = {}
   local lvlcount = 0
+  local zodiac = false
+  local abc = false
   for i=1,#OppMon() do
     local c = OppMon()[i]
     if FilterPosition(c,POS_FACEUP) then
@@ -243,14 +247,19 @@ function ScytheCheck()
         level[c.level]=1
         lvlcount=math.max(lvlcount,1)
       end
+      if FilterSet(c,0xf1) then -- Zodiac Beast
+        zodiac = true
+      end
+      if ABCMaterials(OppGrave()) then
+        abc = true
+      end
     end
   end
-  return (tuners>0 and nontuners>0 or lvlcount>1)
+  return (tuners>0 and nontuners>0 or lvlcount>1 or zodiac or abc)
   and Duel.GetTurnPlayer()==1-player_ai
-  and DualityCheck()
+  and CanSpecialSummon()
   and not SkillDrainCheck()
-  and (Duel.GetCurrentPhase()==PHASE_MAIN1
-  or Duel.GetCurrentPhase()==PHASE_MAIN2)
+  and IsMainPhase()
 end
 function HATInit(cards)
   local Activatable = cards.activatable_cards
@@ -489,11 +498,11 @@ function ArtifactCheckGrave(sanctum)
   local BeagalltachCheck = HasID(AIGrave(),12697630,true) and HasID(AIST(),85103922,true) 
   and Duel.GetTurnPlayer()==1-player_ai and WindaCheck()
   if BeagalltachCheck then
-    GlobalTargetSet(FindID(12697630),AIGrave())
+    GlobalTargetSet(FindID(12697630,AIGrave()))
     return true
   end
   if MoralltachCheck then
-    GlobalTargetSet(FindID(85103922),AIGrave())
+    GlobalTargetSet(FindID(85103922,AIGrave()))
     return true
   end
   return false
@@ -526,7 +535,7 @@ function ChainCotH(card)
     end
     if MyrmeleoCheck then
       GlobalCardMode = 1
-      GlobalTargetSet(FindID(91812341),AIGrave())
+      GlobalTargetSet(FindID(91812341,AIGrave()))
       return true
     end
     return true -- return true anyways to avoid destruction effects that only destroy face-down cards
@@ -560,26 +569,45 @@ function ChainCotH(card)
     end
     if MyrmeleoCheck and CardsMatchingFilter(OppST(),MSTEndPhaseFilter)>0 then
       GlobalCardMode = 1
-      GlobalTargetSet(FindID(91812341),AIGrave())
+      GlobalTargetSet(FindID(91812341,AIGrave()))
       return true
     end
   end
   if ScytheCheck() and HasID(AIGrave(),20292186,true) then
     GlobalCardMode = 1
-    GlobalTargetSet(FindID(20292186),AIGrave())
+    GlobalTargetSet(FindID(20292186,AIGrave()))
     return true
   end
   return false
 end
 
-function MoonWhitelist(c) -- cards to use Book of Moon on as soon as they hit the field, to prevent them from activating their effects
-  return c.id == 48739166 and c.xyz_material_count>=2 --SHArk
-  or c.id == 92633039 and c.xyz_material_count>=2 --Castel
-  or c.id == 57774843 or c.id == 72989439 or c.id == 65192027 --JD,BLS,DAD
+function MoonWhitelist(c) -- cards to use Book of Moon on as soon as they hit the field
+  return (c.id == 48739166 and c.xyz_material_count>=2 --SHArk
+  or c.id == 82633039 and c.xyz_material_count>=2 --Castel
+  or c.id == 57774843 -- JD
+  or c.id == 72989439 -- BLS
+  or c.id == 65192027 -- DAD
+  or c.id == 58481572 -- Dark Law
+  or c.id == 50954680 -- Crystal Wing
+  or c.id == 47084486 and Duel.GetTurnPlayer()==player_ai -- Vanity's Fiend
+  or c.id == 72634965 -- Vanity's Ruler
+  or c.id == 10443957 -- CyDra Infinity
+  or c.id == 58069384 and Duel.GetTurnPlayer()==1-player_ai -- CyDra Nova
+  or FilterSet(c,0xf1) and FilterType(c,TYPE_XYZ) -- any Zodiac Beast XYZ
+  and Duel.GetTurnPlayer()==1-player_ai 
+  )
+  and not CanChangePos(c)
+  or c.id == 56832966 and IsBattlePhase() -- Utopia Lightning
 end
 function MoonWhitelist2(id) -- cards to chain Book of Moon to to save your monsters
-  return id == 29401950 or id == 44095762 -- Bottomless, Mirrorforce
+  return id == 29401950 -- Bottomless
+  or id == 44095762 --  Mirrorforce
   or id == 70342110 -- DPrison
+  or id == 05650082 -- Storming Mirror Force
+  or id == 40838625 -- Quaking Mirror Force
+  or id == 47475363 -- Drowning Mirror Force
+  or id == 75249652 -- Blazing Mirror Force
+  or id == 37104630 -- Atlantean Heavy Infantry
 end
 function MoonFilter(c)
   return FilterType(c,TYPE_MONSTER)
@@ -608,14 +636,19 @@ function ChainBoM(card)
   if e then
     c = e:GetHandler()
   end
-  if RemovalCheckCard(card) and not c:IsCode(12697630) and targets1>0 then
+  if RemovalCheckCard(card) 
+  and not c:IsCode(12697630) 
+  and targets1>0 
+  then
     return true
   end
   if not UnchainableCheck(14087893) then
     return false
   end
   cg = NegateCheck()
-  if cg and Duel.GetCurrentChain()>1 and not DeckCheck(DECK_BA) then
+  if cg and Duel.GetCurrentChain()>1 
+  and not DeckCheck(DECK_BA) 
+  then
     if c and c:GetCode() == 29616929 then
       return false
     end
@@ -652,7 +685,8 @@ function ChainBoM(card)
   if IsBattlePhase() and Duel.GetTurnPlayer()==1-player_ai then
     local source = Duel.GetAttacker()
 		local target = Duel.GetAttackTarget()
-    if WinsBattle(source,target) and MoonFilter2(source,1-player_ai) 
+    if source and target 
+    and WinsBattle(source,target) and MoonFilter2(source,1-player_ai) 
     and not (target:GetCode()==68535320 and CardsMatchingFilter(OppMon(),DestroyFilter)>0)
     and not (target:GetCode()==95929069 and CardsMatchingFilter(OppST(),DestroyFilter)>0)
     then
@@ -660,7 +694,7 @@ function ChainBoM(card)
       GlobalTargetSet(source,OppMon())
       return true
     end
-    if CanFinishGame(source) and #AIMon()==0 
+    if source and CanFinishGame(source) and #AIMon()==0 
     and Targetable(source,TYPE_TRAP) and Affected(source,TYPE_TRAP)
     and UnchainableCheck(14087893)
     then
@@ -721,6 +755,7 @@ function ChainDPrison()
   return false
 end
 function BottomlessFilter(c,type)
+  type=type or TYPE_TRAP
   return DestroyFilter(c,true,true)
   and Affected(c,type,4)
   and (type~=TYPE_TRAP or not TraptrixFilter(c))

@@ -30,6 +30,11 @@ function c48934760.activate(e,tp,eg,ep,ev,re,r,rp)
 			Duel.SendtoGrave(fc,REASON_RULE)
 			Duel.BreakEffect()
 		end
+		local fc2=Duel.GetFieldCard(1-tp,LOCATION_SZONE,5)
+		if fc2 and Duel.IsDuelType(DUEL_OBSOLETE_RULING) then
+			Duel.Destroy(fc2,REASON_RULE)
+			Duel.BreakEffect()
+		end
 		Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
 		local te=tc:GetActivateEffect()
 		local tep=tc:GetControler()

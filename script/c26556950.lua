@@ -30,6 +30,7 @@ function c26556950.initial_effect(c)
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(26556950,1))
 	e4:SetCategory(CATEGORY_DESTROY)
+	e4:SetProperty(EFFECT_FLAG2_XMDETACH)
 	e4:SetType(EFFECT_TYPE_IGNITION)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCountLimit(1)
@@ -53,7 +54,7 @@ function c26556950.regop(e,tp,eg,ep,ev,re,r,rp)
 end
 function c26556950.damcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:GetOverlayCount()>0 and ep~=tp and c:GetFlagEffect(26556950)~=0
+	return c:GetOverlayCount()>0 and ep~=tp and c:GetFlagEffect(26556950)~=0 and re:IsHasType(EFFECT_TYPE_ACTIVATE)
 end
 function c26556950.damop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_CARD,0,26556950)

@@ -2,7 +2,7 @@
 function c40854197.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
-	aux.AddFusionProcFun2(c,aux.FilterBoolFunction(Card.IsFusionSetCard,0x8),aux.FilterBoolFunction(Card.IsAttribute,ATTRIBUTE_WATER),true)
+	aux.AddFusionProcFun2(c,aux.FilterBoolFunction(Card.IsFusionSetCard,0x8),aux.FilterBoolFunction(Card.IsFusionAttribute,ATTRIBUTE_WATER),true)
 	--spsummon condition
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -35,6 +35,7 @@ function c40854197.initial_effect(c)
 	e5:SetValue(c40854197.atkup)
 	c:RegisterEffect(e5)
 end
+c40854197.material_setcode=0x8
 function c40854197.atkfilter(c)
 	return c:IsFaceup() and c:GetCode()~=40854197 and c:IsAttribute(ATTRIBUTE_WATER)
 end

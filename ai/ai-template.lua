@@ -2,12 +2,14 @@
 ai-template.lua
 
 Author: Percival18
-Version: 0.9.1
+Version: 0.9.2
 Website: https://www.ygopro.co
 
-To be used with ygopro percy 1.033.A and up. For help on how to use this file please read the comments thoroughly.
+To be used with ygopro percy 1.033.D and up. For help on how to use this file please read the comments thoroughly.
 
 --- What's new ---
+0.9.2
+-Random ai deck tweaks
 0.9.1
 -New functions
 card:is_public()
@@ -303,8 +305,8 @@ end
 From constants.lua
 POS_FACEUP_ATTACK		=0x1
 POS_FACEDOWN_ATTACK		=0x2
-POS_FACEUP_DEFENCE		=0x4
-POS_FACEDOWN_DEFENCE	=0x8
+POS_FACEUP_DEFENSE		=0x4
+POS_FACEDOWN_DEFENSE	=0x8
 --]]
 function OnSelectPosition(id, available)
 	local result = 0
@@ -315,7 +317,7 @@ function OnSelectPosition(id, available)
 	--Example
 	if id == 19665973 then --is this card battle fader?
 		--always put battle fader in def position
-		result = POS_FACEUP_DEFENCE
+		result = POS_FACEUP_DEFENSE
 	else
 		-- default is attack position
 		result = POS_FACEUP_ATTACK
@@ -328,10 +330,10 @@ function OnSelectPosition(id, available)
 		print("invalid position! find a valid value")
 		if band(POS_FACEUP_ATTACK,available) > 0 then
 			result = POS_FACEUP_ATTACK
-		elseif band(POS_FACEUP_DEFENCE,available) > 0 then
-			result = POS_FACEUP_DEFENCE
-		elseif band(POS_FACEDOWN_DEFENCE,available) > 0 then
-			result = POS_FACEDOWN_DEFENCE
+		elseif band(POS_FACEUP_DEFENSE,available) > 0 then
+			result = POS_FACEUP_DEFENSE
+		elseif band(POS_FACEDOWN_DEFENSE,available) > 0 then
+			result = POS_FACEDOWN_DEFENSE
 		else
 			result = POS_FACEDOWN_ATTACK
 		end

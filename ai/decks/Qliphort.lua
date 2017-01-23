@@ -178,7 +178,10 @@ function OddEyesCond(loc,c)
 end
 function LynxCond(loc,c)
   if loc == PRIO_TOHAND then
-    return HasID(UseLists({AIHand(),AIST()}),65518099,true)
+    if HasID(UseLists({AIHand(),AIST()}),65518099,true) then
+      return true
+    end
+    return false
   end
   return true
 end

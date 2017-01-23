@@ -1901,6 +1901,7 @@ function ApplyATKBoosts(Cards)
     end
   end
   
+ 
   -- Shrink
   if HasIDNotNegated(AICards(),55713623,true) then
     for i=1,#Cards do
@@ -1955,6 +1956,20 @@ function ApplyATKBoosts(Cards)
     end
   end
   
+  -- Crystal Wing
+  for i,c in pairs(Cards) do
+    if c.id == 50954680 -- Crystal Wing
+    and NotNegated(c)
+    then
+      local targets = FilterController(c,1) and OppMon() or AIMon()
+      if CardsMatchingFilter(targets,CrystalWingFilter,c)>0
+      then
+        SortByATK(targets,true)
+        c.attack=(c.attack or 0)+targets[1].attack
+      end
+    end
+  end
+  
   -- unknown face-down monsters
   for i=1,#Cards do
     local c = Cards[i]
@@ -1993,6 +2008,7 @@ function ResetOncePerTurnGlobals()
   if GlobalTurn == Duel.GetTurnCount() then 
     return
   end
+  GlobalSummonRestriction = nil
   GlobalTurn = Duel.GetTurnCount() 
   Global1PTLylaST  = nil
   Global1PTGenome  = nil
@@ -2015,6 +2031,7 @@ function ResetOncePerTurnGlobals()
   GlobalSummonedThisTurn = 0
   GlobalSoulExchangeActivated = 0
   GlobalCostDownActivated = 0
+  GlobalInfiniteLoopCheck = {}
  end
 
  function Globals()

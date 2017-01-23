@@ -729,7 +729,7 @@ function ChainParty(c)
   then
     return true
   end
-  if Duel.GetCurrentPhase()==PHASE_BATTLE
+  if IsBattlePhase()
   and Duel.GetTurnPlayer()~=player_ai
   and UnchainableCheck(77778835)
   then
@@ -740,7 +740,7 @@ function ChainParty(c)
       return true
     end
   end
-  if Duel.GetCurrentPhase()==PHASE_BATTLE
+  if IsBattlePhase()
   and Duel.GetTurnPlayer()==player_ai
   and UnchainableCheck(77778835)
   then
@@ -814,7 +814,7 @@ function HarpiePosition(id,available)
   for i=1,#HarpieAtt do
     if HarpieAtt[i]==id 
     then 
-      if Duel.GetCurrentPhase()==PHASE_BATTLE
+      if IsBattlePhase()
       and Duel.GetTurnPlayer()~=player_ai
       then
         result=POS_FACEUP_DEFENSE

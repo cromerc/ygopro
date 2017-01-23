@@ -58,7 +58,7 @@ function c12958919.spop(e,tp,eg,ep,ev,re,r,rp)
 		local token=Duel.CreateToken(tp,12958920)
 		Duel.SpecialSummonStep(token,0,tp,tp,false,false,POS_FACEUP)
 		ft=ft-1
-		if ft<=0 or not Duel.SelectYesNo(tp,aux.Stringid(12958919,2)) then ctn=false end
+		if ft<=0 or not Duel.SelectYesNo(tp,aux.Stringid(12958919,2)) or Duel.IsPlayerAffectedByEffect(tp,59822133) then ctn=false end
 	end
 	Duel.SpecialSummonComplete()
 end

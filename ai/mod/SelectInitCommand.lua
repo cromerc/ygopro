@@ -93,7 +93,6 @@ function OnSelectInitCommand(cards, to_bp_allowed, to_ep_allowed)
   ResetOncePerTurnGlobals()
   GlobalBPAllowed = to_bp_allowed
   SurrenderCheck()
-  
   ---------------------------------------
   -- Don't do anything if the AI controls
   -- a face-up Light and Darkness Dragon.
@@ -143,7 +142,6 @@ function OnSelectInitCommand(cards, to_bp_allowed, to_ep_allowed)
       end
     end
   end
-
   --------------------------------------------------
   -- Storing these lists of cards in local variables
   -- for faster access and gameplay.
@@ -163,7 +161,6 @@ function OnSelectInitCommand(cards, to_bp_allowed, to_ep_allowed)
       return COMMAND_ACTIVATE,i
     end
   end
-  
  -------------------------------------------------
 -- **********************************************
 --        Functions for specific decks
@@ -185,13 +182,16 @@ DeckCommand = SummonExtraDeck(cards,true)
 if DeckCommand ~= nil and (d == 0 
 or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
 then
-  return DeckCommand[1],DeckCommand[2]
+  if DeckCommand[1]~=COMMAND_ACTIVATE 
+  or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+  then
+    return DeckCommand[1],DeckCommand[2]
+  end
 end
 
 if HasID(SpSummonableCards,80696379,SummonMeteorburst,1) then
   return SynchroSummon()
 end
-
 -- If the AI can attack for game, attempt to do so first
 
 -- opp has no monsters to defend
@@ -232,7 +232,6 @@ for i,source in pairs(AIMon()) do
     end
   end
 end
-  
 if d and d.Init then
   DeckCommand,DeckCommand2 = d.Init(cards,to_bp_allowed,to_ep_allowed)
 end
@@ -245,7 +244,11 @@ if DeckCommand ~= nil then
       PrintCallingFunction()
     end
     --print("executing deck command: "..DeckCommand[1]..", "..DeckCommand[2])
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   else
     if DeckCommand2==0
     then
@@ -254,7 +257,11 @@ if DeckCommand ~= nil then
       PrintCallingFunction()
     end
     --print("executing deck command: "..DeckCommand..", "..DeckCommand2)
-    return DeckCommand,DeckCommand2
+    if DeckCommand~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand2])
+    then
+      return DeckCommand,DeckCommand2
+    end
   end
 end
 if not ExtraCheck then 
@@ -262,7 +269,11 @@ if not ExtraCheck then
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
 if not ExtraCheck then 
@@ -270,7 +281,11 @@ if not ExtraCheck then
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
 if not ExtraCheck then 
@@ -278,7 +293,11 @@ if not ExtraCheck then
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
 if not ExtraCheck then 
@@ -286,7 +305,11 @@ if not ExtraCheck then
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
 if not DeckCheck(DECK_TELLARKNIGHT) then 
@@ -294,7 +317,11 @@ if not DeckCheck(DECK_TELLARKNIGHT) then
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
 if not ExtraCheck then 
@@ -302,7 +329,11 @@ if not ExtraCheck then
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
 if not DeckCheck(DECK_BUJIN) then 
@@ -310,7 +341,11 @@ if not DeckCheck(DECK_BUJIN) then
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end  
 if not ExtraCheck then 
@@ -318,7 +353,11 @@ if not ExtraCheck then
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
 if not ExtraCheck then 
@@ -326,7 +365,11 @@ if not ExtraCheck then
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
 if not (DeckCheck(DECK_BUJIN) or DeckCheck(DECK_TELLARKNIGHT) or DeckCheck(DECK_NEKROZ)) then 
@@ -334,7 +377,11 @@ if not (DeckCheck(DECK_BUJIN) or DeckCheck(DECK_TELLARKNIGHT) or DeckCheck(DECK_
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
 if not (DeckCheck(DECK_BUJIN) or DeckCheck(DECK_TELLARKNIGHT) or DeckCheck(DECK_NOBLEKNIGHT)) then 
@@ -342,23 +389,31 @@ if not (DeckCheck(DECK_BUJIN) or DeckCheck(DECK_TELLARKNIGHT) or DeckCheck(DECK_
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
-if not ExtraCheck then 
+--[[if not ExtraCheck then 
   DeckCommand = BAInit(cards)
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
     return DeckCommand[1],DeckCommand[2]
   end
-end
+end]]
 if not ExtraCheck then 
   DeckCommand = DarkWorldInit(cards)
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
 if not ExtraCheck then 
@@ -366,7 +421,11 @@ if not ExtraCheck then
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
 if not ExtraCheck then 
@@ -374,7 +433,11 @@ if not ExtraCheck then
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
 if not ExtraCheck then 
@@ -382,26 +445,37 @@ if not ExtraCheck then
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
-if not ExtraCheck then 
+--[[if not ExtraCheck then 
   DeckCommand = HEROInit(cards)
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2] ])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
-end
+end]]
 if not ExtraCheck then 
   DeckCommand = SummonExtraDeck(cards)
   if DeckCommand ~= nil and (d == 0 
   or BlacklistCheckInit(DeckCommand[1],DeckCommand[2],d,backup))
   then
-    return DeckCommand[1],DeckCommand[2]
+    if DeckCommand[1]~=COMMAND_ACTIVATE 
+    or InfiniteLoopCheck(ActivatableCards[DeckCommand[2]])
+    then
+      return DeckCommand[1],DeckCommand[2]
+    end
   end
 end
-
 
 --
 -------------------------------------------------
@@ -487,47 +561,36 @@ end
     end
   end
 
-  -----------------------------------------------------
-  -- If the AI controls a set Field Spell, activate it.
-  -----------------------------------------------------
-  for i=1,#ActivatableCards do
-  if ActivatableCards[i].location == LOCATION_SZONE then 
-	if ActivatableCards[i].type == TYPE_SPELL + TYPE_FIELD and
-       ActivatableCards[i].position == POS_FACEDOWN then
-       GlobalActivatedCardID = ActivatableCards[i].id
-	    return COMMAND_ACTIVATE,i
-     end
-   end
- end
-
-
-  -----------------------------------
-  -- Activate a face-up field spell
-  -- effect if possible.
-  -----------------------------------
-  for i=1,#ActivatableCards do
-    if ActivatableCards[i].location == LOCATION_SZONE then
-      if ActivatableCards[i].type == TYPE_SPELL + TYPE_FIELD then
-        if CardId == 33017655 then
-           GlobalActivatedCardID = ActivatableCards[i].id
-          return COMMAND_ACTIVATE,i
-        end
-      end
+  
+  -- activate field spells already on the field
+  for i,c in pairs(ActivatableCards) do
+    if FilterType(c,TYPE_SPELL) 
+    and FilterType(c,TYPE_FIELD)
+    and FilterLocation(c,LOCATION_SZONE)
+    --and FilterPosition(c,POS_FACEDOWN)
+    and NecrovalleyCheck(c)       
+    and CardIsScripted(c.id) == 0
+    and NotNegated(c) 
+    and InfiniteLoopCheck(c)
+    then
+      return COMMAND_ACTIVATE,i
     end
   end
   
-  ---------------------------------------------------------
-  -- Set a field spell if the AI doesn't currently control
-  -- a field spell 
-  ---------------------------------------------------------
-  if CardsMatchingFilter(AIST(),FilterType,TYPE_FIELD)==0 then
-    for i=1,#cards.st_setable_cards do
-      local c = cards.st_setable_cards[i]
-      if FilterType(c,TYPE_SPELL) and FilterType(c,TYPE_FIELD) and CardIsScripted(c.id)==0 then
-        return COMMAND_SET_ST,i
-      end
+  -- activate field spells, if the AI doesn't control one already
+  for i,c in pairs(ActivatableCards) do
+    if FilterType(c,TYPE_SPELL) 
+    and FilterType(c,TYPE_FIELD)
+    and FilterLocation(c,LOCATION_HAND)
+    and CardsMatchingFilter(AIST(),FilterType,TYPE_FIELD)==0
+    and NecrovalleyCheck(c)       
+    and CardIsScripted(c.id) == 0
+    and NotNegated(c) 
+    and InfiniteLoopCheck(c)
+    then
+      return COMMAND_ACTIVATE,i
     end
-  end     
+  end 
     
   ------------------------------------------------
   -- Activate Soul Exchange only in Main Phase 1
@@ -1369,6 +1432,7 @@ end
     and CardIsScripted(c.id) == 0
     and NotNegated(c) 
     and c.description ~= 1160 -- Pendulum scale activation
+    and InfiniteLoopCheck(c)
     then
       GlobalActivatedCardID = c.id
       return COMMAND_ACTIVATE,i
@@ -1912,6 +1976,40 @@ end
     end
   end
   
+  -- force a synchro or xyz summon, if AI still controls Norden and a target
+  if TurnEndCheck()
+  and HasID(AIMon(),17412721,true)
+  then
+    local norden = FindID(17412721,AIMon())
+    local target = nil
+    if CardTargetCheck(norden) then
+      target = GetCardFromScript(GetScriptFromCard(norden):GetCardTarget():GetFirst())
+    end
+    if target and FilterTuner(target) then
+      for i,c in pairs(SpSummonableCards) do
+        if FilterType(c,TYPE_SYNCHRO) 
+        and FilterLevel(c,norden.level+target.level)
+        then
+          GlobalMaterial = true
+          GlobalSSCardID = c.id
+          return COMMAND_SPECIAL_SUMMON,i
+        end
+      end
+    end
+    if target and FilterLevel(target,4) then
+      for i,c in pairs(SpSummonableCards) do
+        if FilterType(c,TYPE_XYZ) 
+        and FilterRank(c,4)
+        then
+          GlobalMaterial = true
+          GlobalSSCardID = c.id
+          return COMMAND_SPECIAL_SUMMON,i
+        end
+      end
+    end
+  end
+       
+  
   ---------------------------------------------------
   -- If an in-hand monster has a flip effect, set it.
   ---------------------------------------------------
@@ -2055,7 +2153,9 @@ end
       and SetBlacklist(setCards[i].id)==0 
       and (bit32.band(setCards[i].type,TYPE_TRAP) > 0 
       or bit32.band(setCards[i].type,TYPE_QUICKPLAY) > 0 )
-      and not HasID(AIST(),92512625,true) then
+      and not HasID(AIST(),92512625,true) 
+      and DiscardCheck()
+      then
         return COMMAND_SET_ST,i
       end
     end
@@ -2076,6 +2176,7 @@ end
       if FilterType(c,TYPE_SPELL) and not FilterType(c,TYPE_FIELD)
       and SetBlacklist(c.id)==0 and Get_Card_Count(AIST()) < 2
       and not HasID(AIST(),92512625,true) -- Solemn Advice
+      and DiscardCheck()
       then
         return COMMAND_SET_ST,i
       end

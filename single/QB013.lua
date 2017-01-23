@@ -5,7 +5,7 @@ Debug.SetPlayerInfo(0,1000,0,0)
 Debug.SetPlayerInfo(1,10000,0,0)
 --怪区1 
 Debug.AddCard(89631139,1,1,LOCATION_MZONE,2,POS_FACEUP_ATTACK) --青眼白龙
-Debug.AddCard(89631139,1,1,LOCATION_MZONE,3,POS_FACEUP_DEFENCE) --青眼白龙
+Debug.AddCard(89631139,1,1,LOCATION_MZONE,3,POS_FACEUP_DEFENSE) --青眼白龙
 
 --怪区0 
 Debug.AddCard(87621407,0,0,LOCATION_MZONE,1,POS_FACEDOWN)--魔装机关车
@@ -44,6 +44,6 @@ aux.BeginPuzzle()
 --LOCATION_REMOVED  除外
 --POS_FACEDOWN   里侧
 --POS_FACEUP     表侧
---POS_FACEUP_DEFENCE    表侧防守
+--POS_FACEUP_DEFENSE    表侧防守
 --POS_FACEUP_ATTACK     表侧攻击
 --Debug.PreEquip(e1,c1)  绑定e1和C1

@@ -26,6 +26,40 @@ function OnSelectOption(options)
       return result
     end
   end
+  
+  if GlobalDimensionalBarrier then
+    local BarrierType={
+    [TYPE_RITUAL]=1057,
+    [TYPE_FUSION]=1056,
+    [TYPE_SYNCHRO]=1063,
+    [TYPE_XYZ]=1073,
+    [TYPE_PENDULUM]=1074,}
+    if GlobalDimensionalBarrier == true then
+      local cards={}
+      local highest=0
+      result = nil
+      for i,v in pairs(BarrierType) do
+        cards[i]=CardsMatchingFilter(OppMon(),FilterType,i)*2
+        + CardsMatchingFilter(SubGroup(OppGrave(),FilterType,TYPE_MONSTER),FilterType,i)
+        + CardsMatchingFilter(SubGroup(OppExtra(),FilterPosition,POS_FACEUP),FilterType,i)
+        if cards[i]>highest then
+          highest=cards[i]
+          result=v
+        end
+      end
+      result=result or 1073
+    else
+      result = BarrierType[GlobalDimensionalBarrier]
+    end
+    GlobalDimensionalBarrier = nil
+    for i,v in pairs(options) do
+      if v==result then 
+        return i
+      end
+    end
+  end
+
+  
   for i=1,#options do -- Ptolemy M7
     if options[i]==38495396*16+2 
     and HasPriorityTarget(OppMon(),false,nil,PtolemyFilter)

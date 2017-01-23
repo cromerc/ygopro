@@ -43,6 +43,6 @@ aux.BeginPuzzle()
 --LOCATION_REMOVED  除外
 --POS_FACEDOWN   里侧
 --POS_FACEUP     表侧
---POS_FACEUP_DEFENCE    表侧防守
+--POS_FACEUP_DEFENSE    表侧防守
 --POS_FACEUP_ATTACK     表侧攻击
 --Debug.PreEquip(e1,c1)  绑定e1和C1

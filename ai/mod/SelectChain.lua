@@ -32,6 +32,18 @@ function OnSelectChain(cards,only_chains_by_player,forced)
   ResetOncePerTurnGlobals()
   GlobalAIIsAttacking = nil
   --GetNegatePriority()
+  
+  if GlobalFeatherStorm~=Duel.GetTurnCount()
+  and ChainCheck(00007704,1-player_ai) -- Feather Storm
+  then
+    GlobalFeatherStorm=Duel.GetTurnCount()
+  end
+  
+  if GlobalMaxxC~=Duel.GetTurnCount()
+  and ChainCheck(23434538,1-player_ai) -- Maxx "C"
+  then
+    GlobalMaxxC=Duel.GetTurnCount()
+  end
   ---------------------------------------------
   -- Don't activate anything if the AI controls
   -- a face-up Light and Darkness Dragon.
@@ -77,42 +89,73 @@ function OnSelectChain(cards,only_chains_by_player,forced)
     end
   end
   
-  local result,result2 = nil,nil
+  local backup = CopyTable(cards)
   local d = DeckCheck()
+  local result,result2 = nil,nil
+  result = PriorityChain(cards)
+  if result ~= nil then
+    if type(result)=="table" then
+      if (result[1]~=1 
+      or InfiniteLoopCheck(cards[result[2]]))
+      and BlacklistCheckChain(result[1],result[2],d,backup)
+      then
+        return result[1],result[2]
+      end
+    else
+      if (result~=1 
+      or InfiniteLoopCheck(cards[result2]))
+      and BlacklistCheckChain(result,result2,d,backup)
+      then
+        return result,result2
+      end
+    end
+  end
   if d and d.Chain then
     result,result2 = d.Chain(cards,only_chains_by_player)
   end
   if result ~= nil then
     if type(result)=="table" then
-      return result[1],result[2]
+      if (result[1]~=1 
+      or InfiniteLoopCheck(cards[result[2]]))
+      then
+        return result[1],result[2]
+      end
     else
-      return result,result2
+      if (result~=1 
+      or InfiniteLoopCheck(cards[result2]))
+      then
+        return result,result2
+      end
     end
   end
   
-local backup = CopyTable(cards)
-local d = DeckCheck()
-local SelectChainFunctions = {
-PriorityChain,FireFistOnChain,HeraldicOnSelectChain,
-GadgetOnSelectChain,BujinOnSelectChain,MermailOnSelectChain,
-SatellarknightOnSelectChain,
-ChaosDragonOnSelectChain,HATChain,QliphortChain,
-NobleChain,NekrozChain,BAChain,DarkWorldChain,
-ConstellarChain,BlackwingChain,HarpieChain,
-HEROChain,GenericChain,
-}
-  
-for i=1,#SelectChainFunctions do
-  local func = SelectChainFunctions[i]
-  result = func(cards,only_chains_by_player)
-  if result ~= nil and (d == 0 
-  or BlacklistCheckChain(result[1],result[2],d,backup))
-  then
-    return result[1],result[2]
+  backup = CopyTable(cards)
+  d = DeckCheck()
+  local SelectChainFunctions = {
+  FireFistOnChain,HeraldicOnSelectChain,
+  GadgetOnSelectChain,BujinOnSelectChain,MermailOnSelectChain,
+  SatellarknightOnSelectChain,
+  ChaosDragonOnSelectChain,HATChain,QliphortChain,
+  NobleChain,NekrozChain,BAChain,DarkWorldChain,
+  ConstellarChain,BlackwingChain,HarpieChain,
+  HEROChain,GenericChain,
+  }
+    
+  for i=1,#SelectChainFunctions do
+    local func = SelectChainFunctions[i]
+    result = func(cards,only_chains_by_player)
+    if result ~= nil and (d == 0 
+    or BlacklistCheckChain(result[1],result[2],d,backup))
+    then
+      if result[1]~=1 
+      or InfiniteLoopCheck(cards[result[2]])
+      then
+        return result[1],result[2]
+      end
+    end
   end
-end
 
-result = 0
+  result = 0
 
  ---------------------------------------------
  -- Cocoon of Evolution on field turn counter
@@ -406,9 +449,10 @@ end
     and NecrovalleyCheck(c)
     and CardIsScripted(c.id) == 0 
     and NotNegated(c) 
+    and InfiniteLoopCheck(c)
     then
       GlobalActivatedCardID = c.id 
-        return 1,i
+      return 1,i
     end
   end
   

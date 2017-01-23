@@ -1,0 +1,98 @@
+--Fallout
+function c511000598.initial_effect(c)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DEFCHANGE)
+	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e1:SetCondition(c511000598.condition)
+	e1:SetTarget(c511000598.target)
+	e1:SetOperation(c511000598.activate)
+	c:RegisterEffect(e1)
+end
+function c511000598.cfilter(c,tp)
+	return c:IsLocation(LOCATION_MZONE) and c:IsControler(tp)
+end
+function c511000598.condition(e,tp,eg,ep,ev,re,r,rp)
+	local g=eg:Filter(c511000598.cfilter,nil,tp)
+	if g:GetCount()~=1 then return end
+	local tc=g:GetFirst()
+	e:SetLabelObject(tc)
+	return true
+end
+function c511000598.target(e,tp,eg,ep,ev,re,r,rp,chk)
+	local tc=e:GetLabelObject()
+	if chk==0 then return true end
+	tc:CreateEffectRelation(e)
+end
+function c511000598.activate(e,tp,eg,ep,ev,re,r,rp)
+	local tc=e:GetLabelObject()
+	if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_UPDATE_ATTACK)
+		e1:SetReset(RESET_EVENT+0x1fe0000)
+		e1:SetValue(4000)
+		tc:RegisterEffect(e1)
+		local e2=e1:Clone()
+		e2:SetCode(EFFECT_UPDATE_DEFENSE)
+		tc:RegisterEffect(e2)
+		local e3=Effect.CreateEffect(e:GetHandler())
+		e3:SetType(EFFECT_TYPE_FIELD)
+		e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+		e3:SetTargetRange(1,0)
+		e3:SetCode(EFFECT_SKIP_SP)
+		e3:SetCondition(c511000598.skipcon)
+		e3:SetLabel(Duel.GetTurnCount())
+		e3:SetReset(RESET_PHASE+PHASE_END+RESET_SELF_TURN,6)
+		Duel.RegisterEffect(e3,tp)
+		local e4=Effect.CreateEffect(e:GetHandler())
+		e4:SetType(EFFECT_TYPE_FIELD)
+		e4:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+		e4:SetTargetRange(1,0)
+		e4:SetCode(EFFECT_SKIP_M1)
+		e4:SetCondition(c511000598.skipcon)
+		e4:SetLabel(Duel.GetTurnCount())
+		e4:SetReset(RESET_PHASE+PHASE_END+RESET_SELF_TURN,6)
+		Duel.RegisterEffect(e4,tp)
+		local e5=Effect.CreateEffect(e:GetHandler())
+		e5:SetType(EFFECT_TYPE_FIELD)
+		e5:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+		e5:SetTargetRange(1,0)
+		e5:SetCode(EFFECT_SKIP_DP)
+		e5:SetCondition(c511000598.skipcon)
+		e5:SetLabel(Duel.GetTurnCount())
+		e5:SetReset(RESET_PHASE+PHASE_END+RESET_SELF_TURN,6)
+		Duel.RegisterEffect(e5,tp)
+		local e6=Effect.CreateEffect(e:GetHandler())
+		e6:SetType(EFFECT_TYPE_FIELD)
+		e6:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+		e6:SetTargetRange(1,0)
+		e6:SetCode(EFFECT_SKIP_M2)
+		e6:SetCondition(c511000598.skipcon)
+		e6:SetLabel(Duel.GetTurnCount())
+		e6:SetReset(RESET_PHASE+PHASE_END+RESET_SELF_TURN,6)
+		Duel.RegisterEffect(e6,tp)
+		local e7=Effect.CreateEffect(e:GetHandler())
+		e7:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		e7:SetCode(EVENT_PHASE+PHASE_END)
+		e7:SetCountLimit(1)
+		e7:SetReset(RESET_PHASE+PHASE_END+RESET_SELF_TURN,6)
+		e7:SetOperation(c511000598.disop)
+		e7:SetLabel(0)
+		Duel.RegisterEffect(e7,tp)
+	end
+end
+function c511000598.skipcon(e)
+	return Duel.GetTurnCount()~=e:GetLabel()
+end
+function c511000598.disop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetTurnPlayer()~=tp then return end
+	local c=e:GetHandler()
+	local ct=e:GetLabel()
+	if ct==0 then e:SetLabel(1) return end
+	if ct>0 then
+		ct=ct+1
+		c:SetTurnCounter(ct-1)
+		e:SetLabel(ct)
+	end
+end

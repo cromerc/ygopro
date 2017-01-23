@@ -6,8 +6,8 @@ function c74506079.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e1:SetCode(EFFECT_FUSION_MATERIAL)
-	e1:SetCondition(c74506079.fscondition)
-	e1:SetOperation(c74506079.fsoperation)
+	e1:SetCondition(c74506079.fscon)
+	e1:SetOperation(c74506079.fsop)
 	c:RegisterEffect(e1)
 	--summon success
 	local e2=Effect.CreateEffect(c)
@@ -17,22 +17,74 @@ function c74506079.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c74506079.ffilter(c)
-	return c:IsFusionSetCard(0x3e) and c:IsRace(RACE_REPTILE)
+	if c:IsHasEffect(6205579) then return false end
+	return (c:IsFusionSetCard(0x3e) and c:IsRace(RACE_REPTILE)) or c:IsHasEffect(511002961)
 end
-function c74506079.fscondition(e,g,gc)
+function c74506079.check1(c,mg,chkf)
+	return mg:IsExists(c74506079.check2,1,c,c,chkf)
+end
+function c74506079.check2(c,c2,chkf)
+	local g=Group.FromCards(c,c2)
+	if g:IsExists(aux.TuneMagFusFilter,1,nil,g,chkf) then return false end
+	local g1=g:Filter(c74506079.ffilter,nil)
+	if chkf~=PLAYER_NONE then
+		return g1:FilterCount(aux.FConditionCheckF,nil,chkf)~=0 and g1:GetCount()>=2
+	else return g1:GetCount()>=2 end
+end
+function c74506079.fscon(e,g,gc,chkfnf)
 	if g==nil then return true end
-	if gc then return false end
-	return g:IsExists(c74506079.ffilter,2,nil)
+	local chkf=bit.band(chkfnf,0xff)
+	local mg=g:Filter(Card.IsCanBeFusionMaterial,nil,e:GetHandler())
+	if gc then
+		if not gc:IsCanBeFusionMaterial(e:GetHandler()) then return false end
+		return c74506079.check1(gc,mg,chkf)
+	end
+	return mg:IsExists(c74506079.check1,1,nil,mg,chkf)
 end
-function c74506079.fsoperation(e,tp,eg,ep,ev,re,r,rp,gc)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FMATERIAL)
-	Duel.SetFusionMaterial(eg:FilterSelect(tp,c74506079.ffilter,2,63,nil))
+function c74506079.fsop(e,tp,eg,ep,ev,re,r,rp,gc,chkfnf)
+	local chkf=bit.band(chkfnf,0xff)
+	local mg=eg:Filter(Card.IsCanBeFusionMaterial,nil,e:GetHandler())
+	local p=tp
+	local sfhchk=false
+	if Duel.IsPlayerAffectedByEffect(tp,511004008) and Duel.SelectYesNo(1-tp,65) then
+		p=1-tp Duel.ConfirmCards(1-tp,g)
+		if mg:IsExists(Card.IsLocation,1,nil,LOCATION_HAND) then sfhchk=true end
+	end
+	if gc then
+		Duel.Hint(HINT_SELECTMSG,p,HINTMSG_FMATERIAL)
+		local g1=mg:FilterSelect(p,c74506079.check2,1,1,gc,gc,chkf)
+		mg:Sub(g1)
+		while mg:IsExists(Auxiliary.FConditionFilterExtraMaterial,1,nil,mg,c74506079.ffilter) and Duel.SelectYesNo(p,93) do
+			Duel.Hint(HINT_SELECTMSG,p,HINTMSG_FMATERIAL)
+			local g2=mg:FilterSelect(p,Auxiliary.FConditionFilterExtraMaterial,1,1,nil,mg,c74506079.ffilter)
+			g1:Merge(g2)
+			mg:Sub(g2)
+		end
+		if sfhchk then Duel.ShuffleHand(tp) end
+		Duel.SetFusionMaterial(g1)
+		return
+	end
+	Duel.Hint(HINT_SELECTMSG,p,HINTMSG_FMATERIAL)
+	local g1=mg:FilterSelect(p,c74506079.check1,1,1,nil,mg,chkf)
+	local tc1=g1:GetFirst()
+	Duel.Hint(HINT_SELECTMSG,p,HINTMSG_FMATERIAL)
+	local g2=mg:FilterSelect(p,c74506079.check2,1,1,tc1,tc1,chkf)
+	g1:Merge(g2)
+	mg:Sub(g1)
+	while mg:IsExists(aux.FConditionFilterExtraMaterial,1,nil,mg,c74506079.ffilter) and Duel.SelectYesNo(p,93) do
+		Duel.Hint(HINT_SELECTMSG,p,HINTMSG_FMATERIAL)
+		local g3=mg:FilterSelect(p,aux.FConditionFilterExtraMaterial,1,1,nil,mg,c74506079.ffilter)
+		g1:Merge(g3)
+		mg:Sub(g3)
+	end
+	if sfhchk then Duel.ShuffleHand(tp) end
+	Duel.SetFusionMaterial(g1)
 end
 function c74506079.matcheck(e,c)
 	local ct=c:GetMaterial():GetClassCount(Card.GetCode)
 	if ct>0 then
 		local ae=Effect.CreateEffect(c)
-		ae:SetType(EFFECT_TYPE_SINGLE)
+		ae:SetType(EFFECT_TYPE_SINGLE)	
 		ae:SetCode(EFFECT_SET_ATTACK)
 		ae:SetValue(ct*500)
 		ae:SetReset(RESET_EVENT+0xff0000)

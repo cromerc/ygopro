@@ -9,6 +9,7 @@ function c82308875.initial_effect(c)
 	e1:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DRAW+CATEGORY_SPECIAL_SUMMON+CATEGORY_TOGRAVE)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_MZONE)
+	e1:SetProperty(EFFECT_FLAG2_XMDETACH)
 	e1:SetCost(c82308875.cost)
 	e1:SetTarget(c82308875.target)
 	e1:SetOperation(c82308875.operation)
@@ -24,7 +25,7 @@ function c82308875.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_DICE,nil,0,tp,2)
 end
 function c82308875.spfilter(c,e,tp)
-	return c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsHasEffect(EFFECT_NECRO_VALLEY)
+	return c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c82308875.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -38,7 +39,7 @@ function c82308875.operation(e,tp,eg,ep,ev,re,r,rp)
 	c:RegisterEffect(e1)
 	if d1+d2==7 then
 		local b1=Duel.GetFieldGroupCount(tp,LOCATION_ONFIELD,LOCATION_ONFIELD)>1
-		local spg=Duel.GetMatchingGroup(c82308875.spfilter,tp,LOCATION_HAND+LOCATION_GRAVE,LOCATION_GRAVE,nil,e,tp)
+		local spg=Duel.GetMatchingGroup(aux.NecroValleyFilter(c82308875.spfilter),tp,LOCATION_HAND+LOCATION_GRAVE,LOCATION_GRAVE,nil,e,tp)
 		local b2=Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and spg:GetCount()>0
 		local b3=Duel.IsPlayerCanDraw(tp,3)
 		if not b1 and not b2 and not b3 then return end
@@ -56,7 +57,6 @@ function c82308875.operation(e,tp,eg,ep,ev,re,r,rp)
 		elseif op==1 then
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 			local sg=spg:Select(tp,1,1,nil)
-			if sg:GetFirst():IsHasEffect(EFFECT_NECRO_VALLEY) then return end
 			Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
 		else
 			Duel.Draw(tp,3,REASON_EFFECT)

@@ -287,7 +287,7 @@ function DivaCond(c,loc)
     or FieldCheck(4)>1) 
     and Duel.GetTurnPlayer()==player_ai 
     and not NormalSummonCheck(player_ai))
-    or not HasID(AICards(),21565445,true)
+    --or not HasID(AICards(),21565445,true)
   end
   if loc == PRIO_TRIBUTE then
     return FilterLocation(c,LOCATION_MZONE)
@@ -1185,13 +1185,11 @@ function UseDweller(c,mode)
 end
 function ChainDweller(c,mode)
   if RemovalCheckCard(c) or NegateCheckCard(c) then
-    --print("Dweller removed, chaining")
     return true
   end
   if Duel.GetTurnPlayer()==1-player_ai
   and MatchupCheck(c.id)
   then
-    --print("Dweller matchup, chaining asap")
     return true
   end
   for i=1,Duel.GetCurrentChain() do
@@ -1202,7 +1200,6 @@ function ChainDweller(c,mode)
       if Duel.GetOperationInfo(i,CATEGORY_TOGRAVE)
       or Duel.GetOperationInfo(i,CATEGORY_DECKDES)
       then
-        --print("dump or mill effect activated, chaining")
         return true
       end
       if Duel.GetOperationInfo(i,CATEGORY_SPECIAL_SUMMON)
@@ -1211,7 +1208,6 @@ function ChainDweller(c,mode)
       or FilterSet(ec,0x46))
       and not ec:IsCode(01845204) -- Instant Fusion
       then
-        --print("ritual or fusion summon, chaining")
         return true
       end
     end
@@ -1226,7 +1222,6 @@ function ChainDweller(c,mode)
         if ex then
           local c = GetCardFromScript(cg:GetFirst())
           if CurrentOwner(c)==2 then
-            --print(removal by AI, chaining")
             return true
           end
         end
@@ -1238,7 +1233,6 @@ function ChainDweller(c,mode)
     if WinsBattle(aimon,oppmon) 
     or WinsBattle(oppmon,aimon) and CardsEqual(c,aimon)
     then
-      --print("winning battle, chaining")
       return true
     end
   end

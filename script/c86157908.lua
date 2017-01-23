@@ -19,7 +19,7 @@ function c86157908.initial_effect(c)
 	e3:SetCategory(CATEGORY_RECOVER)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetCode(EVENT_SUMMON_SUCCESS)
-	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
+	e3:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CARD_TARGET)
 	e3:SetTarget(c86157908.target)
 	e3:SetOperation(c86157908.operation)
 	c:RegisterEffect(e3)
@@ -45,7 +45,8 @@ function c86157908.atkop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
 	local tc=Duel.GetFirstTarget()
 	local at=Duel.GetAttacker()
-	if at:IsFaceup() and at:IsRelateToBattle() and tc:IsFaceup() and tc:IsRelateToEffect(e) then
+	if at:IsFaceup() and at:IsRelateToBattle() and at:IsAttackable() and not at:IsStatus(STATUS_ATTACK_CANCELED)
+		and tc:IsFaceup() and tc:IsRelateToEffect(e) then
 		local atk=tc:GetBaseAttack()
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)

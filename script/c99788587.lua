@@ -20,7 +20,7 @@ function c99788587.condition(e,tp,eg,ep,ev,re,r,rp)
 		and Duel.GetFieldCard(1-tp,LOCATION_SZONE,4-seq)
 end
 function c99788587.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chk==0 then return true end
+	if chk==0 then return e:IsHasType(EFFECT_TYPE_ACTIVATE) end
 	local seq=e:GetHandler():GetSequence()
 	local g=Group.CreateGroup()
 	g:AddCard(Duel.GetFieldCard(tp,LOCATION_MZONE,seq))

@@ -7,6 +7,7 @@ function c359563.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(359563,0))
 	e1:SetCategory(CATEGORY_POSITION)
+	e1:SetProperty(EFFECT_FLAG2_XMDETACH)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e1:SetRange(LOCATION_MZONE)
@@ -16,7 +17,7 @@ function c359563.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function c359563.filter(c,e,tp)
-	return c:IsFaceup() and c:GetSummonPlayer()==1-tp and (not e or c:IsRelateToEffect(e))
+	return c:IsFaceup() and c:IsCanTurnSet() and c:GetSummonPlayer()==1-tp and (not e or c:IsRelateToEffect(e))
 end
 function c359563.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end

@@ -42,13 +42,13 @@ function c78033100.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=nil
 	if e:GetLabel()==0 then
-		g=Duel.SelectMatchingCard(tp,c78033100.spfilter1,tp,0x13,0,1,1,nil,e,tp)
+		g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(c78033100.spfilter1),tp,0x13,0,1,1,nil,e,tp)
 	else
-		g=Duel.SelectMatchingCard(tp,c78033100.spfilter2,tp,0x13,0,1,1,nil,e,tp)
+		g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(c78033100.spfilter2),tp,0x13,0,1,1,nil,e,tp)
 	end
 	local tc=g:GetFirst()
-	if tc and tc:IsHasEffect(EFFECT_NECRO_VALLEY) then return end
-	if tc and Duel.SpecialSummonStep(g:GetFirst(),0,tp,tp,false,false,POS_FACEUP) then
+	if not tc then return end
+	if Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_SET_ATTACK)

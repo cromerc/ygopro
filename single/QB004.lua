@@ -9,8 +9,8 @@ Debug.SetPlayerInfo(1,16900,0,0)
 Debug.AddCard(85742772,1,1,LOCATION_SZONE,2,POS_FACEUP)--超重力网
 --卡组1  
 --怪区1 
-Debug.AddCard(31560081,1,1,LOCATION_MZONE,1,POS_FACEUP_DEFENCE) --神圣魔术师
-Debug.AddCard(62892347,1,1,LOCATION_MZONE,2,POS_FACEUP_DEFENCE) --秘仪之力0-愚者
+Debug.AddCard(31560081,1,1,LOCATION_MZONE,1,POS_FACEUP_DEFENSE) --神圣魔术师
+Debug.AddCard(62892347,1,1,LOCATION_MZONE,2,POS_FACEUP_DEFENSE) --秘仪之力0-愚者
 Debug.AddCard(23693634,1,1,LOCATION_MZONE,3,POS_FACEUP_ATTACK) --巨人斗士
 
 --怪区0   
@@ -53,7 +53,7 @@ aux.BeginPuzzle()
 --LOCATION_EXTRA  额外
 --POS_FACEDOWN   里侧
 --POS_FACEUP     表侧
---POS_FACEUP_DEFENCE    表侧防守
+--POS_FACEUP_DEFENSE    表侧防守
 --POS_FACEUP_ATTACK     表侧攻击
 --Debug.PreEquip(e1,c1)  绑定e1和C1
 --tc:CompleteProcedure()解除TC苏生限制

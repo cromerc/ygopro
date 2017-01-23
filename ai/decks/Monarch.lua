@@ -107,7 +107,7 @@ function TreebornCond(loc,c)
     then
       return 9
     elseif CardsMatchingFilter(cards,FilterID,12538374)==1 then
-      return 7
+      --return 7
     else
       return 5
     end
@@ -175,7 +175,16 @@ function FrogFilter(c,exclude)
   return IsSetCode(c.setcode,0x12) and (exclude == nil or c.id~=exclude)
 end
 function MonarchMonsterFilter(c,exclude)
-  return false --?
+  local check = true
+  if exclude then
+    if type(exclude)=="table" then
+      check = not CardsEqual(c,exclude)
+    elseif type(exclude)=="number" then
+      check = (c.id ~= exclude)
+    end
+  end
+  return (FilterAttack(c,2400) or FilterAttack(c,2800))
+  and FilterDefense(c,1000) and check
 end
 function TributeCount(mega)
   local result = 0
@@ -270,7 +279,9 @@ function StormforthFilter(c,filter)
      return not CardsEqual(c,card) and filter(card) 
     end)>0
   end
-  return Affected(c,TYPE_SPELL) and not FilterAffected(c,EFFECT_UNRELEASABLE_SUM) and check
+  return Affected(c,TYPE_SPELL) 
+  and not FilterAffected(c,EFFECT_UNRELEASABLE_SUM) 
+  and check
 end
 function UseStormforth(c)
   if CardsMatchingFilter(OppMon(),StormforthFilter)>0 
@@ -469,6 +480,23 @@ function SummonVeiler(c,mode)
     and TurnEndCheck()
     and DualityCheck()
     and OppGetStrongestAttack()<2500
+    then
+      return true
+    end
+  end
+  return false
+end
+function SummonTreeborn(c,mode)
+  if mode==1 then
+    if CardsMatchingFilter(AIMon(),FilterTuner,1)==1
+    and HasIDNotNegated(AIExtra(),50091196,true) -- Formula
+    and DualityCheck()
+    then
+      return true
+    end
+    if FieldCheck(1)>0
+    and (HasIDNotNegated(AIExtra(),46895036,SummonDullahan,1)
+    or HasIDNotNegated(AIExtra(),46895036,SummonDullahan,2))
     then
       return true
     end
@@ -736,7 +764,10 @@ function MonarchInit(cards)
   if HasID(SpSum,53334641,SummonAngel) then
     return COMMAND_SPECIAL_SUMMON,CurrentIndex
   end
-  if HasIDNotNegated(Sum,97268402,SummonVeiler,1) then
+  if HasID(Sum,12538374,SummonTreeborn,1) then
+    return COMMAND_SUMMON,CurrentIndex
+  end
+  if HasID(Sum,97268402,SummonVeiler,1) then
     return COMMAND_SUMMON,CurrentIndex
   end
   if HasID(SpSum,50091196,SummonFormula) then

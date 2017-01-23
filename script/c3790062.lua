@@ -7,7 +7,7 @@ function c3790062.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(3790062,0))
 	e1:SetCategory(CATEGORY_NEGATE+CATEGORY_DAMAGE)
-	e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
+	e1:SetProperty(EFFECT_FLAG2_XMDETACH+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DAMAGE_CAL)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCode(EVENT_CHAINING)
@@ -32,6 +32,7 @@ function c3790062.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,1-tp,500)
 end
 function c3790062.operation(e,tp,eg,ep,ev,re,r,rp)
-	Duel.NegateActivation(ev)
-	Duel.Damage(1-tp,500,REASON_EFFECT)
+	if Duel.NegateActivation(ev) then
+		Duel.Damage(1-tp,500,REASON_EFFECT)
+	end
 end

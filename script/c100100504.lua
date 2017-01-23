@@ -1,0 +1,47 @@
+--Ｓｐ－念動収集機
+function c100100504.initial_effect(c)
+	--activate
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetHintTiming(0,TIMING_END_PHASE)
+	e1:SetCost(c100100504.cost)
+	e1:SetTarget(c100100504.sptg)
+	e1:SetOperation(c100100504.spop)
+	c:RegisterEffect(e1)
+end
+function c100100504.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+	local tc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
+	if chk==0 then return tc and tc:IsCanRemoveCounter(tp,0x91,2,REASON_COST) end	 
+	Duel.Hint(HINT_OPSELECTED,1-tp,e:GetDescription())
+	tc:RemoveCounter(tp,0x91,2,REASON_COST)	
+end
+function c100100504.filter(c,e,tp)
+	return c:IsLevelBelow(2) and c:IsRace(RACE_PSYCHO) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+end
+function c100100504.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c100100504.filter(chkc,e,tp) end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 
+		and Duel.IsExistingTarget(c100100504.filter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g=Duel.SelectTarget(tp,c100100504.filter,tp,LOCATION_GRAVE,0,1,ft,nil,e,tp)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,g:GetCount(),0,0)
+	local lv=g:GetSum(Card.GetLevel)
+	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,nil,0,tp,lv*300)
+end
+function c100100504.spop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS):Filter(Card.IsRelateToEffect,nil,e)
+	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	if ft<g:GetCount() then return end
+	if g:GetCount()>0 then
+		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+		local og=Duel.GetOperatedGroup()
+		local lv=og:GetSum(Card.GetLevel)
+		Duel.BreakEffect()
+		Duel.Damage(tp,lv*300,REASON_EFFECT)
+	end
+end

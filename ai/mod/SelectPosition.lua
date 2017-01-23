@@ -25,10 +25,12 @@ function OnSelectPosition(id, available)
   -- attack and defense will be 0
   -------------------------------------------------------
   if GlobalActivatedCardID == 27337596 -- Hieratic Dragon King of Atum
+  or GlobalActivatedCardID == 07394770 -- Brilliant Fusion
   then
     result = POS_FACEUP_DEFENSE
     GlobalActivatedCardID = nil
     GlobalTributedCardID = nil
+    return result
   end
   
   ------------------------------------------------------

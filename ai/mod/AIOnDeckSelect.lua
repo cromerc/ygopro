@@ -24,7 +24,6 @@ DECK_HAT          = NewDeck("HAT"             ,45803070) -- Traptrix Dionaea
 DECK_QLIPHORT     = NewDeck("Qliphort"        ,65518099) -- Qliphort Tool
 DECK_NOBLEKNIGHT  = NewDeck("Noble Knight"    ,59057152) -- Noble Knight Medraut
 DECK_NEKROZ       = NewDeck("Nekroz"          ,14735698) -- Nekroz Exomirror
-DECK_BA           = NewDeck("Burning Abyss"   ,36006208) -- Fire Lake of the Burning Abyss
 DECK_EXODIA       = NewDeck("Exodia"          ,{33396948,70791313}) -- Exodia the Forbidden One, Royal Magical Library
 DECK_DARKWORLD    = NewDeck("Dark World"      ,34230233) -- DW Grapha
 DECK_CONSTELLAR   = NewDeck("Constellar"      ,78358521) -- Constellar Sombre
@@ -115,9 +114,10 @@ function PrioritySetup()
   QliphortPriority()
   SatellarknightPriority()
   --HEROPriority()
-  BAPriority()
+  --BAPriority()
   NekrozPriority()
-
+  GadgetPriority()
+  
 AddPriority({
 -- HERO
 
@@ -201,6 +201,11 @@ AddPriority({
 [73176465] = {1,1,1,1,6,5,1,1,1,1,FelisCond},         -- Lightsworn Felis
 [41386308] = {1,1,1,1,1,1,1,1,1,1,MathCond},          -- Mathematician
 
+-- Speedroid Engine 
+
+[81275020] = {9,1,5,1,1,1,1,1,1,1},                   -- Speedroid Terrortop
+[53932291] = {8,1,1,1,1,1,1,1,1,1},                   -- Speedroid Taketomborg
+
 [05318639] = {1,1,1,1,1,1,1,1,1,1,nil},               -- Mystical Space Typhoon
 
 [82044279] = {1,1,1,1,1,1,1,1,1,1,ClearWingCond},     -- Clear Wing Synchro Dragon
@@ -212,7 +217,6 @@ AddPriority({
 [31924889] = {1,1,1,1,1,1,1,1,1,1,nil},               -- Arcanite Magician
 [08561192] = {1,1,1,1,1,1,1,1,1,1,nil},               -- Leoh, Keeper of the Sacred Tree
 })
-
 
 AddPriority({
 -- HAT
@@ -240,6 +244,7 @@ AddPriority({
 [91499077] = {1,1,1,1,1,1,1,1,1,1,nil},               -- Gagaga Samurai
 [63746411] = {1,1,1,1,1,1,1,1,1,1,nil},               -- Giant Hand
 })
+
 AddPriority({
 --for backwards compatibility
 [05361647] = {1,1,1,1,9,1,1,1,1,1,nil},               -- Battlin' Boxer Glassjaw
@@ -252,13 +257,14 @@ AddPriority({
 [33396948] = {1,1,-1,-1,-1,-1,-1,-1,1,1,nil},
 
 [05133471] = {1,1,1,1,4,1,1,1,1,1,nil},               -- Galaxy Cyclone
+
 })
 
   local deck = GetDeck()
   if deck and deck.PriorityList then
     AddPriority(deck.PriorityList,true)
   end
-  
+ 
 end
 
 Prio = {}
@@ -269,6 +275,7 @@ function AddPriority(list,override)
   end
 end
 function GetPriority(card,loc)
+  card.prio=0
   local id=card.id      
   if id == 76812113 then
     id=card.original_id
@@ -291,7 +298,9 @@ function GetPriority(card,loc)
     end
   else
     --print("no priority defined for id: "..id..", defaulting to 0")
+    return 0
   end
+  --print("got priority: "..result.." for "..GetName(card))
   return result
 end
 function AssignPriority(cards,loc,filter,opt)
@@ -319,8 +328,8 @@ function AssignPriority(cards,loc,filter,opt)
     end
     if loc==PRIO_TOGRAVE and FilterLocation(c,LOCATION_ONFIELD)
     then
-      if Negated(c) then 
-        c.prio=c.prio+3
+      if FilterCrippled(c) then 
+        c.prio=c.prio+5
       end
       if FilterPosition(c,POS_DEFENSE)
       and c.turnid==Duel.GetTurnCount()
@@ -358,6 +367,7 @@ function AssignPriority(cards,loc,filter,opt)
         c.prio=11
       end
     end
+    c.prio=c.prio or 0
     if not FilterCheck(c,filter,opt) then
       c.prio=c.prio-9999
     end
@@ -382,6 +392,7 @@ function Add(cards,loc,count,filter,opt)
   for i=1,count do
     result[i]=cards[i].index
   end
+  --PrintList(cards,true)
   if #result<count then 
     for i=#result+1,count do
       result[i]=i

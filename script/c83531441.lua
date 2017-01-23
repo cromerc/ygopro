@@ -7,6 +7,7 @@ function c83531441.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(83531441,0))
 	e1:SetCategory(CATEGORY_ATKCHANGE)
+	e1:SetProperty(EFFECT_FLAG2_XMDETACH)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetCountLimit(1)
@@ -36,15 +37,18 @@ end
 function c83531441.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDiscardDeckAsCost(tp,1) and e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
 	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
-	local ct=Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)
-	if ct==1 then 
-		Duel.DiscardDeck(tp,1,REASON_COST)
+	local ct={}
+	for i=3,1,-1 do
+		if Duel.IsPlayerCanDiscardDeckAsCost(tp,i) then
+			table.insert(ct,i)
+		end
+	end
+	if #ct==1 then 
+		Duel.DiscardDeck(tp,ct[1],REASON_COST)
 		e:SetLabel(1)
 	else
-		local ac=0
 		Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(83531441,2))
-		if ct==2 then ac=Duel.AnnounceNumber(tp,2,1)
-		else ac=Duel.AnnounceNumber(tp,3,2,1) end
+		local ac=Duel.AnnounceNumber(tp,table.unpack(ct))
 		Duel.DiscardDeck(tp,ac,REASON_COST)
 		e:SetLabel(ac)
 	end

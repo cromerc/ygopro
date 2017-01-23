@@ -41,6 +41,7 @@ MegaMonarchActivateBlacklist={
 69230391, -- Mega Thestalos
 87288189, -- Mega Caius
 09748752, -- Caius
+57666212, -- Kuraz
 
 95993388, -- Landrobe
 22382087, -- Garum
@@ -57,8 +58,10 @@ MegaMonarchActivateBlacklist={
 19870120, -- March
 61466310, -- Return
 84171830, -- Dominion
+99940363, -- Frost Blast
 
 54241725, -- Original
+18235309, -- Escalation
 }
 MegaMonarchSummonBlacklist={
 96570609, -- Aither
@@ -66,6 +69,7 @@ MegaMonarchSummonBlacklist={
 69230391, -- Mega Thestalos
 87288189, -- Mega Caius
 09748752, -- Caius
+57666212, -- Kuraz
 
 95993388, -- Landrobe
 22382087, -- Garum
@@ -82,8 +86,10 @@ MegaMonarchSetBlacklist={
 19870120, -- March
 61466310, -- Return
 84171830, -- Dominion
+99940363, -- Frost Blast
 
 54241725, -- Original
+18235309, -- Escalation
 }
 MegaMonarchRepoBlacklist={
 }
@@ -288,19 +294,71 @@ end
 function ThestalosCond(loc,c)
   return true
 end
-    
+function FrostBlastFilter(c)
+  return FilterPosition(c,POS_FACEDOWN)
+  and Affected(c,TYPE_SPELL)
+  and Targetable(c,TYPE_SPELL)
+  and ShouldRemove(c)
+end
+function FrostBlastCond(loc,c)
+  if loc == PRIO_TOHAND then
+    return CardsMatchingFilter(AIMon(),MonarchMonsterFilter)>0
+    and CardsMatchingFilter(OppField(),FrostBlastFilter)>0
+    and NotNegated(c)
+  end
+  if loc == PRIO_TOGRAVE then
+    return CardsMatchingFilter(AIGrave(),MonarchFilter)>0
+    and CardsMatchingFilter(OppField(),FrostBlastFilter)>0
+  end
+  return true
+end
+function EscalationCond(loc,c)
+  if loc == PRIO_TOHAND then
+    return not HasID(AICards(),c.id,true)
+    and TributesAvailable(true)>0
+    and (CardsMatchingFilter(AIHand(),MonarchMonsterFilter,96570609)>0 -- Aither
+    or HasID(AIMon(),96570609,true) and CardsMatchingFilter(AIMon(),MonarchMonsterFilter)>1)
+  end
+  return true
+end
+function KurazFilter(c,prio) -- destroy opponent's cards
+  return Affected(c)
+  and Targetable(c)
+  and DestroyFilterIgnore(c)
+  and ShouldRemove(c)
+  and (not prio or FilterPriorityTarget(c))
+end
+function KurazFilter2(c) -- destroy own cards
+  return Affected(c)
+  and Targetable(c)
+  and (CardsMatchingFilter(AIField(),MonarchMonsterFilter,c)>0
+  and not MonarchMonsterFilter(c,57666212) -- Kuraz
+  or not MonarchMonsterFilter(c))
+  and (c.id~=84171830 or HasID(AIHand(),84171830,true)) -- Dominion
+end
+function KurazCond(loc,c)
+  if loc == PRIO_TOFIELD then
+    return CardsMatchingFilter(OppField(),KurazFilter,true)>0
+    or CardsMatchingFilter(AIField(),KurazFilter2)>0
+  end
+  if loc == PRIO_TOGRAVE then
+    return FilterLocation(c,LOCATION_MZONE)
+  end
+  return true
+end
 MegaMonarchPriorityList={                      
 --[12345678] = {1,1,1,1,1,1,1,1,1,1,XXXCond},  -- Format
 
 -- MegaMonarch
 
 
-[96570609] = {7,4,7,2,1,1,1,1,1,1,AitherCond},          -- Aither
-[23064604] = {8,2,8,3,8,5,1,1,1,1,ErebusCond},          -- Erebus
+[96570609] = {8,4,8,2,1,1,1,1,1,1,AitherCond},          -- Aither
+[23064604] = {7,2,7,3,8,5,1,1,1,1,ErebusCond},          -- Erebus
 [69230391] = {5,2,5,1,1,1,1,1,1,1,MegaThestalosCond},   -- Mega Thestalos
 [87288189] = {6,3,6,1,1,1,1,1,1,1,MegaCaiusCond},       -- Mega Caius
 [09748752] = {1,1,4,1,1,1,1,1,1,1,CaiusCond},           -- Caius
 [26205777] = {1,1,3,1,1,1,1,1,1,1,ThestalosCond},       -- Thestalos
+[57666212] = {1,1,9,1,7,1,1,1,1,1,KurazCond},           -- Kuraz
 
 [95993388] = {6,1,5,1,7,4,1,1,1,1,LandrobeCond},        -- Landrobe
 [22382087] = {5,1,6,1,8,3,1,1,1,1,GarumCond},           -- Garum
@@ -310,16 +368,18 @@ MegaMonarchPriorityList={
 [22842126] = {4,1,1,1,8,1,3,1,1,1,PandeityCond},        -- Pandeity
 [02295440] = {1,1,1,1,1,1,1,1,1,1,nil},                 -- One for one
 [32807846] = {1,1,1,1,1,1,1,1,1,1,nil},                 -- RotA
-[33609262] = {10,2,1,1,6,1,8,1,8,2,TenacityCond},        -- Tenacity
+[33609262] = {10,2,1,1,6,1,8,1,8,2,TenacityCond},       -- Tenacity
 [81439173] = {1,1,1,1,1,1,1,1,1,1,nil},                 -- Foolish
 [05318639] = {1,1,1,1,1,1,1,1,1,1,nil},                 -- MST
 [79844764] = {5,2,1,1,5,1,5,1,6,2,StormforthCond},      -- Stormforth
 [19870120] = {7,1,1,1,1,1,6,1,6,2,MarchCond},           -- March
 [61466310] = {3,1,1,1,3,1,6,1,6,2,ReturnCond},          -- Return
 [84171830] = {9,1,1,1,2,1,7,1,7,2,DominionCond},        -- Dominion
+[99940363] = {4,1,1,1,5,1,1,1,0,0,FrostBlastCond},      -- Frost Blast
 
 [54241725] = {6,1,1,1,9,1,4,1,9,1,OriginalCond},        -- Original
 [48716527] = {3,1,1,1,4,1,6,1,6,2,nil},                 -- Erupt
+[18235309] = {8,1,1,1,1,1,1,1,7,1,EscalationCond},      -- Escalation
 } 
 
 function TributeCountM(mega)
@@ -452,6 +512,7 @@ function TributeSummonsM(tributes,mode)
     if (tributes == 1 or tributes == 0)
     and (c.id==09748752 and SummonCaius(c,mode)
     or c.id==26205777 and SummonThestalos(c,mode)
+    or c.id==57666212 and SummonKuraz(c,mode)
     or (c.level==6 or HasIDNotNegated(AICards(),84171830,true,FilterOPT))
     and (c.id==23064604 and SummonErebus(c,mode,true)
     or c.id==96570609 and SummonAither(c,mode,true)
@@ -732,6 +793,50 @@ function UseOneforone(c,mode)
   end
   return false
 end
+function SummonKuraz(c,mode)
+  if mode == 1 
+  and NotNegated(c)
+  --and (CardsMatchingFilter(OppField(),KurazFilter,true)>0
+  --or CardsMatchingFilter(AIField(),KurazFilter2)>0
+  then
+    return true
+  end
+  if mode == 2
+  and (CardsMatchingFilter(OppField(),StormforthFilter,KurazFilter)>0
+  or CardsMatchingFilter(AIField(),KurazFilter2)>0)
+  then
+    return true
+  end
+  if mode == 3
+  and NotNegated(c)
+  and (CardsMatchingFilter(OppField(),KurazFilter,true)>0
+  or CardsMatchingFilter(AIField(),KurazFilter2)>1)
+  then
+    return true
+  end
+end
+function UseFrostBlast(c,mode)
+  if mode == 1 -- regular use
+  and (FilterLocation(c,LOCATION_HAND) or FilterLocation(c,LOCATION_SZONE))
+  and CardsMatchingFilter(OppField(),FrostBlastFilter)>0
+  then
+    return true
+  end
+  if mode == 2 -- from grave
+  and FilterLocation(c,LOCATION_GRAVE)
+  and CardsMatchingFilter(OppField(),FrostBlastFilter)>0
+  then
+    return true
+  end
+end
+function SetOriginal(c,sum)
+  if HasID(sum,57666212,true,SummonKuraz,1)
+  and CardsMatchingFilter(AIField(),KurazFilter2)<3
+  and not HasID(UseLists(AIST(),AIGrave()),c.id,true)
+  then
+    return true
+  end
+end
 function MegaMonarchInit(cards)
   local Act = cards.activatable_cards
   local Sum = cards.summonable_cards
@@ -742,6 +847,12 @@ function MegaMonarchInit(cards)
   GlobalSummonedCard = nil 
   GlobalTenacity = nil
   GlobalAither = nil
+  if HasID(Act,99940363,UseFrostBlast,2) then
+    return Activate()
+  end
+  if HasID(Act,99940363,UseFrostBlast,1) then
+    return Activate()
+  end
   if HasIDNotNegated(Act,32807846) then -- RotA
     return COMMAND_ACTIVATE,CurrentIndex
   end
@@ -817,6 +928,13 @@ function MegaMonarchInit(cards)
   if HasID(Act,23064604,UseErebus) then
     return COMMAND_ACTIVATE,CurrentIndex
   end
+  if HasID(SetST,54241725,SetOriginal,Sum) then
+    return SetSpell()
+  end
+  if HasIDNotNegated(Sum,57666212,SummonKuraz,1) then
+    GlobalSummonedCard=Sum[CurrentIndex]
+    return Summon()
+  end
   if HasIDNotNegated(Act,22842126,UsePandeity,2) then
     return COMMAND_ACTIVATE,CurrentIndex
   end
@@ -847,11 +965,13 @@ function MegaMonarchInit(cards)
     for i=1,#SetST do 
       local c = SetST[i]
       if c.id == 79844764 and not HasID(AIST(),79844764,true) 
-      and (MonarchST>1 or HasID(AIHand(),96570609,true))
+      and (MonarchST>1 or HasID(AIHand(),96570609,true) 
+      or HasID(AICards(),18235309,true))
       or c.id == 54241725 and not HasID(AIST(),54241725,true) 
       and (MonarchST>1 or CardsMatchingFilter(AIGrave(),MonarchFilter)>2)
-      or c.id == 05318639
-      or c.id == 32807846
+      or c.id == 18235309 and not HasID(AIST(),18235309,true) -- Escalation
+      or c.id == 05318639 -- MST
+      or c.id == 32807846 -- RotA
       then
         result[#result+1]=i
       end
@@ -942,6 +1062,9 @@ function AitherTarget(cards,c)
       return Add(cards,PRIO_BANISH)
     end
     if LocCheck(cards,LOCATION_DECK) then
+      if HasIDNotNegated(cards,57666212,SummonKuraz,3) then
+        return Add(cards,PRIO_TOFIELD,1,FilterID,57666212)
+      end
       return Add(cards)
     end
   end
@@ -949,6 +1072,9 @@ function AitherTarget(cards,c)
     if FilterType(cards[1],TYPE_SPELL+TYPE_TRAP) then
       return Add(cards,PRIO_TOGRAVE,1,FilterLocation,LOCATION_DECK)
     else
+      if HasIDNotNegated(cards,57666212,SummonKuraz,3) then
+        return Add(cards,PRIO_TOFIELD,1,FilterID,57666212)
+      end
       return Add(cards)
     end
   end
@@ -1049,12 +1175,84 @@ function OneforoneTarget(cards)
   end
   return Add(cards,PRIO_TOFIELD)
 end
+function KurazTarget(cards,min,max,c)
+  local targets = SubGroup(OppField(),KurazFilter,true)
+  local targets2 = SubGroup(AIField(),KurazFilter2)
+  local result = {}
+  if #targets>1 then
+    return BestTargets(cards,max,TARGET_DESTROY)
+  end
+  if #targets==1 then
+    if #targets2>0 and max == 2 then
+      BestTargets(cards,1,TARGET_DESTROY)
+      result[1]=cards[1].index
+      BestTargets(cards,1,TARGET_DESTROY,FilterController,1)
+      result[2]=cards[1].index
+      return result
+    else
+      return BestTargets(cards,1,TARGET_DESTROY)
+    end
+  end
+  if #targets==0 and #targets2>0 then
+    if CardsMatchingFilter(AIMon(),MonarchMonsterFilter,c)==0 then
+      return BestTargets(cards,math.min(#targets2,max),TARGET_DESTROY,ExcludeID,c.id)
+    end
+    return BestTargets(cards,math.min(#targets2,max))
+  end
+  return BestTargets(cards,min,TARGET_DESTROY)
+end
+function EscalationTarget(cards,min)
+  if LocCheck(cards,LOCATION_HAND) then
+    local mode = 1
+    if GlobalStormforth == Duel.GetTurnCount() then
+      mode=2
+    end
+    if HasID(cards,87288189,SummonMegaCaius,mode) then
+      return {CurrentIndex}
+    end
+    if HasID(cards,23064604,SummonErebus,1) then
+      return {CurrentIndex}
+    end
+    if HasID(cards,69230391,SummonMegaThestalos,1) then
+      return {CurrentIndex}
+    end
+    if HasID(cards,09748752,SummonCaius,mode) then
+      return {CurrentIndex}
+    end
+    if HasID(cards,26205777,SummonThestalos,1) then
+      return {CurrentIndex}
+    end
+    if HasID(cards,96570609,SummonAither,1) then
+      return {CurrentIndex}
+    end
+    if HasID(cards,57666212,SummonKuraz,mode) then
+      return {CurrentIndex}
+    end
+    return Add(cards,PRIO_TOFIELD,min)
+  end
+  return Add(cards,PRIO_TOGRAVE,min,FilterController,2)
+end
+function FrostBlastTarget(cards)
+  if LocCheck(cards,LOCATION_GRAVE) then
+    return Add(cards,PRIO_BANISH)
+  end
+  return BestTargets(cards,1,TARGET_DESTROY)
+end
 function MegaMonarchCard(cards,min,max,id,c)
   if not c and GlobalStormforth==Duel.GetTurnCount()
   and min==1 and max==1 and Duel.GetTurnPlayer()==player_ai
   and (Duel.GetCurrentPhase()==PHASE_MAIN1 or Duel.GetCurrentPhase()==PHASE_MAIN2)
   then
     return StormforthTarget(cards)
+  end
+  if id == 99940363 then
+    return FrostBlastTarget(cards)
+  end
+  if id == 18235309 then
+    return EscalationTarget(cards,min)
+  end
+  if id == 57666212 then
+    return KurazTarget(cards,min,max,c)
   end
   if id == 96570609 then
     return AitherTarget(cards,c)
@@ -1130,8 +1328,20 @@ function ChainAither(c)
       GlobalAither=cards
       return true
     end
+    if CardsMatchingFilter(OppMon(),KurazFilter,true)>0
+    and HasIDNotNegated(AIDeck(),57666212,true)
+    then
+      GlobalSummonedCard=c
+      return true
+    end
+    if Duel.CheckTiming(TIMING_MAIN_END)
+    and Duel.GetCurrentPhase(PHASE_MAIN2)
+    and HasIDNotNegated(AIDeck(),57666212,true,SummonKuraz,3)
+    then
+      GlobalSummonedCard=c
+      return true
+    end
   end
-
   return false
 end
 function ChainErebus(c)
@@ -1165,6 +1375,11 @@ function ChainOriginal(c)
   if FilterLocation(c,LOCATION_GRAVE) then
     if RemovalCheckCard(c) 
     and not ChainCheck(54241725)
+    then
+      OPTSet(54241725)
+      return true
+    end
+    if HasIDNotNegated(AIST(),18235309,true,ChainEscalation)
     then
       OPTSet(54241725)
       return true
@@ -1223,12 +1438,18 @@ function ChainStormforth(c)
     GlobalStormforth=Duel.GetTurnCount()
     return true
   end
+  if HasIDNotNegated(AIST(),18235309,true,ChainEscalation)
+  then
+    GlobalStormforth=Duel.GetTurnCount()
+    return true
+  end
   if Duel.GetTurnPlayer()==1-player_ai
   and (Duel.CheckTiming(TIMING_MAIN_END)
   and Duel.GetCurrentPhase(PHASE_MAIN1)
   or ChainCheck(54241725,player_ai,nil,FilterLocation,LOCATION_GRAVE)
   or ChainCheck(96570609,player_ai,nil,FilterLocation,LOCATION_HAND))
-  and HasIDNotNegated(AIHand(),96570609,true)
+  and (HasIDNotNegated(AIHand(),96570609,true)
+  or HasIDNotNegated(AIST(),18235309,true,FilterOPT))
   and CardsMatchingFilter(OppMon(),StormforthFilter)>0
   then
     if TributesAvailable(true)==2
@@ -1240,12 +1461,14 @@ function ChainStormforth(c)
       GlobalStormforth=Duel.GetTurnCount()
       return true
     end
-    if ChainCheck(96570609,player_ai)
-    and TributesAvailable(true)>1
-    then
-      GlobalStormforth=Duel.GetTurnCount()
-      return true
-    end
+  end
+  if (ChainCheck(96570609,player_ai) -- Aither
+  or ChainCheck(18235309,player_ai)) -- Escalation
+  and TributesAvailable(true)>0
+  and CardsMatchingFilter(OppMon(),StormforthFilter)>0
+  then
+    GlobalStormforth=Duel.GetTurnCount()
+    return true
   end
   return false
 end
@@ -1278,7 +1501,62 @@ function ChainEidos(c)
     return true
   end
 end
+function ChainKuraz(c)
+  local targets = SubGroup(OppField(),KurazFilter,true)
+  local targets2 = SubGroup(AIField(),KurazFilter2)
+  return #targets+#targets2>0
+end
+function ChainEscalation(c,mode)
+  if RemovalCheckCard(c)
+  and CanTributeSummon() 
+  then
+    OPTSet(c)
+    return true
+  end
+  if Duel.GetTurnPlayer()==player_ai then
+    return false
+  end
+  if ChainCheck(79844764,player_ai) then --Stormforth
+    return false
+  end
+  if GlobalStormforth==Duel.GetTurnCount() 
+  and CanTributeSummon()
+  and CardsMatchingFilter(OppMon(),StormforthFilter)>0
+  then
+    return true
+  end
+  local targets = RemovalCheckList(AIMon())
+  if targets and #targets>0
+  and CanTributeSummon() 
+  then
+    GlobalCardMode = 1
+    GlobalTragetSet(targets[1])
+    OPTSet(c)
+    return true
+  end
+  if HasPriorityTarget(OppField())
+  and CanTributeSummon()
+  then
+    OPTSet(c)
+    return true
+  end
+  if Duel.CheckTiming(TIMING_MAIN_END)
+  and CanTributeSummon()
+  then
+    OPTSet(c)
+    return true
+  end
+end
 function MegaMonarchChain(cards)
+  if HasID(cards,79844764,ChainStormforth) then
+    return 1,CurrentIndex
+  end
+  if HasID(cards,18235309,ChainEscalation) then
+    return Chain()
+  end
+  if HasID(cards,57666212,ChainKuraz) then
+    return Chain()
+  end
   if HasID(cards,96570609,ChainAither) then
     return 1,CurrentIndex
   end
@@ -1300,12 +1578,13 @@ function MegaMonarchChain(cards)
   if HasID(cards,54241725,ChainOriginal) then
     return 1,CurrentIndex
   end
-  if HasID(cards,79844764,ChainStormforth) then
-    return 1,CurrentIndex
-  end
+
   return nil
 end
 function MegaMonarchEffectYesNo(id,card)
+  if id == 57666212 and ChainKuraz(card) then
+    return 1
+  end
   if id == 96570609 and ChainAither(card) then
     return 1
   end
@@ -1460,6 +1739,7 @@ MegaMonarchAtt={
 69230391, -- Mega Thestalos
 87288189, -- Mega Caius
 09748752, -- Caius
+57666212, -- Kuraz
 }
 MegaMonarchDef={
 95993388, -- Landrobe

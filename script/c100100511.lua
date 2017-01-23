@@ -1,0 +1,49 @@
+--Ｓｐ－スクラップ·スコール
+function c100100511.initial_effect(c)
+	--Activate
+	local e1=Effect.CreateEffect(c)
+	e1:SetCategory(CATEGORY_DESTROY+CATEGORY_TOGRAVE+CATEGORY_DRAW)
+	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e1:SetType(EFFECT_TYPE_ACTIVATE)
+	e1:SetCode(EVENT_FREE_CHAIN)
+	e1:SetCondition(c100100511.con)
+	e1:SetTarget(c100100511.target)
+	e1:SetOperation(c100100511.activate)
+	c:RegisterEffect(e1)
+end
+function c100100511.con(e,tp,eg,ep,ev,re,r,rp)
+	local tc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
+	return tc:GetCounter(0x91)>1
+end
+function c100100511.desfilter(c)
+	return c:IsFaceup() and c:IsSetCard(0x24) and c:IsDestructable()
+end
+function c100100511.sfilter(c)
+	return c:IsSetCard(0x24) and c:IsType(TYPE_MONSTER) and c:IsAbleToGrave()
+end
+function c100100511.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and c100100511.desfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(c100100511.desfilter,tp,LOCATION_MZONE,0,1,nil)
+		and Duel.IsExistingMatchingCard(c100100511.sfilter,tp,LOCATION_DECK,0,1,nil)
+		and Duel.IsPlayerCanDraw(tp,2) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectTarget(tp,c100100511.desfilter,tp,LOCATION_MZONE,0,1,1,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
+	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
+end
+function c100100511.activate(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp,c100100511.sfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if g:GetCount()>0 then
+		Duel.SendtoGrave(g,REASON_EFFECT)
+		if not g:GetFirst():IsLocation(LOCATION_GRAVE) then return end
+		Duel.BreakEffect()
+		Duel.Draw(tp,1,REASON_EFFECT)
+		local tc=Duel.GetFirstTarget()
+		if tc:IsRelateToEffect(e) then
+			Duel.BreakEffect()
+			Duel.Destroy(tc,REASON_EFFECT)
+		end
+	end
+end

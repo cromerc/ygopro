@@ -21,6 +21,7 @@ end
 function c79279397.spop(e,tp,eg,ep,ev,re,r,rp)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
 	local g=Duel.GetMatchingGroup(c79279397.filter,tp,LOCATION_DECK,0,nil,e,tp)
+	if Duel.IsPlayerAffectedByEffect(tp,59822133) then ft=1 end
 	if g:GetCount()>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local sg=g:Select(tp,1,ft,nil)

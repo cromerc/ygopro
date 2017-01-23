@@ -6,10 +6,10 @@ Debug.SetPlayerInfo(1,12600,0,0)
 --卡组1  
 Debug.AddCard(95600067,1,1,LOCATION_DECK,0,POS_FACEDOWN)--宝玉兽 黄玉虎
 --怪区1 
-Debug.AddCard(95600067,1,1,LOCATION_MZONE,1,POS_FACEUP_DEFENCE) --宝玉兽 黄玉虎
+Debug.AddCard(95600067,1,1,LOCATION_MZONE,1,POS_FACEUP_DEFENSE) --宝玉兽 黄玉虎
 Debug.AddCard(89631139,1,1,LOCATION_MZONE,2,POS_FACEUP_ATTACK) --青眼白龙
 --怪区0  
-token=Debug.AddCard(73915052,0,0,LOCATION_MZONE,2,POS_FACEUP_DEFENCE)
+token=Debug.AddCard(73915052,0,0,LOCATION_MZONE,2,POS_FACEUP_DEFENSE)
 local e1=Effect.CreateEffect(token)
 e1:SetType(EFFECT_TYPE_SINGLE)
 e1:SetCode(EFFECT_UNRELEASABLE_SUM)
@@ -60,6 +60,6 @@ aux.BeginPuzzle()
 --LOCATION_EXTRA  额外
 --POS_FACEDOWN   里侧
 --POS_FACEUP     表侧
---POS_FACEUP_DEFENCE    表侧防守
+--POS_FACEUP_DEFENSE    表侧防守
 --POS_FACEUP_ATTACK     表侧攻击
 --Debug.PreEquip(e1,c1)  绑定e1和C1

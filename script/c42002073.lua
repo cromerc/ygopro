@@ -4,7 +4,7 @@ function c42002073.initial_effect(c)
 	aux.EnablePendulumAttribute(c)
 	--
 	local e2=Effect.CreateEffect(c)
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1)
@@ -23,7 +23,7 @@ function c42002073.initial_effect(c)
 	c:RegisterEffect(e6)
 end
 function c42002073.filter1(c,e)
-	return c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e)
+	return c:IsOnField() and not c:IsImmuneToEffect(e)
 end
 function c42002073.filter2(c,e,tp,m,f,gc)
 	return c:IsType(TYPE_FUSION) and (not f or f(c))
@@ -32,7 +32,7 @@ end
 function c42002073.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then
-		local mg1=Duel.GetMatchingGroup(Card.IsCanBeFusionMaterial,tp,LOCATION_MZONE,0,c)
+		local mg1=Duel.GetFusionMaterial(tp):Filter(Card.IsOnField,c)
 		local res=Duel.IsExistingMatchingCard(c42002073.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,mg1,nil,c)
 		if not res then
 			local ce=Duel.GetChainMaterial(tp)
@@ -50,7 +50,7 @@ end
 function c42002073.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if c:IsFacedown() or not c:IsRelateToEffect(e) or c:IsImmuneToEffect(e) then return end
-	local mg1=Duel.GetMatchingGroup(c42002073.filter1,tp,LOCATION_MZONE,0,c,e)
+	local mg1=Duel.GetFusionMaterial(tp):Filter(c42002073.filter1,c,e)
 	local sg1=Duel.GetMatchingGroup(c42002073.filter2,tp,LOCATION_EXTRA,0,nil,e,tp,mg1,nil,c)
 	local mg2=nil
 	local sg2=nil
@@ -100,17 +100,27 @@ end
 function c42002073.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc:IsRelateToEffect(e) and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)~=0 then
+		local fid=e:GetHandler():GetFieldID()
+		tc:RegisterFlagEffect(42002073,RESET_EVENT+0x1fe0000,0,1,fid)
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
-		e1:SetRange(LOCATION_MZONE)
 		e1:SetCode(EVENT_PHASE+PHASE_END)
-		e1:SetOperation(c42002073.desop)
-		e1:SetReset(RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END)
 		e1:SetCountLimit(1)
-		tc:RegisterEffect(e1,true)
+		e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+		e1:SetLabel(fid)
+		e1:SetLabelObject(tc)
+		e1:SetCondition(c42002073.descon)
+		e1:SetOperation(c42002073.desop)
+		Duel.RegisterEffect(e1,tp)
 	end
 end
+function c42002073.descon(e,tp,eg,ep,ev,re,r,rp)
+	local tc=e:GetLabelObject()
+	if tc:GetFlagEffectLabel(42002073)~=e:GetLabel() then
+		e:Reset()
+		return false
+	else return true end
+end
 function c42002073.desop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Destroy(e:GetHandler(),REASON_EFFECT)
+	Duel.Destroy(e:GetLabelObject(),REASON_EFFECT)
 end

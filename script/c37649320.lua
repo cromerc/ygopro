@@ -1,4 +1,4 @@
---버제스토마 오파비니아
+--バージェストマ・オパビニア
 function c37649320.initial_effect(c)
 	--xyz summon
 	aux.AddXyzProcedure(c,nil,2,2)
@@ -23,6 +23,7 @@ function c37649320.initial_effect(c)
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(37649320,0))
 	e3:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e3:SetProperty(EFFECT_FLAG2_XMDETACH)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCountLimit(1,37649320)

@@ -26,7 +26,7 @@ function c56638325.initial_effect(c)
 	e3:SetCategory(CATEGORY_DESTROY)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e3:SetProperty(EFFECT_FLAG2_XMDETACH+EFFECT_FLAG_CARD_TARGET)
 	e3:SetCountLimit(1)
 	e3:SetCost(c56638325.descost)
 	e3:SetTarget(c56638325.destg)
@@ -53,7 +53,7 @@ end
 function c56638325.limop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetCurrentChain()==0 then
 		Duel.SetChainLimitTillChainEnd(c56638325.chainlm)
-	else
+	elseif Duel.GetCurrentChain()==1 then
 		e:GetHandler():RegisterFlagEffect(56638325,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,1)
 	end
 end

@@ -247,7 +247,10 @@ function MedrautCond(loc,c)
     return false
   end
   if loc == PRIO_BANISH then
-    return HasID(AIMon(),68618157,true)
+    if HasID(AIMon(),68618157,true) then
+      return true
+    end
+    return false
   end
   return true
 end

@@ -118,7 +118,12 @@ function AttackTargetSelection(cards,attacker)
     if id == 76913983 and ArmedWingCheck(attacker,cards) then
       return BestAttackTarget(cards,attacker,false,ArmedWingFilter,attacker)
     end
- 
+    
+    -- Crystal Wing
+     if id == 50954680 and CrystalWingCheck(attacker,cards) then
+      return BestAttackTarget(cards,attacker,false,CrystalWingFilter,attacker)
+    end
+    
   end
   --print("generic attacker")
   return BestAttackTarget(cards,attacker)
@@ -145,6 +150,7 @@ function BestAttackTarget(cards,source,ignorebonus,filter,opt)
       then 
         if atk-bonus<=c.attack
         and CanWinBattle(source,cards,nil,true)
+        and AIGetStrongestAttack(true)>c.attack
         then
           c.prio = 1
         else
@@ -226,6 +232,7 @@ function OnSelectBattleCommand(cards,activatable)
   -- shortcut function that returns the proper attack index and sets some globals 
   -- needed for attack target selection
   function Attack(index,direct)
+    index = index or CurrentIndex
     local i = cards[index].index
     if direct then
       GlobalAIIsAttacking = nil
@@ -457,8 +464,16 @@ function OnSelectBattleCommand(cards,activatable)
   -- but might also attack into battle-immune targets for no reason.
   SortByATK(cards,true)
   if #targets>0 and #cards>0 then
-    for i=1,#cards do
-      if CanAttackSafely(cards[i],targets) then
+    for i,c in pairs(cards) do
+      if CanAttackSafely(c,targets)
+      and CardsMatchingFilter(targets,function(target)
+        return not (FilterAffected(target,EFFECT_CANNOT_BE_BATTLE_TARGET)
+        or FilterAffected(target,EFFECT_CANNOT_SELECT_BATTLE_TARGET)
+        or FilterAffected(target,EFFECT_INDESTRUCTABLE_BATTLE))
+        and (FilterPosition(target,POS_FACEUP_ATTACK)
+        or c.attack>target.defense)
+      end)>0
+      then
         return Attack(i)
       end
     end
@@ -587,6 +602,10 @@ function AttackF0(c,source)
   or StareaterCheck(source) 
   or not Affected(source,TYPE_MONSTER,c.level)
 end
+function AttackFirstOfDragons(c,source)
+  return FilterType(source,TYPE_NORMAL)
+  or Negated(c)
+end
 function SelectAttackConditions(c,source) 
   if c.id == 95929069 then
     return AttackIceHand(c,source)
@@ -614,6 +633,9 @@ function SelectAttackConditions(c,source)
   end
   if c.id == 65305468 then
     return AttackF0(c,source)
+  end
+  if c.id == 10817524 then
+    return AttackFirstOfDragons(c,source)
   end
   return true
 end

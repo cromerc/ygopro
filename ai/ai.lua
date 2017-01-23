@@ -1,4 +1,4 @@
-Version = "0.34"
+Version = "0.35"
 Experimental = false
 
 --[[
@@ -15,7 +15,7 @@ Experimental = false
   http://www.ygopro.co/Forum/tabid/95/g/posts/t/7877/AI-Updates
   
   Contributors: ytterbite, Sebrian, Skaviory, francot514
-  Optional decks: Yeon, Satone, rothayz, Ildana, Iroha, Postar, Nachk, Xaddgx
+  Optional decks: Yeon, Satone, rothayz, Ildana, Iroha, Postar, Nachk, Xaddgx, neftalimich
   You can find and download optional decks here:
   http://www.ygopro.co/Forum/tabid/95/g/posts/t/7877/AI-Updates
   
@@ -84,6 +84,7 @@ require("ai.decks.Generic")
 require("ai.decks.FireFist")
 require("ai.decks.HeraldicBeast")
 require("ai.decks.Gadget")
+require("ai.decks.BLS")
 require("ai.decks.Bujin")
 require("ai.decks.Mermail")
 require("ai.decks.Shaddoll")
@@ -107,13 +108,17 @@ require("ai.decks.Kozmo")
 require("ai.decks.Lightsworn")
 require("ai.decks.DDD")
 require("ai.decks.GladBeast")
+require("ai.decks.ABC")
+require("ai.decks.Raidraptor")
+require("ai.decks.Eidolon")
+requireoptional("ai.decks.ZodiacBeast")
+requireoptional("ai.decks.Fluffal")
 requireoptional("ai.decks.Majespecter")
 requireoptional("ai.decks.Spellbook")
 requireoptional("ai.decks.X-Saber")
 requireoptional("ai.decks.Cth")
 requireoptional("ai.decks.Wizard")
 requireoptional("ai.decks.Express")
-
 
 math.randomseed( require("os").time() )
 

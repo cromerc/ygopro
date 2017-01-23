@@ -7,6 +7,7 @@ function c84025439.initial_effect(c)
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(84025439,0))
 	e1:SetCategory(CATEGORY_TODECK)
+	e1:SetProperty(EFFECT_FLAG2_XMDETACH)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetHintTiming(0,0x1e0)
@@ -107,7 +108,6 @@ function c84025439.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local g3=g:Select(tp,1,1,nil)
 		g1:Merge(g3)
-		if g1:IsExists(Card.IsHasEffect,1,nil,EFFECT_NECRO_VALLEY) then return end
 		Duel.SpecialSummon(g1,0,tp,tp,false,false,POS_FACEUP)
 	end
 end

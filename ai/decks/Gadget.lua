@@ -2,8 +2,11 @@ function IsGadget(id)
   return id == 86445415 -- Red
       or id == 41172955 -- Green
       or id == 13839120 -- Yellow
+      --or id == 55010259 -- Gold
+      --or id == 29021114 -- Silver
 end
 function GadgetCount(cards)
+  cards=cards or AIHand()
   local count=0
   for i=1,#cards do
     if IsGadget(cards[i].id) then
@@ -12,7 +15,147 @@ function GadgetCount(cards)
   end
   return count
 end
-
+function GoldGadgetCond(loc,c)
+  if loc == PRIO_TOHAND then
+    if not HasID(AIHand(),c.id,true) then
+      if not HasAccess(c.id) then
+        return 9
+      end
+      if FilterLocation(c,LOCATION_GRAVE) 
+      and not (HasID(AICards(),01845204,true) 
+      and CardsMatchingFilter(AIGrave(),NodenFilter,4==0))
+      then
+        return 8
+      end
+      return true
+    end
+    return false
+  end
+  if loc == PRIO_TOFIELD then
+    if FilterLocation(c,LOCATION_HAND) then
+      return OPTCheck(c.id) and CardsMatchingFilter(AIHand(),GoldGadgetFilter)>1
+    end
+     if FilterLocation(c,LOCATION_DECK) then
+      return OPTCheck(c.id)
+    end
+    return true
+  end
+end
+function SilverGadgetCond(loc,c)
+  if loc == PRIO_TOHAND then
+    if not HasID(AIHand(),c.id,true) then
+      if not HasAccess(c.id) then
+        return 8
+      end
+      if FilterLocation(c,LOCATION_GRAVE) 
+      and not (HasID(AICards(),01845204,true) 
+      and CardsMatchingFilter(AIGrave(),NodenFilter,4==0))
+      then
+        return 7
+      end
+      return true
+    end
+    return false
+  end
+  if loc == PRIO_TOFIELD then
+    if FilterLocation(c,LOCATION_HAND) then
+      return OPTCheck(c.id) and CardsMatchingFilter(AIHand(),GoldGadgetFilter)>1
+    end
+    if FilterLocation(c,LOCATION_DECK) then
+      return OPTCheck(c.id)
+    end
+    return true
+  end
+end
+function RedGadgetCond(loc,c)
+  if loc == PRIO_TOHAND then
+    if GadgetCount()==0
+    and (HasID(AIHand(),55010259,true) or HasID(AIHand(),29021114))
+    then
+      return 11
+    end
+    if not HasID(AIHand(),c.id,true)
+    and NeedsCard(41172955,AIDeck(),AIHand(),true)
+    and CardsMatchingFilter(AIHand(),IsGadget)==0
+    then
+      return true
+    end
+    return false
+  end
+  if loc == PRIO_TOFIELD then
+    if NeedsCard(41172955,AIDeck(),AIHand(),true) then
+      return true
+    end
+    return false
+  end
+  if loc == PRIO_TOGRAVE then
+    return FilterLocation(c,LOCATION_ONFIELD)
+  end
+  return true
+end
+function GreenGadgetCond(loc,c)
+  if loc == PRIO_TOHAND then
+    if GadgetCount()==0
+    and (HasID(AIHand(),55010259,true) or HasID(AIHand(),29021114))
+    then
+      return 12
+    end
+    if not HasID(AIHand(),c.id,true)
+    and NeedsCard(86445415,AIDeck(),AIHand(),true)
+    and CardsMatchingFilter(AIHand(),IsGadget)==0
+    then
+      return true
+    end
+    return false
+  end
+  if loc == PRIO_TOFIELD then
+    if NeedsCard(86445415,AIDeck(),AIHand(),true) then
+      return true
+    end
+    return false
+  end
+  if loc == PRIO_TOGRAVE then
+    return FilterLocation(c,LOCATION_ONFIELD)
+  end
+  return true
+end
+function YellowGadgetCond(loc,c)
+  if loc == PRIO_TOHAND then
+    if GadgetCount()==0
+    and (HasID(AIHand(),55010259,true) or HasID(AIHand(),29021114))
+    then
+      return 10
+    end
+    if not HasID(AIHand(),c.id,true)
+    and NeedsCard(13839120,AIDeck(),AIHand(),true)
+    and CardsMatchingFilter(AIHand(),IsGadget)==0
+    then
+      return true
+    end
+    return false
+  end
+  if loc == PRIO_TOFIELD then
+    if NeedsCard(13839120,AIDeck(),AIHand(),true) then
+      return true
+    end
+    return false
+  end
+  if loc == PRIO_TOGRAVE then
+    return FilterLocation(c,LOCATION_ONFIELD)
+  end
+  return true
+end
+function GadgetPriority()
+AddPriority({
+[86445415] = {4,1,4,1,5,1,1,1,1,1,RedGadgetCond},     -- Red Gadget
+[13839120] = {3,1,3,1,5,1,1,1,1,1,YellowGadgetCond},  -- Yellow Gadget
+[41172955] = {5,2,5,2,5,1,1,1,1,1,GreenGadgetCond},   -- Green Gadget
+[55010259] = {5,3,9,3,3,1,1,1,1,1,GoldGadgetCond},    -- Golden Gadget
+[29021114] = {4,2,9,2,4,1,1,1,1,1,SilverGadgetCond},  -- Silver Gadget
+[16947147] = {5,3,9,3,3,1,1,1,1,1,},                  -- Menko
+[42940404] = {4,2,9,2,4,1,1,1,1,1,},                  -- Machina Gearframe
+})
+end
 function SetBanishPriority(cards)
   for i=1,#cards do
     local c=cards[i]
@@ -94,6 +237,12 @@ function SetDiscardPriority(cards)
         c.prio=0
       end
     end
+    if c.id==16947147 then
+      c.prio=1
+    end
+    if c.id==55010259 or c.id==29021114 then
+      c.prio=1
+    end
   end
 end
 function DiscardCostCheck(cards,count)
@@ -117,13 +266,22 @@ function DiscardCost(cards,count)
   end
   return result
 end
+function MachinaFortressFilter(c)
+  return FilterRace(c,RACE_MACHINE)
+end
 function SummonMachinaFortress(card)
+  if not CanSpecialSummon() then return false end
   local result = false
   if card.location == LOCATION_GRAVE then
-    result = HasID(AIHand(),39284521,true) or HasID(AIHand(),51617185,true) or GadgetCount(AIHand())>1
+    result = HasID(AIHand(),39284521,true) 
+    or HasID(AIHand(),51617185,true) 
+    or GadgetCount(AIHand())>1
+    or CardsMatchingFilter(AIHand(),MachinaFortressFilter)>2
   else
-    result = HasID(AIHand(),18964575,true) or GadgetCount(AIHand())>1
+    result = HasID(AIHand(),18964575,true) 
+    or GadgetCount(AIHand())>1
     or Get_Card_Count_ID(AIHand(),05556499)>1
+    or CardsMatchingFilter(AIHand(),MachinaFortressFilter)>1
   end
   return result and (OverExtendCheck() or FieldCheck(7)==1)
 end
@@ -268,15 +426,60 @@ function JeweledRDAFilter(card,id)
   return card.cardid~=id and bit32.band(card.position,POS_FACEUP_ATTACK)>0 
   and card:is_affected_by(EFFECT_INDESTRUCTABLE_EFFECT)==0 and card:is_affected_by(EFFECT_IMMUNE_EFFECT)==0
 end
-function SummonGearGigant()
-  return OppGetStrongestAttDef()<2300 and MP2Check(2300)
+function SummonGearGigant(c)
+  return OppGetStrongestAttDef()<c.attack 
+  and MP2Check(c.attack)
+  and not HasIDNotNegated(AIMon(),28912357,true,HasMaterials)
+  and #AIHand()<6
+  and CanSpecialSummon()
 end
 function SummonChainGadget()
   return DeckCheck(DECK_GADGET) and not HasAccess(90411554) 
   and MP2Check(1800) and OppGetStrongestAttDef()<=1800
 end
 function UseMegaform()
-  return true
+  return CanSpecialSummon()
+end
+function UseDoubleSummon(c,mode)
+  if mode == 1
+  and NormalSummonsAvailable()==0
+  and HandCheck(4)>0
+  and FieldCheck(4)==1
+  and CanXYZSummon()
+  then
+    NormalSummonAdd()
+    return true
+  end
+  if mode == 2
+  and NormalSummonsAvailable()==0
+  and (HasIDNotNegated(AIHand(),55010259,true,FilterOPT,true)
+  or HasIDNotNegated(AIHand(),29021114,true,FilterOPT,true))
+  and CardsMatchingFilter(AIHand(),GoldGadgetFilter)>1
+  and CanXYZSummon()
+  then
+    NormalSummonAdd()
+    return true
+  end
+end
+function SummonMenko(c,mode)
+  if mode == 1
+  and FieldCheck(4)==1
+  and CanXYZSummon()
+  then
+    return true
+  end
+end
+function UseInstantFusionGadget(c,mode)
+  if not (WindaCheck() and CanSpecialSummon()) then return false end
+  if mode == 1 
+  and DeckCheck(DECK_GADGET)
+  and CardsMatchingFilter(AIGrave(),NodenFilter,4)>0 
+  and HasIDNotNegated(AIExtra(),17412721,true) -- Norden
+  and CardsMatchingFilter(AIExtra(),FilterRank,4)>0
+  and SpaceCheck()>1
+  then
+    return true
+  end
 end
 function GadgetOnSelectInit(cards, to_bp_allowed, to_ep_allowed)
   local Activatable = cards.activatable_cards
@@ -288,8 +491,11 @@ function GadgetOnSelectInit(cards, to_bp_allowed, to_ep_allowed)
   if HasIDNotNegated(Activatable,28912357) then -- GGX
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
-  if HasID(SpSummonable,28912357) and SummonGearGigant() then
-    return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
+  if HasIDNotNegated(Activatable,70368879) then -- Upstart
+    return {COMMAND_ACTIVATE,CurrentIndex}
+  end
+  if HasID(SpSummonable,28912357,SummonGearGigant) then
+    return XYZSummon()
   end
   if HasID(SpSummonable,34086406) and SummonChainGadget() then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
@@ -309,6 +515,12 @@ function GadgetOnSelectInit(cards, to_bp_allowed, to_ep_allowed)
   if HasID(Summonable,42940404) and SummonGearframe() then
     return {COMMAND_SUMMON,IndexByID(Summonable,42940404)}
   end
+  if HasID(Summonable,55010259,SummonGoldGadget,1) then
+    return Summon()
+  end
+  if HasID(Summonable,29021114,SummonSilverGadget,1) then
+    return Summon()
+  end
   if HasID(Summonable,53573406) and SummonMaskedChameleon() and OverExtendCheck() then
     return {COMMAND_SUMMON,IndexByID(Summonable,53573406)}
   end
@@ -320,6 +532,15 @@ function GadgetOnSelectInit(cards, to_bp_allowed, to_ep_allowed)
   end
   if HasID(Summonable,13839120) and SummonGadget() then --Yellow
     return {COMMAND_SUMMON,IndexByID(Summonable,13839120)}
+  end
+  if HasIDNotNegated(Activatable,43422537,UseDoubleSummon,1) then
+    return Activate()
+  end
+  if HasIDNotNegated(Activatable,43422537,UseDoubleSummon,2) then
+    return Activate()
+  end
+  if HasIDNotNegated(Activatable,01845204,UseInstantFusionGadget,1) then
+    return Activate()
   end
   if HasID(Summonable,42940404) then
     return {COMMAND_SUMMON,IndexByID(Summonable,42940404)}
@@ -348,38 +569,15 @@ function GadgetOnSelectInit(cards, to_bp_allowed, to_ep_allowed)
     GlobalCardMode=2
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
-end
-function GadgetToHand(cards,count)
-  if count==nil then count=1 end
-  local result = {}
-  local handcount=GadgetCount(AIHand())
-  for i=1,#cards do
-    local id=cards[i].id
-    cards[i].index=i
-    cards[i].prio=1
-    if id==86445415 or id==41172955 or id==13839120 then
-      if handcount==0 then
-        cards[i].prio=5
-      end
-    end
-    if id==42940404 and not HasID(AIHand(),42940404) 
-    and not HasID(UseLists({AIHand(),AIMon(),AIGrave()}),05556499) 
-    then
-      cards[i].prio=4
-    end
-    if id==18063928 and not HasID(AIHand(),18063928) and handcount>0 then
-      cards[i].prio=3
-    end
-    if cards[i].location==LOCATION_GRAVE then
-      cards[i].prio=cards[i].prio-1
-    end
+  if HasID(Summonable,55010259,SummonGoldGadget,2) then
+    return Summon()
   end
-  
-  table.sort(cards,function(a,b) return a.prio>b.prio end)
-  for i=1,count do
-    result[i]=cards[i].index
+  if HasID(Summonable,29021114,SummonSilverGadget,2) then
+    return Summon()
   end
-  return result
+  if HasID(Summonable,16947147,SummonMenko,1) then
+    return Summon()
+  end
 end
 
 
@@ -401,7 +599,10 @@ function MaskedChameleonTarget(cards)
   return {result}
 end
 function GearGigantTarget(cards)
-  return GadgetToHand(cards)
+  if LocCheck(cards,LOCATION_OVERLAY) then
+    return Add(cards,PRIO_TOGRAVE)
+  end
+  return Add(cards)
 end
 function BigEyeTarget(cards)
   local result = nil
@@ -555,6 +756,12 @@ function GadgetOnSelectCard(cards, minTargets, maxTargets,ID,triggeringCard)
   if ID == 83994433 then
     return StardustSparkTarget(cards)
   end
+  if ID == 55010259 then
+    return GoldGadgetTarget(cards)
+  end
+  if ID == 29021114 then
+    return SilverGadgetTarget(cards)
+  end
   return nil
 end
 function ChainSwiftScarecrow(id)
@@ -579,10 +786,6 @@ function ChainCotHGadget()
       return oppatt > aiatt and graveatt > oppatt 
     end
   end
-  return false
-end
-
-function ChainNaturiaBeast()
   return false
 end
 function StardustSparkFilter(card,id)
@@ -653,6 +856,26 @@ end
 function ChainMegaform()
   return true
 end
+function ChainMenko(c)
+  if #AIMon()==0
+  and HandCheck(4)>0
+  and UnchainableCheck(c.id)
+  then
+    return true
+  end
+  if #AIMon()==0
+  and ExpectedDamage()>0.8*AI.GetPlayerLP(1)
+  and UnchainableCheck(c.id)
+  then
+    return true
+  end
+  local aimon,oppmon = GetBattlingMons()
+  if oppmon and oppmon:GetAttack()>0.8*AI.GetPlayerLP(1)
+  and UnchainableCheck(c.id)
+  then
+    return true
+  end
+end
 GlobalStardustSparkActivation={}
 function GadgetOnSelectChain(cards,only_chains_by_player)
   if HasID(cards,18964575) and ChainSwiftScarecrow(18964575) then
@@ -664,9 +887,6 @@ function GadgetOnSelectChain(cards,only_chains_by_player)
   if HasID(cards,97077563) and ChainCotHGadget() then
     return {1,IndexByID(cards,97077563)}
   end
-  if HasID(cards,33198837) and ChainNaturiaBeast() then
-    return {1,IndexByID(cards,33198837)}
-  end
   if HasID(cards,83994433) and ChainStardustSpark() then
     GlobalStardustSparkActivation[cards[CurrentIndex].cardid]=Duel.GetTurnCount()
     OPTSet(cards[CurrentIndex])
@@ -674,6 +894,9 @@ function GadgetOnSelectChain(cards,only_chains_by_player)
   end
   if HasID(cards,51617185) and ChainMegaform() then
     return {1,CurrentIndex}
+  end
+  if HasID(cards,16947147,ChainMenko) then
+    return Chain()
   end
   return nil
 end
@@ -687,6 +910,17 @@ function GadgetOnSelectEffectYesNo(id,triggeringCard)
   if id==51617185 and ChainMegaform() then
     result = 1
   end
+  if id==55010259 then
+    OPTSet(55010259)
+    return 1
+  end
+  if id==29021114 then
+    OPTSet(29021114)
+    return 1
+  end
+  if id==16947147 and ChainMenko(triggeringCard) then
+    return 1
+  end
   return result
 end
 function GadgetOnSelectOption(options)
@@ -696,7 +930,7 @@ GadgetAtt={
   05556499,42940404,28912357,88033975,33198837
 }
 GadgetDef={
-  90411554
+  90411554,48905153,85115440,
 }
 
 function GadgetOnSelectPosition(id, available)

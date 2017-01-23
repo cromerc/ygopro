@@ -1,10 +1,46 @@
 function BAFilter(c,exclude)
-  return IsSetCode(c.setcode,0xb1) and (exclude == nil or c.id~=exclude)
+  local check = true
+  if exclude then
+    if type(exclude)=="table" then
+      check = not CardsEqual(c,exclude)
+    elseif type(exclude)=="number" then
+      check = (c.id ~= exclude)
+    end
+  end
+  return FilterSet(c,0xb1) and check
+end
+function PKFilter(c,exclude)
+  local check = true
+  if exclude then
+    if type(exclude)=="table" then
+      check = not CardsEqual(c,exclude)
+    elseif type(exclude)=="number" then
+      check = (c.id ~= exclude)
+    end
+  end
+  return FilterSet(c,0xdb) and check
+end
+function PKNonXYZFilter(c,exclude)
+  return PKFilter(c,exclude) 
+  and FilterType(c,TYPE_MONSTER)
+  and not FilterType(c,TYPE_XYZ)
+end
+function TPKFilter(c,exclude)
+  local check = true
+  if exclude then
+    if type(exclude)=="table" then
+      check = not CardsEqual(c,exclude)
+    elseif type(exclude)=="number" then
+      check = (c.id ~= exclude)
+    end
+  end
+  return FilterSet(c,0x10db) and check
 end
 function BAMonsterFilter(c,exclude,boss)
   return FilterType(c,TYPE_MONSTER) and BAFilter(c,exclude)
   and (FilterPosition(c,POS_FACEUP) or not FilterLocation(c,LOCATION_ONFIELD))
-  and (not boss or FilterID(c,00601193) or FilterID(c,83531441))
+  and (not boss or FilterID(c,00601193) or FilterID(c,83531441)
+  or FilterID(c,18386170) or FilterID(c,35330871))
 end
 function BASelfDestructFilter(c,exclude)
   return BAMonsterFilter(c,exclude) and not BAMonsterFilter(c,exclude,true)
@@ -19,49 +55,35 @@ function BAFloater(c,check)
       or c.id == 84764038 and (not check or OPTCheck(84764038) and CardsMatchingFilter(AIDeck(),ScarmDeckFilter)>0 and CardsMatchingFilter(AIGrave(),ScarmGraveFilter)==0)
       or c.id == 83531441 and (not check or CardsMatchingFilter(AIGrave(),BAMonsterFilter,83531441)>0)
 end
-
-function BAPriority()
-AddPriority({
-
--- Burning Abyss
-[57143342] = {7,2,7,3,7,1,1,1,2,1,CirCond},      -- BA Cir
-[73213494] = {3,2,3,1,3,3,1,1,6,1,CalcabCond},   -- BA Calcab
-[47728740] = {2,2,3,1,3,3,1,1,6,1,AlichCond},    -- BA Alich
-[20758643] = {6,2,8,2,8,2,1,1,5,1,GraffCond},    -- BA Graff
-[10802915] = {8,2,3,2,2,1,4,1,8,3,TourGuideCond},-- Tour Guide
-[84764038] = {5,2,5,4,5,2,6,1,4,2,ScarmCond},    -- BA Scarm
-[00734741] = {4,2,6,3,3,3,1,1,6,1,RubicCond},    -- BA Rubic
-[36553319] = {4,2,4,1,4,3,1,1,6,1,FarfaCond},    -- BA Farfa
-[09342162] = {3,2,6,1,6,3,1,1,6,1,CagnaCond},    -- BA Cagna
-[62957424] = {3,2,3,1,3,3,1,1,6,1,LibicCond},    -- BA Libic
-[81992475] = {9,2,9,1,9,1,1,1,6,1,BarbarCond},   -- BA Barbar
-[35330871] = {8,2,1,1,2,2,1,1,5,1,MalacodaCond}, -- BA Malacoda
-
-[73680966] = {5,1,1,1,1,1,1,1,1,1,TBOTECond},    -- The Beginning of the End
-[62835876] = {9,1,1,1,5,1,1,1,1,1,GECond},       -- BA Good&Evil
-[36006208] = {8,2,1,1,4,1,1,1,1,1,FireLakeCond}, -- BA Fire Lake
-[20036055] = {4,2,1,1,3,1,1,1,1,1,},             -- BA Traveler
-[63356631] = {1,1,1,1,1,1,1,1,1,1,PWWBCond},     -- PWWB
-[71587526] = {1,1,1,1,1,1,1,1,1,1,KarmaCutCond}, -- Karma Cut
-[20513882] = {1,1,1,1,1,1,1,1,1,1},              -- Painful Escape
-
-[00601193] = {1,1,10,1,1,1,1,1,1,1,VirgilCond},  -- BA Virgil
-[72167543] = {1,1,1,1,1,1,1,1,1,1},              -- Downerd Magician
-[81330115] = {1,1,1,1,1,1,1,1,1,1},              -- Acid Golem of Destruction
-[31320433] = {1,1,1,1,1,1,1,1,1,1},              -- Nightmare Shark
-[47805931] = {1,1,1,1,1,1,1,1,1,1},              -- Giga-Brillant
-[75367227] = {1,1,1,1,1,1,1,1,1,1},              -- Ghostrick Alucard
-[68836428] = {1,1,1,1,1,1,1,1,1,1},              -- Tri-Edge Levia
-[52558805] = {1,1,1,1,1,1,1,1,1,1},              -- Temptempo the Percussion Djinn
-[78156759] = {1,1,1,1,1,1,1,1,1,1},              -- Wind-Up Zenmaines
-[83531441] = {1,1,9,1,5,2,1,1,5,1,DanteCond},    -- BA Dante
-[16259549] = {1,1,1,1,1,1,1,1,1,1},              -- Fortune Tune
-[26563200] = {1,1,1,1,1,1,1,1,1,1},              -- Muzurythm the String Djinn
-[27552504] = {1,1,1,1,1,1,1,1,1,1},              -- Beatrice, the Eternal Lady
-[18386170] = {1,1,1,1,1,1,1,1,1,1},              -- Dante, Pilgrim of the Burning Abyss
-[65305468] = {1,1,1,1,1,1,1,1,1,1},              -- Number F0 Utopic Future
-})
+function BAXYZSummonCheck(count)
+  if count == nil then count = 1 end
+  return CardsMatchingFilter(AIMon(),BASelfDestructFilter)==0
+  and FieldCheck(3)==count
+  and CanXYZSummon(3)
 end
+function BAStartup(deck)
+  deck.Init                 = BAInit
+
+  deck.ActivateBlacklist    = BAActivateBlacklist
+  deck.SummonBlacklist      = BASummonBlacklist
+  
+  deck.PriorityList         = BAPriorityList
+end
+
+DECK_BA           = NewDeck("Burning Abyss",57143342,BAStartup) -- BA Cir
+
+BAActivateBlacklist={
+53932291,63821877,90432163, -- Speedroid Taketomborg, PK Cloak, Glove
+36426778,62709239,25542642, -- PK Boots, Break Sword, Fog Blade
+03298689,85252081,95992081, -- PK Launch, Super Quantum Granpulse, Leviair
+}
+BASummonBlacklist={
+81275020,53932291,63821877, -- Speedroid Terrortop, Taketomborg, PK Cloak
+36426778,90432163,62709239, -- PK Glove, Boots, Break Sword
+85252081,95992081, -- Super Quantum Granpulse, Leviair
+}
+
+
 function ScarmGraveFilter(c)
   return c.id == 84764038 and c.turnid == Duel.GetTurnCount()
 end
@@ -295,12 +317,113 @@ function FireLakeCond(loc,c)
   end
   return true
 end
+function GloveCond(loc,c)
+  if loc == PRIO_TOHAND then
+    return true
+  end
+  return true
+end
+function CloakCond(loc,c)
+  if loc == PRIO_TOHAND then
+    return true
+  end
+  return true
+end
+function BootsCond(loc,c)
+  if loc == PRIO_TOHAND then
+    return true
+  end
+  return true
+end
+function BreakSwordCond(loc,c)
+  if loc == PRIO_TOHAND then
+    return true
+  end
+  return true
+end
+function LaunchCond(loc,c)
+  if loc == PRIO_TOHAND then
+    if HasID(AIMon(),16195942,true,FilterMaterials,0)
+    and HasIDNotNegated(AIExtra(),01621413,true)
+    and DualityCheck()
+    and NotNegated(c)
+    then
+      return true
+    end
+    return false
+  end
+  return true
+end
+function FogBladeCond(loc,c)
+  if loc == PRIO_TOHAND then
+    return true
+  end
+  return true
+end
+BAPriorityList={
+-- Burning Abyss
+
+[57143342] = {7,2,7,3,7,1,1,1,2,1,CirCond},      -- BA Cir
+[73213494] = {3,2,3,1,3,3,1,1,6,1,CalcabCond},   -- BA Calcab
+[47728740] = {2,2,3,1,3,3,1,1,6,1,AlichCond},    -- BA Alich
+[20758643] = {6,2,8,2,8,2,1,1,5,1,GraffCond},    -- BA Graff
+[10802915] = {8,2,3,2,2,1,4,1,8,3,TourGuideCond},-- Tour Guide
+[84764038] = {5,2,5,4,5,2,6,1,4,2,ScarmCond},    -- BA Scarm
+[00734741] = {4,2,6,3,3,3,1,1,6,1,RubicCond},    -- BA Rubic
+[36553319] = {4,2,4,1,4,3,1,1,6,1,FarfaCond},    -- BA Farfa
+[09342162] = {3,2,6,1,6,3,1,1,6,1,CagnaCond},    -- BA Cagna
+[62957424] = {3,2,3,1,3,3,1,1,6,1,LibicCond},    -- BA Libic
+[81992475] = {9,2,9,1,9,1,1,1,6,1,BarbarCond},   -- BA Barbar
+[35330871] = {8,2,1,1,2,2,1,1,5,1,MalacodaCond}, -- BA Malacoda
+
+[63821877] = {1,1,1,1,4,1,1,1,1,1,GloveCond},    -- PK Glove
+[90432163] = {1,1,1,1,3,1,1,1,1,1,CloakCond},    -- PK Cloak
+[36426778] = {1,1,1,1,5,1,1,1,1,1,BootsCond},    -- PK Boots
+
+[03298689] = {9,1,1,1,1,1,1,1,1,1,LaunchCond},   -- PK Launch (Rank-Up)
+[25542642] = {6,2,1,1,1,1,1,1,1,1,FogBladeCond}, -- PK Fog Blade
+
+[81275020] = {9,1,5,1,1,1,1,1,1,1},              -- Speedroid Terrortop
+[53932291] = {8,1,1,1,1,1,1,1,1,1},              -- Speedroid Taketomborg
+
+[73680966] = {5,1,1,1,1,1,1,1,1,1,TBOTECond},    -- The Beginning of the End
+[62835876] = {9,1,1,1,5,1,1,1,1,1,GECond},       -- BA Good&Evil
+[36006208] = {8,2,1,1,4,1,1,1,1,1,FireLakeCond}, -- BA Fire Lake
+[20036055] = {4,2,1,1,3,1,1,1,1,1,},             -- BA Traveler
+[63356631] = {1,1,1,1,1,1,1,1,1,1,PWWBCond},     -- PWWB
+[71587526] = {1,1,1,1,1,1,1,1,1,1,KarmaCutCond}, -- Karma Cut
+[20513882] = {1,1,1,1,1,1,1,1,1,1},              -- Painful Escape
+
+[00601193] = {1,1,10,1,1,1,1,1,1,1,VirgilCond},  -- BA Virgil
+[72167543] = {1,1,1,1,1,1,1,1,1,1},              -- Downerd Magician
+[81330115] = {1,1,1,1,1,1,1,1,1,1},              -- Acid Golem of Destruction
+[31320433] = {1,1,1,1,1,1,1,1,1,1},              -- Nightmare Shark
+[47805931] = {1,1,1,1,1,1,1,1,1,1},              -- Giga-Brillant
+[75367227] = {1,1,1,1,1,1,1,1,1,1},              -- Ghostrick Alucard
+[68836428] = {1,1,1,1,1,1,1,1,1,1},              -- Tri-Edge Levia
+[52558805] = {1,1,1,1,1,1,1,1,1,1},              -- Temptempo the Percussion Djinn
+[78156759] = {1,1,1,1,1,1,1,1,1,1},              -- Wind-Up Zenmaines
+[83531441] = {1,1,9,1,5,2,1,1,5,1,DanteCond},    -- BA Dante
+[16259549] = {1,1,1,1,1,1,1,1,1,1},              -- Fortune Tune
+[26563200] = {1,1,1,1,1,1,1,1,1,1},              -- Muzurythm the String Djinn
+[27552504] = {1,1,1,1,1,1,1,1,1,1},              -- Beatrice, the Eternal Lady
+[18386170] = {1,1,1,1,1,1,1,1,1,1},              -- Dante, Pilgrim of the Burning Abyss
+[65305468] = {1,1,1,1,1,1,1,1,1,1},              -- Number F0 Utopic Future
+[01621413] = {1,1,1,1,1,1,1,1,1,1},              -- Requiem Dragon
+[16195942] = {1,1,1,1,1,1,1,1,1,1},              -- Rebellion Dragon
+[62709239] = {1,1,1,1,1,1,1,1,1,1,BreakSwordCond}, -- PK Break Sword
+[85252081] = {1,1,1,1,1,1,1,1,1,1},              -- Super Quantum Granpulse
+[95992081] = {1,1,1,1,1,1,1,1,1,1},              -- Leviair
+}
 function SSBA(c)
-  return #AIST()==0 and (c == nil or OPTCheck(c.id)) 
-  and CardsMatchingFilter(AIMon(),NotBAMonsterFilter)==0 and DualityCheck()
-  and (FieldCheck(3)==1 or FieldCheck(3)==0 and CardsMatchingFilter(AIHand(),BAMonsterFilter)>1 
-  and not NormalSummonCheck(player_ai))
+  return #AIST()==0 
+  and (c == nil or OPTCheck(c.id)) 
+  and CardsMatchingFilter(AIMon(),NotBAMonsterFilter)==0 
+  and DualityCheck()
+  and (FieldCheck(3)==1 or FieldCheck(3)==0 
+  and CardsMatchingFilter(AIHand(),BAMonsterFilter)>1)
   and OverExtendCheck(3)
+  and CardsMatchingFilter(AIMon(),FilterID,83531441)<2 -- Dante
 end
 function TourguideFilter(c)
   return bit32.band(c.type,TYPE_MONSTER)>0 and bit32.band(c.race,RACE_FIEND)>0 and c.level==3
@@ -320,7 +443,9 @@ function SummonCir()
 end
 function SummonGraff()
   return  CardsMatchingFilter(AIMon(),NotBAMonsterFilter)==0 
-  and OverExtendCheck(3) and (FieldCheck(3)==1 or CardsMatchingFilter(AIMon(),BAMonsterFilter)==1) 
+  and OverExtendCheck(3) 
+  and (FieldCheck(3)==1 
+  or CardsMatchingFilter(AIMon(),BAMonsterFilter)==1) 
   --and CardsMatchingFilter(AIDeck(),BAMonsterFilter,20758643)>0 and OPTCheck(20758643)
 end
 function SummonScarm()
@@ -328,9 +453,11 @@ function SummonScarm()
   and OverExtendCheck(3) and (FieldCheck(3)==1 or CardsMatchingFilter(AIMon(),BAMonsterFilter)==1) 
   --and CardsMatchingFilter(AIDeck(),ScarmDeckFilter)>0 and OPTCheck(84764038)
 end
-function SummonBA()
-  return FieldCheck(3)==1 and CardsMatchingFilter(AIMon(),NotBAMonsterFilter)==0 
+function SummonBA(c)
+  return (FieldCheck(3)==1 or CardsMatchingFilter(AIHand(),BAMonsterFilter,c)>0)
+  and CardsMatchingFilter(AIMon(),NotBAMonsterFilter)==0 
   and OverExtendCheck(3)
+  and CardsMatchingFilter(AIMon(),FilterID,83531441)<2 -- Dante
 end
 function SummonRubic()
   return FieldCheck(3)==1 and CardsMatchingFilter(AIMon(),NotBAMonsterFilter)==0 
@@ -362,7 +489,8 @@ function SSScarm()
   and CardsMatchingFilter(AIGrave(),ScarmGraveFilter)==0
 end
 function SummonDanteBA()
-  return true
+  return OppGetStrongestAttDef()<2500
+  or not HasID(AIMon(),83531441,true)
 end
 function SetBA()
   return #AIMon() == 0 and DeckCheck(DECK_BA)
@@ -517,6 +645,286 @@ function UsePainfulEscape(c)
   end
   return false
 end
+function SummonPKGlove(c,mode)
+  if mode == 1 -- Boots in hand
+  and BAXYZSummonCheck(0)
+  and HasID(AIHand(),36426778,true)
+  then
+    return true
+  end
+  if mode == 2 -- Level 3 on field
+  and CardsMatchingFilter(AIMon(),BASelfDestructFilter)==0
+  and BAXYZSummonCheck(1)
+  then
+    return true
+  end
+end
+function UsePKGlove(c,mode)
+  if mode == 1
+  and CardsMatchingFilter(AIMon(),BASelfDestructFilter)==0
+  and (CardsMatchingFilter(AIGrave(),PKFilter,62709239)>2 
+  and BAXYZSummonCheck(0)
+  or CardsMatchingFilter(AIGrave(),PKFilter,62709239)>1
+  and BAXYZSummonCheck())
+  and HasID(AIDeck(),25542642,true,FilterOPT,true) -- Fog Blade
+  and not HasID(AIGrave(),25542642,true) -- Fog Blade
+  and MacroCheck()
+  then
+    GlobalPKGloveID = 25542642 -- Fog Blade
+    return true
+  end
+  if mode == 2
+  and CardsMatchingFilter(AIMon(),BASelfDestructFilter)==0
+  and HasID(AIDeck(),90432163,true,FilterOPT,true) -- PK Cloak
+  and CardsMatchingFilter(AIMon(),TPKFilter)>0
+  and (HasID(AIDeck(),36426778,true,FilterOPT,true) -- PK Boots
+  or NormalSummonCheck())
+  and BAXYZSummonCheck()
+  and MacroCheck()
+  then
+    GlobalPKGloveID = 90432163 -- PK Cloak
+    return true
+  end
+  if mode == 3
+  and CardsMatchingFilter(AIMon(),BASelfDestructFilter)==0
+  and HasID(AIDeck(),90432163,true,FilterOPT,true) -- PK Cloak
+  and HasID(AIDeck(),36426778,true,FilterOPT,true) -- PK Boots
+  and HasID(AIGrave(),25542642,true,FilterOPT,true) -- Fog Blade
+  and CardsMatchingFilter(AIGrave(),PKFilter,62709239)>2
+  and BAXYZSummonCheck(0)
+  and MacroCheck()
+  then
+    GlobalPKGloveID = 90432163 -- PK Cloak
+    return true
+  end
+  if mode == 4
+  and HasID(AIDeck(),90432163,true,UsePKCloak)
+  and not HasID(AIGrave(),90432163,true)
+  and MacroCheck()
+  then
+    GlobalPKGloveID = 90432163 -- PK Cloak
+    return true
+  end
+  if mode == 5
+  and HasID(AIDeck(),36426778,true,UsePKBoots,0)
+  and not HasID(AIGrave(),36426778,true)
+  and MacroCheck()
+  then
+    GlobalPKGloveID = 36426778 -- PK Boots
+    return true
+  end
+end
+function SummonPKCloak(c,mode)
+  if mode == 1 -- Boots in hand
+  and CardsMatchingFilter(AIMon(),BASelfDestructFilter)==0
+  and BAXYZSummonCheck(0)
+  and HasID(AIHand(),36426778,true)
+  then
+    return true
+  end
+  if mode == 2 -- Level 3 on field
+  and BAXYZSummonCheck()
+  then
+    return true
+  end
+end
+function UsePKCloak(c,mode)
+  return CardsMatchingFilter(AIGrave(),PKFilter,62709239)>2
+  or (CardsMatchingFilter(AIHand(),PKMonsterFilter)==1
+  and NormalSummonsAvailable()>0
+  or CardsMatchingFilter(AIMon(),PKMonsterFilter)==1)
+  and HasIDNotNegated(AIDeck(),36426778,true,FilterOPT)
+  and BAXYZSummonCheck(0)
+end
+function SummonPKBoots(c,mode)
+  if mode == 1 -- Special Summon
+  and BAXYZSummonCheck()
+  then
+    OPTSet(c.id)
+    return true
+  end
+  if mode == 2 -- another Boots in hand
+  and CardsMatchingFilter(AIMon(),BASelfDestructFilter)==0
+  and BAXYZSummonCheck(0)
+  and HasID(AIHand(),36426778,true,CardsNotEqual,c)
+  then
+    return true
+  end
+  if mode == 3 -- Level 3 on field
+  and BAXYZSummonCheck()
+  then
+    return true
+  end
+end
+function UsePKBoots(c,mode)
+  if (mode == 1 or mode == 0)
+  and HasID(AIMon(),16195942,true,FilterMaterials,0) -- Rebellion Dragon
+  and DualityCheck()
+  and HasIDNotNegated(AIDeck(),03298689,true) -- PK Launch
+  and HasIDNotNegated(AIExtra(),01621413,true) -- Requiem Dragon
+  then
+    OPTSet(364267781)
+    return true
+  end
+  if (mode == 2 or mode == 0)
+  and TurnEndCheck()
+  and HasID(AIDeck(),25542642,true) -- PK Fog Blade
+  then  
+    OPTSet(364267781)
+    return true
+  end
+end
+function UsePKLaunch(c,mode)
+  if mode == 1
+  and HasID(AIMon(),16195942,true,FilterMaterials,0) -- Rebellion Dragon
+  and HasIDNotNegated(AIExtra(),01621413,true) -- Requiem Dragon
+  then 
+    return true
+  end
+end
+function UsePKFogBlade(c,mode)
+  if FilterLocation(c,LOCATION_GRAVE) then
+    if mode == 1 
+    and BAXYZSummonCheck(1)
+    then
+      return true
+    end
+    if mode == 2
+    and BAXYZSummonCheck(0)
+    and (CardsMatchingFilter(AIHand(),PKNonXYZFilter)>0
+    and not NormalSummonCheck()
+    or HasID(AIHand(),36426778,FilterOPT,true))
+    then
+      return true
+    end
+    if mode == 3
+    and HasID(AIGrave(),62709239,true,FilterRevivable) -- BK Break Sword
+    and (HasIDNotNegated(AICards(),03298689,true) -- PK Launch
+    or HasIDNotNegated(AIDeck(),03298689,true) -- PK Launch
+    and (HasID(AIGrave(),36426778,true,FilterOPT) -- PK Boots
+    or HasID(AIGrave(),63821877,true))) -- PK Glove
+    then
+      GlobalCardMode = 1
+      GlobalTargetSet = FindID(62709239,AIGrave())
+      return true
+    end
+  end
+end
+function PKBreakSwordFodder(c)
+  if c.id == 83531441 -- Dante
+  and FilterMaterials(c,0)
+  and (FilterAttackMax(1000)
+  or FilterPosition(c,POS_FACEUP_ATTACK)
+  and not BattlePhaseCheck())
+  then
+    return true
+  end
+  if c.id == 25542642 -- PK Fog Blade
+  and CardTargetCheck(c)==0
+  then
+    return true
+  end
+  if FilterCrippled(c) then
+    return true
+  end
+end
+function PKBreakSwordFilter(c,prio)
+  return Affected(c,TYPE_MONSTER,3)
+  and Targetable(c,TYPE_MONSTER)
+  and DestroyFilter(c)
+  and (not prio or FilterPriorityTarget(c))
+end
+function SummonPKBreakSword(c,mode)
+  if mode == 1 -- Rank-Up play
+  and OppHasStrongestMonster()
+  and CardsMatchingFilter(UseLists(AIMon(),AIGrave()),PKNonXYZFilter)>1
+  and HasID(UseLists(AIMon(),AIGrave()),36426778,true)
+  and CardsMatchingFilter(OppCards(),PKBreakSwordFilter)>0
+  and #OppCards()>1
+  and HasIDNotNegated(UseLists(AIDeck(),AIST(),AIHand()),03298689,true) -- PK Launch
+  and HasIDNotNegated(AIExtra(),16195942,true) -- Rebellion Dragon
+  and HasIDNotNegated(AIExtra(),01621413,true) -- Requiem Dragon
+  then
+    return true
+  end
+  if mode == 2
+  and CardsMatchingFilter(OppCards(),PKBreakSwordFilter,true)>0
+  then 
+    return true
+  end
+  if mode == 3
+  and CardsMatchingFilter(OppCards(),PKBreakSwordFilter)>0
+  and MP2Check(c)
+  and CardsMatchingFilter(AICards,PKBreakSwordFodder)>0
+  then
+    return true
+  end
+end
+function UsePKBreakSword(c,mode)
+  if mode == 1 -- Rank-Up play
+  and CardsMatchingFilter(UseLists(c.xyz_materials,AIGrave()),PKNonXYZFilter)>1
+  and #OppMon()>0
+  and #OppField()>1
+  and MacroCheck()
+  and DestroyCheck(OppField())>0
+  and HasIDNotNegated(AIExtra(),16195942,true) -- Rebellion Dragon
+  then
+    return true
+  end
+  if mode == 2
+  and CardsMatchingFilter(OppCards(),PKBreakSwordFilter,true)>0
+  then 
+    return true
+  end
+  if mode == 3
+  and CardsMatchingFilter(OppCards(),PKBreakSwordFilter)>0
+  and CardsMatchingFilter(AICards,PKBreakSwordFodder)>0
+  then
+    return true
+  end
+end
+function SummonRebellionBA(c,mode)
+  return true
+end
+function GrampulseFilter(c)
+  return DestroyFilter(c) 
+  and Affected(c,TYPE_MONSTER,3)
+  and Targetable(c,TYPE_MONSTER)
+end
+function SummonGrampulse(c,mode)
+  if mode == 1 
+  and CardsMatchingFilter(OppST(),GrampulseFilter)>0
+  then
+    return true
+  end 
+end
+function UseGrampulse(c,mode)
+  if mode == 1 
+  and CardsMatchingFilter(OppST(),GrampulseFilter)>0
+  then
+    return true
+  end 
+end
+function SummonLeviairBA(c,mode)
+  if mode == 1
+  and FieldCheck(3)==3
+  and CardsMatchingFilter(AIBanish(),PKNonXYZFilter)>0
+  then
+    return true
+  end
+end
+function UseLeviair(c,mode)
+  if mode == 1
+  and CardsMatchingFilter(AIBanish(),FilterLevel,3)>0
+  then
+    return true
+  end
+end
+function UseAllureBA(c,mode)
+  if mode == 1 then
+    return CardsMatchingFilter(SubGroup(AIHand(),FilterAttribute,ATTRIBUTE_DARK),ExcludeID,57143342)>0
+  end
+end
 function BAInit(cards)
   GlobalPreparation = nil
   local Act = cards.activatable_cards
@@ -525,8 +933,34 @@ function BAInit(cards)
   local Rep = cards.repositionable_cards
   local SetMon = cards.monster_setable_cards
   local SetST = cards.st_setable_cards
+  
+  if HasID(Act,85252081,UseGrampulse,1) then
+    return Activate()
+  end
+  if HasID(SpSum,81275020,SummonTerrortop,1) then
+    return SpSummon()
+  end
+
+  if HasID(Act,03298689,UsePKLaunch,1) then
+    return Activate()
+  end
+  if HasID(Act,36426778,UsePKBoots,1) then
+    return Activate()
+  end
+  if HasID(Act,63821877,UsePKGlove,1) then
+    return Activate()
+  end
   if HasID(Act,70368879) and not HasID(AIMon(),31320433,true) then -- Upstart
     return {COMMAND_ACTIVATE,CurrentIndex}
+  end
+  if HasID(Act,62709239,UsePKBreakSword,1) then
+    return Activate()
+  end
+  if HasID(Act,62709239,UsePKBreakSword,2) then
+    return Activate()
+  end
+  if HasID(Act,62709239,UsePKBreakSword,3) then
+    return Activate()
   end
   if HasID(Act,73680966) then -- The Beginning of the End
     return {COMMAND_ACTIVATE,CurrentIndex}
@@ -540,8 +974,18 @@ function BAInit(cards)
   if HasID(Act,00601193) and UseVirgil() then
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
+  if HasID(SpSum,62709239,SummonPKBreakSword,1) then
+    return SpSummon()
+  end
   if HasID(SpSum,00601193) and SummonVirgil() then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
+  end
+  if HasID(SpSum,85252081,SummonLeviairBA,1) then
+    return SpSummon()
+  end
+  if HasID(Act,83531441,UseDante) then
+    GlobalActivatedCardID = 83531441
+    return Activate()
   end
   if HasID(SpSum,83531441) and SummonDanteBA() then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
@@ -554,6 +998,15 @@ function BAInit(cards)
   end
   if HasID(SpSum,27552504,SummonBeatrice,2) then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
+  end
+  if HasID(SpSum,62709239,SummonPKBreakSword,2) then
+    return SpSummon()
+  end
+  if HasID(SpSum,62709239,SummonPKBreakSword,3) then
+    return SpSummon()
+  end
+  if HasID(SpSum,16195942,SummonRebellionBA,1) then
+    return SpSummon()
   end
   if HasID(SpSum,31320433) and SummonNightmareShark() then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
@@ -573,11 +1026,73 @@ function BAInit(cards)
    if HasID(SpSum,26563200) and SummonMuzurythm() then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
   end
+  if HasID(SpSum,85252081,SummonGrampulse,1) then
+    return SpSummon()
+  end
   if HasID(Act,62835876,false,nil,LOCATION_HAND) then -- Good & Evil
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
+  if HasID(SpSum,53932291,SummonTaketomborg,1) 
+  and CardsMatchingFilter(AIMon(),BASelfDestructFilter)==0
+  then
+    return SpSummon()
+  end
+  if HasID(Sum,81275020,SummonTerrortop,2) 
+  and CardsMatchingFilter(AIMon(),BASelfDestructFilter)==0
+  then
+    return Summon()
+  end
+  if HasID(Sum,81275020,SummonTerrortop,3) 
+  and CardsMatchingFilter(AIMon(),BASelfDestructFilter)==0
+  then
+    return Summon()
+  end
+  if HasID(Sum,53932291,SummonTaketomborg,2) 
+  and CardsMatchingFilter(AIMon(),BASelfDestructFilter)==0
+  then
+    return Summon()
+  end
   if HasID(Sum,10802915) and SummonTourguide() then
     return {COMMAND_SUMMON,CurrentIndex}
+  end
+  if HasID(Act,25542642,UsePKFogBlade,1) then
+    return Activate()
+  end
+  if HasID(Act,25542642,UsePKFogBlade,2) then
+    return Activate()
+  end
+  if HasID(SpSum,36426778,SummonPKBoots,1) then
+    return SpSummon()
+  end
+  if HasID(Sum,63821877,SummonPKGlove,1) then
+    return Summon()
+  end
+  if HasID(Sum,90432163,SummonPKCloak,1) then
+    return Summon()
+  end
+  if HasID(Sum,63821877,SummonPKGlove,2) then
+    return Summon()
+  end
+  if HasID(Sum,90432163,SummonPKCloak,2) then
+    return Summon()
+  end
+  if HasID(Sum,36426778,SummonPKBoots,2) then
+    return Summon()
+  end
+  if HasID(Sum,36426778,SummonPKBoots,3) then
+    return Summon()
+  end
+  if HasID(Act,63821877,UsePKGlove,2) then
+    return Activate()
+  end
+  if HasID(Act,63821877,UsePKGlove,3) then
+    return Activate()
+  end
+  if HasID(Act,63821877,UsePKGlove,4) then
+    return Activate()
+  end
+  if HasID(Act,90432163,UsePKCloak,1) then
+    return Activate()
   end
   if HasID(Act,62835876,false,nil,LOCATION_GRAVE) and UseGE() then -- Good & Evil
     return {COMMAND_ACTIVATE,CurrentIndex}
@@ -604,55 +1119,55 @@ function BAInit(cards)
     OPTSet(81992475)
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
-  if HasID(Act,73213494,false,nil,LOCATION_HAND) and SSBA(Act[CurrentIndex]) then -- Calcab
+  if HasID(Act,73213494,false,nil,LOCATION_HAND,SSBA) then -- Calcab
     OPTSet(73213494)
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
-  if HasID(Act,47728740,false,nil,LOCATION_HAND) and SSBA(Act[CurrentIndex]) then -- Alich
+  if HasID(Act,47728740,false,nil,LOCATION_HAND,SSBA) then -- Alich
     OPTSet(47728740)
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
-  if HasID(Act,62957424,false,nil,LOCATION_HAND) and SSBA(Act[CurrentIndex]) then -- Libic
+  if HasID(Act,62957424,false,nil,LOCATION_HAND,SSBA) then -- Libic
     OPTSet(62957424)
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
-  if HasID(Act,36553319,false,nil,LOCATION_HAND) and SSBA(Act[CurrentIndex]) then -- Farfa
+  if HasID(Act,36553319,false,nil,LOCATION_HAND,SSBA) then -- Farfa
     OPTSet(36553319)
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
-  if HasID(Act,09342162,false,nil,LOCATION_HAND) and SSBA(Act[CurrentIndex]) then -- Cagna
+  if HasID(Act,09342162,false,nil,LOCATION_HAND,SSBA) then -- Cagna
     OPTSet(09342162)
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
-  if HasID(Act,00734741,false,nil,LOCATION_HAND) and SSBA(Act[CurrentIndex]) then -- Rubic
+  if HasID(Act,00734741,false,nil,LOCATION_HAND,SSBA) then -- Rubic
     OPTSet(00734741)
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
   if HasID(Sum,800734741) and SummonRubic() then
     return {COMMAND_SUMMON,CurrentIndex}
   end
-  if HasID(Sum,36553319) and SummonBA() then
+  if HasID(Sum,36553319,SummonBA) then
     return {COMMAND_SUMMON,CurrentIndex}
   end
-  if HasID(Sum,09342162) and SummonBA() then
+  if HasID(Sum,09342162,SummonBA) then
     return {COMMAND_SUMMON,CurrentIndex}
   end
-  if HasID(Sum,62957424) and SummonBA() then
+  if HasID(Sum,62957424,SummonBA) then
     return {COMMAND_SUMMON,CurrentIndex}
   end
   if HasID(Sum,81992475,SummonBA) then
     return {COMMAND_SUMMON,CurrentIndex}
   end
-  if HasID(Sum,73213494) and SummonBA() then
+  if HasID(Sum,73213494,SummonBA) then
     return {COMMAND_SUMMON,CurrentIndex}
   end
-  if HasID(Sum,47728740) and SummonBA() then
+  if HasID(Sum,47728740,SummonBA) then
     return {COMMAND_SUMMON,CurrentIndex}
   end
   if HasID(Sum,20513882,UsePainfulEscape) then
     return {COMMAND_SUMMON,CurrentIndex}
   end
-  if HasID(Act,00734741) and SummonBA() then
+  if HasID(Act,00734741,SummonBA) then
     return Activate()
   end
   if HasID(Act,84764038,false,nil,LOCATION_HAND) and SSScarm(Act[CurrentIndex]) then
@@ -667,8 +1182,25 @@ function BAInit(cards)
     OPTSet(57143342)
     return {COMMAND_ACTIVATE,CurrentIndex}
   end
+  if HasID(Act,84764038,false,nil,LOCATION_HAND,SSBA) then -- Scarm
+    OPTSet(84764038)
+    return {COMMAND_ACTIVATE,CurrentIndex}
+  end
+  if HasID(Act,57143342,false,nil,LOCATION_HAND,SSBA) then -- Cir
+    OPTSet(57143342)
+    return {COMMAND_ACTIVATE,CurrentIndex}
+  end
   if HasID(SpSum,65305468,SummonF0,2) then
     return {COMMAND_SPECIAL_SUMMON,CurrentIndex}
+  end
+  if HasID(Act,63821877,UsePKGlove,5) then
+    return Activate()
+  end
+  if HasID(Act,36426778,UsePKBoots,2) then
+    return Activate()
+  end
+  if HasID(Act,01475311,UseAllureBA,1) then
+    return Activate()
   end
   if HasID(SetMon,57143342) and SetCir() then
     return {COMMAND_SET_MONSTER,CurrentIndex}
@@ -881,6 +1413,66 @@ function PainfulEscapeTarget(cards)
   end
   return Add(cards)
 end
+function RankUpCheck(mode)
+  if mode == 1 -- Break Sword target selection
+  and HasIDNotNegated(AIExtra(),16195942,true) -- Rebellion Dragon
+  and HasIDNotNegated(AIExtra(),01621413,true) -- Requiem Dragon
+  and (HasIDNotNegated(UseLists(AIHand(),AIST()),03298689,true) -- PK Launch
+  or HasID(UseLists(AIMaterials(),AIGrave()),36426778,true,FilterOPT,364267781) -- PK Boots
+  and HasIDNotNegated(AIDeck(),03298689,true)) -- PK Launch
+  and MacroCheck()
+  and DualityCheck()
+  then
+    return true
+  end
+  return false -- TODO
+end
+function BreakSwordTarget(cards,min)
+  if LocCheck(cards,LOCATION_GRAVE) then
+    return Add(cards,PRIO_TOFIELD,min)
+  end
+  if RankUpCheck(1) then
+    if FilterController(cards[1],1) then
+      return Add(cards,PRIO_TOGRAVE,1,FilterID,62709239) -- PK Break Sword
+    else
+      if #OppMon()==1 and DestroyCheck(OppField())>1 then
+        return BestTargets(cards,1,TARGET_DESTROY,FilterType,TYPE_SPELL+TYPE_TRAP)
+      end
+      return BestTargets(cards,1,TARGET_DESTROY)
+    end
+  end
+  if FilterController(cards[1],1) then
+    return Add(cards,PRIO_TOGRAVE)
+  else
+    return BestTargets(cards,1,TARGET_DESTROY)
+  end
+end
+function PKGloveTarget(cards)
+  local id = GlobalPKGloveID
+  if id then
+    GlobalPKGloveID = nil
+    return Add(cards,PRIO_TOGRAVE,1,FilterID,id)
+  end
+  return Add(cards,PRIO_TOGRAVE)
+end
+function PKBootsTarget(cards)
+  return Add(cards)
+end
+function PKCloakTarget(cards)
+  return Add(cards,1,PRIO_TOHAND,FilterType,TYPE_MONSTER)
+end
+function GrampulseTarget(cards)
+  if LocCheck(cards,LOCATION_OVERLAY) then
+    return Add(cards,PRIO_TOGRAVE)
+  end
+  return BestTargets(cards,1,TARGET_DESTROY)
+end
+function LeviairTargetBA(cards)
+  if LocCheck(cards,LOCATION_OVERLAY) then
+    return Add(cards,PRIO_TOGRAVE)
+  end
+  return Add(cards,PRIO_TOFIELD,1,PKNonXYZFilter)
+end
 function BACard(cards,min,max,id,c)
   if not c and GlobalSSCardID == 27552504 then
     return BeatriceSummonTarget(cards)
@@ -896,6 +1488,21 @@ function BACard(cards,min,max,id,c)
   end
   if c then
     id = c.id
+  end
+  if id == 63821877 then
+    return PKGloveTarget(cards,min)
+  end
+  if id == 95992081 then
+    return LeviairTargetBA(cards)
+  end
+  if id == 85252081 then
+    return GrampulseTarget(cards)
+  end
+  if id == 36426778 then
+    return PKBootsTarget(cards,min)
+  end
+  if id == 62709239 then
+    return BreakSwordTarget(cards,min)
   end
   if id == 60743819 then
     return FiendGriefingTarget(cards)
@@ -974,6 +1581,9 @@ function BACard(cards,min,max,id,c)
   end
   if id == 20513882 then
     return PainfulEscapeTarget(cards)
+  end
+  if id == 90432163 then
+    return PKCloakTarget(cards)
   end
   return nil
 end
@@ -1224,7 +1834,7 @@ function ChainTraveler(c)
     return true
   end
   if Duel.GetTurnPlayer() == 1-player_ai
-  and Duel.GetCurrentPhase() == PHASE_BATTLE
+  and IsBattlePhase()
   and #AIMon()==0
   and ExpectedDamage(1)>=0.7*AI.GetPlayerLP(1)
   then
@@ -1273,7 +1883,7 @@ function ChainPainfulEscape(card)
   if RemovalCheckCard(card) then
     return true
   end
-  if Duel.GetCurrentPhase()==PHASE_BATTLE
+  if IsBattlePhase()
   and Duel.GetTurnPlayer()==1-player_ai
   then
     local aimon,oppmon = GetBattlingMons()
@@ -1302,9 +1912,15 @@ function ChainPainfulEscape(card)
   end
   return false
 end
+function ChainPKBreakSword(c)
+  return true
+end
 function BAChain(cards)
   if HasID(cards,20036055,ChainTraveler) then
     return {1,CurrentIndex}
+  end
+  if HasID(cards,62709239,ChainPKBreakSword) then
+    return Chain()
   end
   if HasID(cards,81992475,ChainBarbar) then
     return {1,CurrentIndex}
@@ -1378,6 +1994,9 @@ function BAEffectYesNo(id,card)
   if id == 65305468 and ChainF0(card) then
     result = 1
   end
+  if id == 62709239 and ChainPKBreakSword(card) then
+    return 1
+  end
   if id == 18386170 and ChainPilgrim(card) then
     result = 1
   end
@@ -1424,11 +2043,10 @@ function BAEffectYesNo(id,card)
   return result
 end
 BAAtt={
-  00601193,26563200, -- Virgil,Muzurythm
-  72167543, -- Downerd
+  00601193,26563200,72167543, -- Virgil, Muzurythm, Downerd
   81330115,31320433,47805931, -- Acid, Nightmare Shark, Giga-Brillant
   75367227,68836428,52558805, -- Alucard, Levia, Temtempo
-  18386170,65305468, -- Pilgrim, F0
+  18386170,65305468,62709239, -- Pilgrim, F0, PK Break Sword
 }
 BAVary={
   57143342,73213494,09342162, -- Cir, Calcab, Cagna
@@ -1438,6 +2056,8 @@ BAVary={
 BADef={
   84764038,00734741,78156759, -- Scarm, Rubic, Zenmaines
   16259549,62957424,36553319, -- Fortune Tune, Farfa
+  63821877,36426778, -- PK Boots, Glove
+  81275020,53932291, -- Speedroid Terrortop, Taketomborg
 }
 
 function BAPosition(id,available)
